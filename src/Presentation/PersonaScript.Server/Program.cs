@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using PersonaScript.BuildingBlocks.Tenancy;
 using PersonaScript.Modules.Billing.Infrastructure;
 using PersonaScript.Modules.Identity.Infrastructure;
@@ -10,8 +12,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
+        options.Cookie.Name = "PersonaScript.Auth";
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
 builder.Services.AddTenancy();
-builder.Services.AddIdentityModule();
+builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddBillingModule();
 builder.Services.AddPersonasModule();
 builder.Services.AddScriptsModule();
@@ -19,6 +33,11 @@ builder.Services.AddScriptsModule();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    await app.Services.ApplyIdentityMigrationsAsync();
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -28,6 +47,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
@@ -35,6 +56,11 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+app.MapGet("/logout", async (HttpContext context) =>
+{
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.Redirect("/login");
+});
 
 app.Run();
 

@@ -34,7 +34,8 @@ public static class TenancyServiceCollectionExtensions
 {
     public static IServiceCollection AddTenancy(this IServiceCollection services)
     {
-        services.AddScoped<ITenantContext, NullTenantContext>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ITenantContext, HttpContextTenantContext>();
         return services;
     }
 }

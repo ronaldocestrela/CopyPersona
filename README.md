@@ -38,8 +38,19 @@ Endpoints:
 
 - App: http://localhost:5000 (ou porta do `launchSettings.json`)
 - Health: http://localhost:5000/health
+- Cadastro: http://localhost:5000/cadastro
+- Login: http://localhost:5000/login
 
-### 3. Connection string (Development)
+### 4. Testar cadastro e login
+
+1. Suba SQL Server (`docker compose up -d`) — migrations aplicam automaticamente em Development.
+2. Acesse `/cadastro`, crie uma conta (nome, e-mail, senha ≥ 8 caracteres, aceite os termos).
+3. Após cadastro, você é autenticado via cookie e redirecionado para `/`.
+4. Use `/logout` para sair e `/login` para entrar novamente.
+
+Mailpit (http://localhost:8025) ficará disponível para fluxos de e-mail em entregas futuras (reset de senha).
+
+### 5. Connection string (Development)
 
 Configurada em `src/Presentation/PersonaScript.Server/appsettings.Development.json`:
 
@@ -54,10 +65,14 @@ Ajuste a senha se alterar `MSSQL_SA_PASSWORD` no `.env`.
 ```
 src/
   BuildingBlocks/     # Result, Domain, Tenancy, CQRS
-  Modules/            # Identity, Billing, Personas, Scripts
+  Modules/            # Identity (auth), Billing, Personas, Scripts
   Presentation/       # Host Blazor (PersonaScript.Server)
 tests/
-docs/                 # Documentação viva de arquitetura
+  BuildingBlocks/
+  Modules/Identity/
+  Presentation/       # bUnit das páginas auth
+docs/
+  design/stitch/      # Referência visual Cadastro/Login
 ```
 
 Detalhes em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

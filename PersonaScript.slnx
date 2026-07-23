@@ -34,4 +34,11 @@
   <Folder Name="/tests/BuildingBlocks/">
     <Project Path="tests/BuildingBlocks/PersonaScript.BuildingBlocks.UnitTests/PersonaScript.BuildingBlocks.UnitTests.csproj" />
   </Folder>
+  <Folder Name="/tests/Modules/" />
+  <Folder Name="/tests/Modules/Identity/">
+    <Project Path="tests/Modules/Identity/PersonaScript.Modules.Identity.UnitTests/PersonaScript.Modules.Identity.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Presentation/">
+    <Project Path="tests/Presentation/PersonaScript.Server.UnitTests/PersonaScript.Server.UnitTests.csproj" />
+  </Folder>
 </Solution>

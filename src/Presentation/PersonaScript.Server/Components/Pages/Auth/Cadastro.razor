@@ -1,0 +1,121 @@
+@page "/cadastro"
+@layout AuthLayout
+@rendermode InteractiveServer
+
+@using System.ComponentModel.DataAnnotations
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Identity.Application.Commands.RegisterUser
+
+@inject ICommandHandler<RegisterUserCommand, Guid> RegisterHandler
+@inject NavigationManager Navigation
+
+<PageTitle>Cadastro — PersonaScript AI</PageTitle>
+
+<AuthShell Title="Crie sua conta" Subtitle="Comece a gerar conteúdo inteligente em segundos.">
+    <EditForm Model="form" OnValidSubmit="HandleSubmitAsync" class="auth-form">
+        <DataAnnotationsValidator />
+
+        <AuthAlert Message="@errorMessage" />
+
+        <AuthTextField Label="Nome Completo"
+                       Icon="person"
+                       Placeholder="Como devemos te chamar?"
+                       Autocomplete="name"
+                       @bind-Value="form.FullName" />
+        <ValidationMessage For="@(() => form.FullName)" class="auth-validation" />
+
+        <AuthTextField Label="E-mail"
+                       Icon="mail"
+                       InputType="email"
+                       Placeholder="seu@email.com"
+                       Autocomplete="email"
+                       @bind-Value="form.Email" />
+        <ValidationMessage For="@(() => form.Email)" class="auth-validation" />
+
+        <AuthTextField Label="Senha"
+                       Icon="lock"
+                       Placeholder="Mínimo 8 caracteres"
+                       Autocomplete="new-password"
+                       ShowPasswordToggle="true"
+                       @bind-Value="form.Password" />
+        <ValidationMessage For="@(() => form.Password)" class="auth-validation" />
+
+        <label class="auth-checkbox-row">
+            <InputCheckbox @bind-Value="form.AcceptTerms" />
+            <span>
+                Aceito os <a href="#">Termos de Uso</a> e <a href="#">Política de Privacidade</a>
+            </span>
+        </label>
+        @if (!form.AcceptTerms && showTermsValidation)
+        {
+            <div class="auth-validation">Aceite os termos para continuar.</div>
+        }
+
+        <button type="submit" class="auth-primary-btn" disabled="@isSubmitting">
+            @(isSubmitting ? "Criando conta..." : "Criar Conta")
+        </button>
+    </EditForm>
+
+    <AuthDivider Text="Ou continue com" />
+    <AuthSocialButtons />
+
+    <p class="auth-footer-text">
+        Já tem uma conta? <a class="auth-link" href="/login">Entre</a>
+    </p>
+</AuthShell>
+
+@code {
+    private readonly RegisterFormModel form = new();
+    private string? errorMessage;
+    private bool isSubmitting;
+    private bool showTermsValidation;
+
+    private async Task HandleSubmitAsync()
+    {
+        showTermsValidation = true;
+        errorMessage = null;
+
+        if (!form.AcceptTerms)
+        {
+            return;
+        }
+
+        isSubmitting = true;
+
+        try
+        {
+            var result = await RegisterHandler.Handle(
+                new RegisterUserCommand(form.FullName, form.Email, form.Password, form.AcceptTerms),
+                CancellationToken.None);
+
+            if (result.IsFailure)
+            {
+                errorMessage = result.Error.Message;
+                return;
+            }
+
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private sealed class RegisterFormModel
+    {
+        [Required(ErrorMessage = "Informe seu nome completo.")]
+        [Display(Name = "Nome Completo")]
+        public string FullName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Informe seu e-mail.")]
+        [EmailAddress(ErrorMessage = "Informe um e-mail válido.")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Informe sua senha.")]
+        [MinLength(8, ErrorMessage = "A senha deve ter no mínimo 8 caracteres.")]
+        public string Password { get; set; } = string.Empty;
+
+        public bool AcceptTerms { get; set; }
+    }
+}

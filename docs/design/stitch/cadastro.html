@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Copy Persona - Crie sua conta</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=Geist:wght@400;500;600&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Hanken+Grotesk:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#ffcafe",
+                        "primary-fixed": "#e2dfff",
+                        "on-secondary-fixed": "#00201d",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-container": "#00302b",
+                        "surface-container": "#1d2022",
+                        "surface": "#101415",
+                        "inverse-surface": "#e0e3e5",
+                        "error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#005049",
+                        "surface-container-high": "#272a2c",
+                        "secondary-fixed-dim": "#6bd8cb",
+                        "tertiary": "#fbabff",
+                        "surface-dim": "#101415",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-error": "#690005",
+                        "on-background": "#e0e3e5",
+                        "primary": "#c3c0ff",
+                        "tertiary-fixed": "#ffd6fd",
+                        "secondary": "#6bd8cb",
+                        "on-primary": "#1d00a5",
+                        "on-tertiary-fixed-variant": "#7c008e",
+                        "surface-tint": "#c3c0ff",
+                        "surface-bright": "#363a3b",
+                        "tertiary-fixed-dim": "#fbabff",
+                        "error": "#ffb4ab",
+                        "inverse-primary": "#4d44e3",
+                        "primary-container": "#4f46e5",
+                        "surface-variant": "#323537",
+                        "on-surface": "#e0e3e5",
+                        "background": "#101415",
+                        "on-primary-container": "#dad7ff",
+                        "surface-container-lowest": "#0b0f10",
+                        "on-tertiary-fixed": "#36003e",
+                        "on-surface-variant": "#c7c4d8",
+                        "surface-container-highest": "#323537",
+                        "on-secondary": "#003732",
+                        "outline": "#918fa1",
+                        "on-tertiary": "#580065",
+                        "inverse-on-surface": "#2d3133",
+                        "outline-variant": "#464555",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "surface-container-low": "#191c1e",
+                        "secondary-fixed": "#89f5e7",
+                        "on-primary-fixed": "#0f0069",
+                        "tertiary-container": "#a500bd",
+                        "secondary-container": "#29a195"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-xl": ["Hanken Grotesk"],
+                        "headline-xl-mobile": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(25, 28, 30, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .input-inset-glow:focus-within {
+            box-shadow: inset 0 0 10px rgba(79, 70, 229, 0.2), 0 0 0 2px #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 dark:bg-surface/70 backdrop-blur-xl border-b border-white/10 shadow-[0px_4px_20px_rgba(79,70,229,0.05)]">
+<div class="flex items-center justify-between px-margin-mobile md:px-margin-desktop h-16">
+<div class="flex items-center gap-3">
+<img alt="Copy Persona Logo" class="w-8 h-8 rounded-lg" src="https://lh3.googleusercontent.com/aida/AP1WRLvY4-wAHUHviPBiMlnYXGUcZjg2FEag61kNMgDU59SfbIxN38fyZLFIqL3jFsHccBjhP5kHazIDlDk0-tPQgYllLA6k-TCMUjP9JN1CKTF8BDaEJILMxqxXr-GrA1opT-rCMN8vxUPh4tP2wuq9kfVfM5hkRyPRRmD2ToebTV8u85P67x5-g3YZqbUGyB7Zczw9OaxjJ8shk1U_UeViychA1whvtszxLt5_R6vBpC4NX5La1aL7Zygi9kX2"/>
+<span class="font-headline-md text-primary tracking-tight">Copy Persona</span>
+</div>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-on-surface-variant font-label-md hover:opacity-80 transition-opacity" href="#">Recursos</a>
+<a class="text-on-surface-variant font-label-md hover:opacity-80 transition-opacity" href="#">Preços</a>
+<a class="text-on-surface-variant font-label-md hover:opacity-80 transition-opacity" href="#">Ajuda</a>
+</div>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-12 flex items-center justify-center relative">
+<!-- Atmospheric Background Element -->
+<div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-container/20 rounded-full blur-[120px] -z-10 animate-pulse"></div>
+<div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary-container/10 rounded-full blur-[100px] -z-10"></div>
+<section class="w-full max-w-md px-margin-mobile">
+<div class="glass-card rounded-xl p-8 md:p-10 shadow-xl border border-outline-variant/30">
+<div class="text-center mb-10">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-on-surface mb-2">Crie sua conta</h1>
+<p class="text-on-surface-variant font-body-md">Comece a gerar conteúdo inteligente em segundos.</p>
+</div>
+<!-- Signup Form -->
+<form class="space-y-6" onsubmit="return false;">
+<div class="space-y-2">
+<label class="block font-label-md text-on-surface-variant ml-1" for="name">Nome Completo</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline text-[20px]">person</span>
+</div>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-4 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:outline-none focus:ring-0 input-inset-glow font-body-md" id="name" name="name" placeholder="Como devemos te chamar?" type="text"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block font-label-md text-on-surface-variant ml-1" for="email">E-mail</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline text-[20px]">mail</span>
+</div>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-4 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:outline-none focus:ring-0 input-inset-glow font-body-md" id="email" name="email" placeholder="seu@email.com" type="email"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block font-label-md text-on-surface-variant ml-1" for="password">Senha</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline text-[20px]">lock</span>
+</div>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-4 pl-12 pr-4 text-on-surface placeholder:text-outline/50 transition-all focus:outline-none focus:ring-0 input-inset-glow font-body-md" id="password" name="password" placeholder="Mínimo 8 caracteres" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex items-start gap-3 mt-4">
+<div class="flex items-center h-5">
+<input class="h-5 w-5 rounded border-outline-variant bg-surface-container text-primary-container focus:ring-primary focus:ring-offset-background transition-colors cursor-pointer" id="terms" name="terms" type="checkbox"/>
+</div>
+<label class="text-on-surface-variant font-label-md leading-tight cursor-pointer" for="terms">
+                            Aceito os <a class="text-primary hover:underline transition-all" href="#">Termos de Uso</a> e <a class="text-primary hover:underline transition-all" href="#">Política de Privacidade</a>
+</label>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-headline-md py-4 rounded-lg shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200" type="submit">
+                        Criar Conta
+                    </button>
+</form>
+<!-- Divider -->
+<div class="relative my-8">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant/30"></div>
+</div>
+<div class="relative flex justify-center text-label-md">
+<span class="bg-surface-container-low px-4 text-outline uppercase tracking-widest text-[10px]">Ou continue com</span>
+</div>
+</div>
+<!-- Social Signup -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-3 bg-surface-container border border-outline-variant/50 rounded-lg py-3 hover:bg-surface-container-high transition-all group">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 1.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span class="font-label-md text-on-surface">Google</span>
+</button>
+<button class="flex items-center justify-center gap-3 bg-surface-container border border-outline-variant/50 rounded-lg py-3 hover:bg-surface-container-high transition-all group">
+<svg class="w-5 h-5 fill-current text-white" viewbox="0 0 24 24">
+<path d="M17.05 20.28c-.98.95-2.05 1.61-3.18 1.61-1.12 0-1.49-.69-2.78-.69-1.3 0-1.72.67-2.77.67-1.15 0-2.14-.72-3.23-1.78-2.24-2.18-3.37-6.07-2.08-8.91.64-1.41 1.93-2.3 3.36-2.3 1.08 0 1.83.61 2.53.61s1.39-.67 2.6-.67c1.17 0 2.21.57 2.94 1.54-2.4 1.41-2.01 4.79.43 5.82-.47 1.57-1.15 3.06-2.1 4.1zM11.97 7.78c-.03-2.17 1.79-4.04 3.86-4.2.14 2.45-2.24 4.39-3.86 4.2z"></path>
+</svg>
+<span class="font-label-md text-on-surface">Apple</span>
+</button>
+</div>
+<!-- Login Link -->
+<div class="mt-10 text-center">
+<p class="text-on-surface-variant font-body-md">
+                        Já tem uma conta? <a class="text-primary font-bold hover:underline transition-all" href="#">Entre</a>
+</p>
+</div>
+</div>
+</section>
+</main>
+<footer class="py-8 text-center text-outline font-label-sm border-t border-white/5 bg-surface/30 backdrop-blur-sm">
+<div class="px-margin-mobile flex flex-col md:flex-row justify-between items-center gap-4 max-w-container-max mx-auto">
+<p>© 2024 Copy Persona. Todos os direitos reservados.</p>
+<div class="flex gap-6">
+<a class="hover:text-primary transition-colors" href="#">Termos</a>
+<a class="hover:text-primary transition-colors" href="#">Privacidade</a>
+<a class="hover:text-primary transition-colors" href="#">Cookies</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions for buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Simple glow effect follow mouse on the card
+        const card = document.querySelector('.glass-card');
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
+    </script>
+</body></html>

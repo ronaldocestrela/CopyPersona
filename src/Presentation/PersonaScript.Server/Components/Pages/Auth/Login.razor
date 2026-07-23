@@ -1,0 +1,97 @@
+@page "/login"
+@layout AuthLayout
+@rendermode InteractiveServer
+
+@using System.ComponentModel.DataAnnotations
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Identity.Application.Commands.LoginUser
+
+@inject ICommandHandler<LoginUserCommand, LoginResult> LoginHandler
+@inject NavigationManager Navigation
+
+<PageTitle>Login — PersonaScript AI</PageTitle>
+
+<AuthShell Title="Bem-vindo de volta" Subtitle="Sua inteligência criativa te espera.">
+    <EditForm Model="form" OnValidSubmit="HandleSubmitAsync" class="auth-form">
+        <DataAnnotationsValidator />
+
+        <AuthAlert Message="@errorMessage" />
+
+        <AuthTextField Label="Email"
+                       Icon="mail"
+                       InputType="email"
+                       Placeholder="nome@exemplo.com"
+                       Autocomplete="email"
+                       @bind-Value="form.Email" />
+        <ValidationMessage For="@(() => form.Email)" class="auth-validation" />
+
+        <AuthTextField Label="Senha"
+                       Icon="lock"
+                       Placeholder="••••••••"
+                       Autocomplete="current-password"
+                       ShowPasswordToggle="true"
+                       ShowLabelRow="true"
+                       @bind-Value="form.Password">
+            <LabelAction>
+                <a class="auth-link" href="/esqueci-senha">Esqueceu a senha?</a>
+            </LabelAction>
+        </AuthTextField>
+        <ValidationMessage For="@(() => form.Password)" class="auth-validation" />
+
+        <button type="submit" class="auth-primary-btn" disabled="@isSubmitting">
+            @(isSubmitting ? "Entrando..." : "Entrar")
+            @if (!isSubmitting)
+            {
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+            }
+        </button>
+    </EditForm>
+
+    <AuthDivider Text="Ou entre com" />
+    <AuthSocialButtons />
+
+    <p class="auth-footer-text">
+        Não tem uma conta? <a class="auth-link" href="/cadastro">Cadastre-se</a>
+    </p>
+</AuthShell>
+
+@code {
+    private readonly LoginFormModel form = new();
+    private string? errorMessage;
+    private bool isSubmitting;
+
+    private async Task HandleSubmitAsync()
+    {
+        errorMessage = null;
+        isSubmitting = true;
+
+        try
+        {
+            var result = await LoginHandler.Handle(
+                new LoginUserCommand(form.Email, form.Password),
+                CancellationToken.None);
+
+            if (result.IsFailure)
+            {
+                errorMessage = result.Error.Message;
+                return;
+            }
+
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private sealed class LoginFormModel
+    {
+        [Required(ErrorMessage = "Informe seu e-mail.")]
+        [EmailAddress(ErrorMessage = "Informe um e-mail válido.")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Informe sua senha.")]
+        public string Password { get; set; } = string.Empty;
+    }
+}

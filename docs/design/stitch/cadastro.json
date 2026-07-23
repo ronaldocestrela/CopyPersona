@@ -1,0 +1,28 @@
+{
+  "id": 8406,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"name\":\"projects/15459532074568969182/screens/d27f51e783a4423481249461eadd5650\",\"title\":\"Cadastro\",\"screenshot\":{\"name\":\"projects/15459532074568969182/screens/d27f51e783a4423481249461eadd5650/fileEntries/screenshot\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/AP1WRLs65T4uTWPgBlYwK03S4iRfGeIiYdmj962oM41T_SoljKXdMXCt2dL33tW1Jjonk-1g5eNZea9m-67pmOqLLRpiM3MxMXm0foVX4LgR3qZtQzxSrdzREkmE4CP1ighnnJ408wI5AzyhGoy8tY8zYjho6VRKqt6uZjiEqItXAA77rX0nnF49wI1IA5n-Bqz7tHRI6xDK3QPuRmiavntFLxYArKJET0I0nq67ozT8zDBLXfN2TZFLxOfpC8Sz\"},\"htmlCode\":{\"name\":\"projects/15459532074568969182/screens/d27f51e783a4423481249461eadd5650/fileEntries/html\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzAwMDY1NzQ5MjBmNWYwMDcwMjA3OTk0OTA4MWE3MjAwEgsSBxDE09v90wMYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTQ1OTUzMjA3NDU2ODk2OTE4Mg&filename=&opi=89354086\",\"mimeType\":\"text/html\"},\"width\":\"780\",\"height\":\"2286\",\"deviceType\":\"MOBILE\"}",
+        "type": "text"
+      }
+    ],
+    "structuredContent": {
+      "deviceType": "MOBILE",
+      "height": "2286",
+      "htmlCode": {
+        "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzAwMDY1NzQ5MjBmNWYwMDcwMjA3OTk0OTA4MWE3MjAwEgsSBxDE09v90wMYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTQ1OTUzMjA3NDU2ODk2OTE4Mg&filename=&opi=89354086",
+        "mimeType": "text/html",
+        "name": "projects/15459532074568969182/screens/d27f51e783a4423481249461eadd5650/fileEntries/html"
+      },
+      "name": "projects/15459532074568969182/screens/d27f51e783a4423481249461eadd5650",
+      "screenshot": {
+        "downloadUrl": "https://lh3.googleusercontent.com/aida/AP1WRLs65T4uTWPgBlYwK03S4iRfGeIiYdmj962oM41T_SoljKXdMXCt2dL33tW1Jjonk-1g5eNZea9m-67pmOqLLRpiM3MxMXm0foVX4LgR3qZtQzxSrdzREkmE4CP1ighnnJ408wI5AzyhGoy8tY8zYjho6VRKqt6uZjiEqItXAA77rX0nnF49wI1IA5n-Bqz7tHRI6xDK3QPuRmiavntFLxYArKJET0I0nq67ozT8zDBLXfN2TZFLxOfpC8Sz",
+        "name": "projects/15459532074568969182/screens/d27f51e783a4423481249461eadd5650/fileEntries/screenshot"
+      },
+      "title": "Cadastro",
+      "width": "780"
+    }
+  }
+}

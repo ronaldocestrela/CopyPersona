@@ -1,0 +1,42 @@
+<header class="auth-header">
+    <a class="auth-brand" href="/">
+        <span class="auth-brand-mark" aria-hidden="true">PS</span>
+        <span class="auth-brand-name">PersonaScript AI</span>
+    </a>
+    <nav class="auth-nav" aria-label="Navegação">
+        <span>Recursos</span>
+        <span>Preços</span>
+        <span>Ajuda</span>
+    </nav>
+</header>
+
+<main class="auth-main">
+    <section class="auth-card">
+        @if (!string.IsNullOrWhiteSpace(Title))
+        {
+            <h1>@Title</h1>
+        }
+        @if (!string.IsNullOrWhiteSpace(Subtitle))
+        {
+            <p class="auth-lead">@Subtitle</p>
+        }
+        @ChildContent
+    </section>
+</main>
+
+<footer class="auth-page-footer">
+    <p>© @DateTime.UtcNow.Year PersonaScript AI. Todos os direitos reservados.</p>
+    <nav aria-label="Legal">
+        <a href="#">Termos</a>
+        <a href="#">Privacidade</a>
+        <a href="#">Cookies</a>
+    </nav>
+</footer>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

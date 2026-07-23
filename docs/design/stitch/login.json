@@ -1,0 +1,28 @@
+{
+  "id": 1917,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"name\":\"projects/15459532074568969182/screens/dc49c0c1296d481fa025a4772dfed4b2\",\"title\":\"Login\",\"screenshot\":{\"name\":\"projects/15459532074568969182/screens/dc49c0c1296d481fa025a4772dfed4b2/fileEntries/screenshot\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/AP1WRLuH2PzXDpJfxNrPC7yK1NxRfb8meTxyRFiZUaAjTpXR65Rzf6Ar-8SsLScqTBuuPWYaUcblLFUsh7cSAYUQkenhk0MPlNjMkhwR-wjvT9dDaHyjmH9UbCsCl00-tUtAT2JreN1I3cseKstcfulgsL4d0dT6Tl5oEdmT1tJMIi72LfT_kJlpQaqLtivrVGuXC19vUImvRu8_4ZRoiOnC2Ea5D9Yoj2WVNk3Ty20-rzBV1voo1fGm4aCy9ME\"},\"htmlCode\":{\"name\":\"projects/15459532074568969182/screens/dc49c0c1296d481fa025a4772dfed4b2/fileEntries/html\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzAwMDY1NzQ5MjBlMjBkNDQwNTRjYzMxMjU3MGZiOThkEgsSBxDE09v90wMYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTQ1OTUzMjA3NDU2ODk2OTE4Mg&filename=&opi=89354086\",\"mimeType\":\"text/html\"},\"width\":\"780\",\"height\":\"1768\",\"deviceType\":\"MOBILE\"}",
+        "type": "text"
+      }
+    ],
+    "structuredContent": {
+      "deviceType": "MOBILE",
+      "height": "1768",
+      "htmlCode": {
+        "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ8Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpbCiVodG1sXzAwMDY1NzQ5MjBlMjBkNDQwNTRjYzMxMjU3MGZiOThkEgsSBxDE09v90wMYAZIBJAoKcHJvamVjdF9pZBIWQhQxNTQ1OTUzMjA3NDU2ODk2OTE4Mg&filename=&opi=89354086",
+        "mimeType": "text/html",
+        "name": "projects/15459532074568969182/screens/dc49c0c1296d481fa025a4772dfed4b2/fileEntries/html"
+      },
+      "name": "projects/15459532074568969182/screens/dc49c0c1296d481fa025a4772dfed4b2",
+      "screenshot": {
+        "downloadUrl": "https://lh3.googleusercontent.com/aida/AP1WRLuH2PzXDpJfxNrPC7yK1NxRfb8meTxyRFiZUaAjTpXR65Rzf6Ar-8SsLScqTBuuPWYaUcblLFUsh7cSAYUQkenhk0MPlNjMkhwR-wjvT9dDaHyjmH9UbCsCl00-tUtAT2JreN1I3cseKstcfulgsL4d0dT6Tl5oEdmT1tJMIi72LfT_kJlpQaqLtivrVGuXC19vUImvRu8_4ZRoiOnC2Ea5D9Yoj2WVNk3Ty20-rzBV1voo1fGm4aCy9ME",
+        "name": "projects/15459532074568969182/screens/dc49c0c1296d481fa025a4772dfed4b2/fileEntries/screenshot"
+      },
+      "title": "Login",
+      "width": "780"
+    }
+  }
+}
