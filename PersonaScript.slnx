@@ -1,0 +1,37 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.CQRS/PersonaScript.BuildingBlocks.CQRS.csproj" />
+    <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.Domain/PersonaScript.BuildingBlocks.Domain.csproj" />
+    <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.Results/PersonaScript.BuildingBlocks.Results.csproj" />
+    <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.Tenancy/PersonaScript.BuildingBlocks.Tenancy.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Billing/">
+    <Project Path="src/Modules/Billing/PersonaScript.Modules.Billing.Application/PersonaScript.Modules.Billing.Application.csproj" />
+    <Project Path="src/Modules/Billing/PersonaScript.Modules.Billing.Domain/PersonaScript.Modules.Billing.Domain.csproj" />
+    <Project Path="src/Modules/Billing/PersonaScript.Modules.Billing.Infrastructure/PersonaScript.Modules.Billing.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Identity/">
+    <Project Path="src/Modules/Identity/PersonaScript.Modules.Identity.Application/PersonaScript.Modules.Identity.Application.csproj" />
+    <Project Path="src/Modules/Identity/PersonaScript.Modules.Identity.Domain/PersonaScript.Modules.Identity.Domain.csproj" />
+    <Project Path="src/Modules/Identity/PersonaScript.Modules.Identity.Infrastructure/PersonaScript.Modules.Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Personas/">
+    <Project Path="src/Modules/Personas/PersonaScript.Modules.Personas.Application/PersonaScript.Modules.Personas.Application.csproj" />
+    <Project Path="src/Modules/Personas/PersonaScript.Modules.Personas.Domain/PersonaScript.Modules.Personas.Domain.csproj" />
+    <Project Path="src/Modules/Personas/PersonaScript.Modules.Personas.Infrastructure/PersonaScript.Modules.Personas.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Scripts/">
+    <Project Path="src/Modules/Scripts/PersonaScript.Modules.Scripts.Application/PersonaScript.Modules.Scripts.Application.csproj" />
+    <Project Path="src/Modules/Scripts/PersonaScript.Modules.Scripts.Domain/PersonaScript.Modules.Scripts.Domain.csproj" />
+    <Project Path="src/Modules/Scripts/PersonaScript.Modules.Scripts.Infrastructure/PersonaScript.Modules.Scripts.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Presentation/">
+    <Project Path="src/Presentation/PersonaScript.Server/PersonaScript.Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/BuildingBlocks/">
+    <Project Path="tests/BuildingBlocks/PersonaScript.BuildingBlocks.UnitTests/PersonaScript.BuildingBlocks.UnitTests.csproj" />
+  </Folder>
+</Solution>
