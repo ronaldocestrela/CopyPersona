@@ -11,6 +11,11 @@ using PersonaScript.Modules.Identity.Infrastructure.Persistence;
 using PersonaScript.Modules.Identity.Infrastructure.Repositories;
 using PersonaScript.Modules.Identity.Infrastructure.Security;
 
+using PersonaScript.BuildingBlocks.Results;
+using PersonaScript.Modules.Identity.Application.Commands.RequestPasswordReset;
+using PersonaScript.Modules.Identity.Application.Commands.ResetPassword;
+using PersonaScript.Modules.Identity.Infrastructure.Emails;
+
 namespace PersonaScript.Modules.Identity.Infrastructure;
 
 public static class ModuleSetup
@@ -31,11 +36,24 @@ public static class ModuleSetup
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
         });
 
+        services.AddHttpClient<ResendEmailSender>();
+
+        if (environment.IsEnvironment("Testing") || string.IsNullOrWhiteSpace(configuration["Resend:ApiKey"]))
+        {
+            services.AddSingleton<IEmailSender, FakeEmailSender>();
+        }
+        else
+        {
+            services.AddScoped<IEmailSender, ResendEmailSender>();
+        }
+
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
         services.AddScoped<IAuthSession, CookieAuthSession>();
         services.AddScoped<ICommandHandler<RegisterUserCommand, LoginResult>, RegisterUserCommandHandler>();
         services.AddScoped<ICommandHandler<LoginUserCommand, LoginResult>, LoginUserCommandHandler>();
+        services.AddScoped<ICommandHandler<RequestPasswordResetCommand>, RequestPasswordResetCommandHandler>();
+        services.AddScoped<ICommandHandler<ResetPasswordCommand>, ResetPasswordCommandHandler>();
 
         return services;
     }

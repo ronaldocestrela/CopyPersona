@@ -40,6 +40,63 @@ public class AccountEndpointsIntegrationTests : IClassFixture<PersonaScriptWebAp
         response.Headers.Location!.OriginalString.Should().StartWith("/cadastro?error=");
     }
 
+    [Fact]
+    public async Task RequestPasswordReset_ShouldRedirectToEsqueciSenhaWithSuccess()
+    {
+        var client = CreateClient();
+        var (token, cookieHeader) = await GetAntiforgeryAsync(client, "/esqueci-senha");
+
+        var fields = new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = token,
+            ["Email"] = "maria-test@example.com",
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/account/esqueci-senha")
+        {
+            Content = new FormUrlEncodedContent(fields),
+        };
+        if (!string.IsNullOrEmpty(cookieHeader))
+        {
+            request.Headers.Add("Cookie", cookieHeader);
+        }
+
+        var response = await client.SendAsync(request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.OriginalString.Should().Be("/esqueci-senha?success=true");
+    }
+
+    [Fact]
+    public async Task ResetPassword_ShouldRedirectToRedefinirSenhaWithError_WhenPasswordsMismatch()
+    {
+        var client = CreateClient();
+        var (token, cookieHeader) = await GetAntiforgeryAsync(client, "/redefinir-senha?email=maria@example.com&token=abc");
+
+        var fields = new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = token,
+            ["Email"] = "maria@example.com",
+            ["Token"] = "abc",
+            ["Password"] = "password123",
+            ["ConfirmPassword"] = "differentpassword",
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/account/redefinir-senha")
+        {
+            Content = new FormUrlEncodedContent(fields),
+        };
+        if (!string.IsNullOrEmpty(cookieHeader))
+        {
+            request.Headers.Add("Cookie", cookieHeader);
+        }
+
+        var response = await client.SendAsync(request);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.OriginalString.Should().Contain("error=");
+    }
+
     private HttpClient CreateClient() =>
         _factory.CreateClient(new WebApplicationFactoryClientOptions
         {

@@ -44,12 +44,15 @@ flowchart TB
 |------|------|--------|
 | `/cadastro` | Página SSR | Formulário de registro (POST → `/account/register`) |
 | `/login` | Página SSR | Formulário de login (POST → `/account/login`) |
-| `POST /account/register` | Endpoint | Registra usuário, emite cookie, redirect `/` ou `/cadastro?error=...` |
+| `POST /account/register` | Endpoint | Registra usuário, envia e-mail de boas-vindas via Resend, emite cookie, redirect `/` |
 | `POST /account/login` | Endpoint | Autentica, emite cookie, redirect `/` ou `/login?error=...` |
-| `/esqueci-senha` | Página | Placeholder para reset via e-mail |
+| `/esqueci-senha` | Página SSR | Solicitação de link de redefinição de senha (POST → `/account/esqueci-senha`) |
+| `POST /account/esqueci-senha` | Endpoint | Gera token e dispara e-mail de reset via Resend |
+| `/redefinir-senha` | Página SSR | Formulário para digitação da nova senha (POST → `/account/redefinir-senha`) |
+| `POST /account/redefinir-senha` | Endpoint | Valida token e atualiza a senha no banco de dados |
 | `/logout` | Endpoint GET | Encerra cookie e redireciona para `/login` |
 
-Design Stitch exportado em [`docs/design/stitch/`](design/stitch/README.md).
+Design Stitch exportado em [`docs/design/stitch/`](design/stitch/README.md). Servidor de e-mails transacionais utilizando a API REST do **Resend** (com fallback para `FakeEmailSender` em ambiente de testes).
 
 ### Fluxo
 

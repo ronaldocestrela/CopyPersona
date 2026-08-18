@@ -20,8 +20,48 @@ public sealed class User : BaseEntity, IMustHaveTenant
 
     public string PasswordHash { get; private set; } = string.Empty;
 
+    public string? PasswordResetToken { get; private set; }
+
+    public DateTimeOffset? PasswordResetTokenExpiresAt { get; private set; }
+
     private User()
     {
+    }
+
+    public string GeneratePasswordResetToken(TimeSpan validFor)
+    {
+        var tokenBytes = Guid.NewGuid().ToByteArray().Concat(Guid.NewGuid().ToByteArray()).ToArray();
+        PasswordResetToken = Convert.ToBase64String(tokenBytes)
+            .Replace("+", "-")
+            .Replace("/", "_")
+            .TrimEnd('=');
+
+        PasswordResetTokenExpiresAt = DateTimeOffset.UtcNow.Add(validFor);
+        return PasswordResetToken;
+    }
+
+    public Result ResetPassword(string newPasswordHash, string token, DateTimeOffset currentUtc)
+    {
+        if (string.IsNullOrWhiteSpace(newPasswordHash))
+        {
+            return Result.Failure(DomainErrors.Identity.PasswordHashRequired);
+        }
+
+        if (string.IsNullOrWhiteSpace(PasswordResetToken) || !string.Equals(PasswordResetToken, token, StringComparison.Ordinal))
+        {
+            return Result.Failure(DomainErrors.Identity.PasswordResetTokenInvalid);
+        }
+
+        if (!PasswordResetTokenExpiresAt.HasValue || currentUtc > PasswordResetTokenExpiresAt.Value)
+        {
+            return Result.Failure(DomainErrors.Identity.PasswordResetTokenExpired);
+        }
+
+        PasswordHash = newPasswordHash;
+        PasswordResetToken = null;
+        PasswordResetTokenExpiresAt = null;
+
+        return Result.Success();
     }
 
     public static Result<User> Register(string fullName, string email, string passwordHash)

@@ -1,0 +1,56 @@
+@page "/redefinir-senha"
+@layout AuthLayout
+
+<PageTitle>Redefinir Senha — PersonaScript AI</PageTitle>
+
+<AuthShell Title="Criar nova senha" Subtitle="Digite sua nova senha de acesso abaixo.">
+    <a class="auth-back-link" href="/login">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back_ios_new</span>
+        Voltar ao login
+    </a>
+
+    <form method="post" action="/account/redefinir-senha" class="auth-form">
+        <AntiforgeryToken />
+
+        <input type="hidden" name="Email" value="@Email" />
+        <input type="hidden" name="Token" value="@Token" />
+
+        <AuthAlert Message="@Error" />
+
+        <AuthTextField InputId="password"
+                       Name="Password"
+                       Label="Nova Senha"
+                       Icon="lock"
+                       InputType="password"
+                       Placeholder="Mínimo 8 caracteres"
+                       Autocomplete="new-password"
+                       ShowPasswordToggle="true"
+                       Required="true" />
+
+        <AuthTextField InputId="confirmPassword"
+                       Name="ConfirmPassword"
+                       Label="Confirmar Nova Senha"
+                       Icon="lock"
+                       InputType="password"
+                       Placeholder="Repita a nova senha"
+                       Autocomplete="new-password"
+                       ShowPasswordToggle="true"
+                       Required="true" />
+
+        <button type="submit" class="auth-primary-btn">
+            Redefinir senha
+            <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        </button>
+    </form>
+</AuthShell>
+
+@code {
+    [SupplyParameterFromQuery(Name = "email")]
+    public string? Email { get; set; }
+
+    [SupplyParameterFromQuery(Name = "token")]
+    public string? Token { get; set; }
+
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? Error { get; set; }
+}

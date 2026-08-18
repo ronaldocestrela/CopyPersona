@@ -26,5 +26,14 @@ public static class DomainErrors
 
         public static Error InvalidCredentials =>
             Error.Unauthorized("identity.invalid_credentials", "E-mail ou senha inválidos.");
+
+        public static Error PasswordResetTokenInvalid =>
+            Error.Validation("identity.password_reset_token_invalid", "Token de redefinição de senha inválido ou expirado.");
+
+        public static Error PasswordResetTokenExpired =>
+            Error.Validation("identity.password_reset_token_expired", "Token de redefinição de senha expirado.");
+
+        public static Error UserNotFound =>
+            Error.NotFound("identity.user_not_found", "Usuário não encontrado.");
     }
 }

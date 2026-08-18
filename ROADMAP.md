@@ -26,15 +26,15 @@ O desenvolvimento segue estritamente os princípios definidos em [`AGENTS.md`](f
   - [x] `BuildingBlocks.Tenancy` 100% testado com cobertura de 95%+.
   - [x] Interceptor EF Core configurado e injetado no container de DI.
 
-### Subfase 1.2: Expansão do Módulo Identity (Recuperação de Senha & E-mails)
+### Subfase 1.2: Expansão do Módulo Identity (Recuperação de Senha & E-mails via Resend) [CONCLUÍDO]
 - **Tarefas:**
-  - Criar `RequestPasswordResetCommand` e `ResetPasswordCommand` no módulo `Identity`.
-  - Integrar com o Mailpit local para envio de e-mails transacionais (boas-vindas e reset de senha) usando `IEmailSender`.
-  - Desenvolver as páginas Blazor SSR `/esqueci-senha` e `/redefinir-senha` alinhadas ao design Stitch.
-  - Escrever testes bUnit para formulários SSR e testes de integração do envio de e-mail via Mailpit.
+  - [x] Criar `RequestPasswordResetCommand` e `ResetPasswordCommand` no módulo `Identity`.
+  - [x] Integrar com o **Resend** para envio de e-mails transacionais (boas-vindas e reset de senha) usando `IEmailSender` (`ResendEmailSender` e `FakeEmailSender` para dev/testes).
+  - [x] Desenvolver as páginas Blazor SSR `/esqueci-senha` e `/redefinir-senha` alinhadas ao design Stitch.
+  - [x] Escrever testes bUnit para formulários SSR e testes de integração dos comandos e endpoints de e-mail.
 - **Entregáveis da Subfase 1.2:**
-  - Fluxo completo de recuperação de senha operante em ambiente de dev.
-  - Testes de integração de e-mail e comandos CQRS passando sem falhas.
+  - [x] Fluxo completo de recuperação de senha operante em ambiente de dev.
+  - [x] Testes de integração de e-mail e comandos CQRS passando sem falhas (53 testes verdes no total).
 
 ### Subfase 1.3: Autenticação OAuth2 (Google & Apple) e Suporte a JWT
 - **Tarefas:**

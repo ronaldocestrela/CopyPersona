@@ -8,7 +8,8 @@ namespace PersonaScript.Modules.Identity.Application.Commands.RegisterUser;
 
 public sealed class RegisterUserCommandHandler(
     IUserRepository userRepository,
-    IPasswordHasher passwordHasher) : ICommandHandler<RegisterUserCommand, LoginResult>
+    IPasswordHasher passwordHasher,
+    IEmailSender? emailSender = null) : ICommandHandler<RegisterUserCommand, LoginResult>
 {
     private const int MinimumPasswordLength = 8;
 
@@ -41,6 +42,11 @@ public sealed class RegisterUserCommandHandler(
 
         var user = userResult.Value;
         await userRepository.AddAsync(user, cancellationToken);
+
+        if (emailSender is not null)
+        {
+            await emailSender.SendWelcomeEmailAsync(user.Email, user.FullName, cancellationToken);
+        }
 
         return Result.Success(new LoginResult(user.Id, user.Email, user.FullName));
     }
