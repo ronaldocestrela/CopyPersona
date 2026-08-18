@@ -8,7 +8,7 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - sqlserver_data:/var/opt/mssql
+      - sqlserver_data_personascript_copy:/var/opt/mssql
     healthcheck:
       test:
         [
@@ -28,4 +28,4 @@ services:
       - "8025:8025"
 
 volumes:
-  sqlserver_data:
+  sqlserver_data_personascript_copy:

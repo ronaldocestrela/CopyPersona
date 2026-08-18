@@ -16,31 +16,28 @@
             <span class="auth-input-icon material-symbols-outlined" aria-hidden="true">@Icon</span>
         }
         <input id="@InputId"
-               type="@CurrentInputType"
+               name="@Name"
+               type="@InputType"
                placeholder="@Placeholder"
-               value="@Value"
-               @oninput="OnInput"
-               autocomplete="@Autocomplete" />
+               autocomplete="@Autocomplete"
+               required="@(Required ? "required" : null)"
+               minlength="@(MinLength?.ToString())" />
         @if (ShowPasswordToggle)
         {
             <button type="button"
                     class="auth-toggle material-symbols-outlined"
-                    aria-label="@(passwordVisible ? "Ocultar senha" : "Mostrar senha")"
-                    @onclick="TogglePassword">
-                @(passwordVisible ? "visibility_off" : "visibility")
+                    data-password-toggle="@InputId"
+                    aria-label="Mostrar senha">
+                visibility
             </button>
         }
     </div>
-    @if (!string.IsNullOrWhiteSpace(ValidationMessage))
-    {
-        <div class="auth-validation">@ValidationMessage</div>
-    }
 </div>
 
 @code {
-    private bool passwordVisible;
-
     [Parameter] public string InputId { get; set; } = Guid.NewGuid().ToString("N");
+
+    [Parameter] public string Name { get; set; } = string.Empty;
 
     [Parameter] public string Label { get; set; } = string.Empty;
 
@@ -52,26 +49,13 @@
 
     [Parameter] public string Autocomplete { get; set; } = "off";
 
-    [Parameter] public string Value { get; set; } = string.Empty;
-
-    [Parameter] public EventCallback<string> ValueChanged { get; set; }
-
     [Parameter] public bool ShowPasswordToggle { get; set; }
 
     [Parameter] public bool ShowLabelRow { get; set; }
 
     [Parameter] public RenderFragment? LabelAction { get; set; }
 
-    [Parameter] public string? ValidationMessage { get; set; }
+    [Parameter] public bool Required { get; set; }
 
-    private string CurrentInputType =>
-        ShowPasswordToggle && !passwordVisible ? "password" : InputType;
-
-    private async Task OnInput(ChangeEventArgs args)
-    {
-        Value = args.Value?.ToString() ?? string.Empty;
-        await ValueChanged.InvokeAsync(Value);
-    }
-
-    private void TogglePassword() => passwordVisible = !passwordVisible;
+    [Parameter] public int? MinLength { get; set; }
 }

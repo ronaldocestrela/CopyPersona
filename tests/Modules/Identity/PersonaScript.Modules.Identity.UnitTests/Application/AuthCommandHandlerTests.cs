@@ -11,12 +11,11 @@ public class AuthCommandHandlerTests
 {
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
     private readonly IPasswordHasher _passwordHasher = Substitute.For<IPasswordHasher>();
-    private readonly IAuthSession _authSession = Substitute.For<IAuthSession>();
 
     [Fact]
     public async Task Register_ShouldFail_WhenTermsNotAccepted()
     {
-        var handler = new RegisterUserCommandHandler(_userRepository, _passwordHasher, _authSession);
+        var handler = new RegisterUserCommandHandler(_userRepository, _passwordHasher);
 
         var result = await handler.Handle(
             new RegisterUserCommand("Maria", "maria@example.com", "password123", false),
@@ -33,7 +32,7 @@ public class AuthCommandHandlerTests
             .Returns(true);
         _passwordHasher.HashPassword(Arg.Any<string>()).Returns("hash");
 
-        var handler = new RegisterUserCommandHandler(_userRepository, _passwordHasher, _authSession);
+        var handler = new RegisterUserCommandHandler(_userRepository, _passwordHasher);
 
         var result = await handler.Handle(
             new RegisterUserCommand("Maria Silva", "maria@example.com", "password123", true),
@@ -44,12 +43,31 @@ public class AuthCommandHandlerTests
     }
 
     [Fact]
+    public async Task Register_ShouldReturnLoginResult_WhenSuccessful()
+    {
+        _userRepository.ExistsByEmailAsync("maria@example.com", Arg.Any<CancellationToken>())
+            .Returns(false);
+        _passwordHasher.HashPassword(Arg.Any<string>()).Returns("hash");
+
+        var handler = new RegisterUserCommandHandler(_userRepository, _passwordHasher);
+
+        var result = await handler.Handle(
+            new RegisterUserCommand("Maria Silva", "maria@example.com", "password123", true),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Email.Should().Be("maria@example.com");
+        result.Value.FullName.Should().Be("Maria Silva");
+        result.Value.UserId.Should().NotBe(Guid.Empty);
+    }
+
+    [Fact]
     public async Task Login_ShouldFail_WithGenericError_WhenUserNotFound()
     {
         _userRepository.GetByEmailAsync("maria@example.com", Arg.Any<CancellationToken>())
             .Returns((User?)null);
 
-        var handler = new LoginUserCommandHandler(_userRepository, _passwordHasher, _authSession);
+        var handler = new LoginUserCommandHandler(_userRepository, _passwordHasher);
 
         var result = await handler.Handle(
             new LoginUserCommand("maria@example.com", "password123"),

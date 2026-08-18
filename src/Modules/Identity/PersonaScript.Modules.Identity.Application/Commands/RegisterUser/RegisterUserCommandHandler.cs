@@ -1,34 +1,34 @@
 using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Results;
 using PersonaScript.Modules.Identity.Application.Abstractions;
+using PersonaScript.Modules.Identity.Application.Commands.LoginUser;
 using PersonaScript.Modules.Identity.Domain;
 
 namespace PersonaScript.Modules.Identity.Application.Commands.RegisterUser;
 
 public sealed class RegisterUserCommandHandler(
     IUserRepository userRepository,
-    IPasswordHasher passwordHasher,
-    IAuthSession authSession) : ICommandHandler<RegisterUserCommand, Guid>
+    IPasswordHasher passwordHasher) : ICommandHandler<RegisterUserCommand, LoginResult>
 {
     private const int MinimumPasswordLength = 8;
 
-    public async Task<Result<Guid>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<LoginResult>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         if (!command.AcceptTerms)
         {
-            return Result.Failure<Guid>(DomainErrors.Identity.TermsNotAccepted);
+            return Result.Failure<LoginResult>(DomainErrors.Identity.TermsNotAccepted);
         }
 
         if (string.IsNullOrWhiteSpace(command.Password) || command.Password.Length < MinimumPasswordLength)
         {
-            return Result.Failure<Guid>(DomainErrors.Identity.PasswordTooShort);
+            return Result.Failure<LoginResult>(DomainErrors.Identity.PasswordTooShort);
         }
 
         var normalizedEmail = command.Email.Trim().ToLowerInvariant();
 
         if (await userRepository.ExistsByEmailAsync(normalizedEmail, cancellationToken))
         {
-            return Result.Failure<Guid>(DomainErrors.Identity.EmailAlreadyExists);
+            return Result.Failure<LoginResult>(DomainErrors.Identity.EmailAlreadyExists);
         }
 
         var passwordHash = passwordHasher.HashPassword(command.Password);
@@ -36,14 +36,12 @@ public sealed class RegisterUserCommandHandler(
 
         if (userResult.IsFailure)
         {
-            return Result.Failure<Guid>(userResult.Error);
+            return Result.Failure<LoginResult>(userResult.Error);
         }
 
         var user = userResult.Value;
         await userRepository.AddAsync(user, cancellationToken);
 
-        await authSession.SignInAsync(new AuthUser(user.Id, user.Email, user.FullName), cancellationToken);
-
-        return Result.Success(user.Id);
+        return Result.Success(new LoginResult(user.Id, user.Email, user.FullName));
     }
 }

@@ -1,51 +1,43 @@
 @page "/login"
 @layout AuthLayout
-@rendermode InteractiveServer
-
-@using System.ComponentModel.DataAnnotations
-@using PersonaScript.BuildingBlocks.CQRS
-@using PersonaScript.Modules.Identity.Application.Commands.LoginUser
-
-@inject ICommandHandler<LoginUserCommand, LoginResult> LoginHandler
-@inject NavigationManager Navigation
 
 <PageTitle>Login — PersonaScript AI</PageTitle>
 
 <AuthShell Title="Bem-vindo de volta" Subtitle="Sua inteligência criativa te espera.">
-    <EditForm Model="form" OnValidSubmit="HandleSubmitAsync" class="auth-form">
-        <DataAnnotationsValidator />
+    <form method="post" action="/account/login" class="auth-form">
+        <AntiforgeryToken />
 
-        <AuthAlert Message="@errorMessage" />
+        <AuthAlert Message="@Error" />
 
-        <AuthTextField Label="Email"
+        <AuthTextField InputId="email"
+                       Name="Email"
+                       Label="Email"
                        Icon="mail"
                        InputType="email"
                        Placeholder="nome@exemplo.com"
                        Autocomplete="email"
-                       @bind-Value="form.Email" />
-        <ValidationMessage For="@(() => form.Email)" class="auth-validation" />
+                       Required="true" />
 
-        <AuthTextField Label="Senha"
+        <AuthTextField InputId="password"
+                       Name="Password"
+                       Label="Senha"
                        Icon="lock"
+                       InputType="password"
                        Placeholder="••••••••"
                        Autocomplete="current-password"
                        ShowPasswordToggle="true"
                        ShowLabelRow="true"
-                       @bind-Value="form.Password">
+                       Required="true">
             <LabelAction>
                 <a class="auth-link" href="/esqueci-senha">Esqueceu a senha?</a>
             </LabelAction>
         </AuthTextField>
-        <ValidationMessage For="@(() => form.Password)" class="auth-validation" />
 
-        <button type="submit" class="auth-primary-btn" disabled="@isSubmitting">
-            @(isSubmitting ? "Entrando..." : "Entrar")
-            @if (!isSubmitting)
-            {
-                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-            }
+        <button type="submit" class="auth-primary-btn">
+            Entrar
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
         </button>
-    </EditForm>
+    </form>
 
     <AuthDivider Text="Ou entre com" />
     <AuthSocialButtons />
@@ -56,42 +48,6 @@
 </AuthShell>
 
 @code {
-    private readonly LoginFormModel form = new();
-    private string? errorMessage;
-    private bool isSubmitting;
-
-    private async Task HandleSubmitAsync()
-    {
-        errorMessage = null;
-        isSubmitting = true;
-
-        try
-        {
-            var result = await LoginHandler.Handle(
-                new LoginUserCommand(form.Email, form.Password),
-                CancellationToken.None);
-
-            if (result.IsFailure)
-            {
-                errorMessage = result.Error.Message;
-                return;
-            }
-
-            Navigation.NavigateTo("/", forceLoad: true);
-        }
-        finally
-        {
-            isSubmitting = false;
-        }
-    }
-
-    private sealed class LoginFormModel
-    {
-        [Required(ErrorMessage = "Informe seu e-mail.")]
-        [EmailAddress(ErrorMessage = "Informe um e-mail válido.")]
-        public string Email { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Informe sua senha.")]
-        public string Password { get; set; } = string.Empty;
-    }
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? Error { get; set; }
 }

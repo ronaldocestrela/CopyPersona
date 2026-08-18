@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.Modules.Identity.Application.Abstractions;
 using PersonaScript.Modules.Identity.Application.Commands.LoginUser;
@@ -14,15 +15,26 @@ namespace PersonaScript.Modules.Identity.Infrastructure;
 
 public static class ModuleSetup
 {
-    public static IServiceCollection AddIdentityModule(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddIdentityModule(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
         services.AddDbContext<IdentityDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        {
+            if (environment.IsEnvironment("Testing"))
+            {
+                options.UseInMemoryDatabase("PersonaScriptAuthTests");
+                return;
+            }
+
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+        });
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
         services.AddScoped<IAuthSession, CookieAuthSession>();
-        services.AddScoped<ICommandHandler<RegisterUserCommand, Guid>, RegisterUserCommandHandler>();
+        services.AddScoped<ICommandHandler<RegisterUserCommand, LoginResult>, RegisterUserCommandHandler>();
         services.AddScoped<ICommandHandler<LoginUserCommand, LoginResult>, LoginUserCommandHandler>();
 
         return services;

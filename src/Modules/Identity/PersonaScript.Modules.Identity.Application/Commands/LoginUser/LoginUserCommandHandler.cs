@@ -7,8 +7,7 @@ namespace PersonaScript.Modules.Identity.Application.Commands.LoginUser;
 
 public sealed class LoginUserCommandHandler(
     IUserRepository userRepository,
-    IPasswordHasher passwordHasher,
-    IAuthSession authSession) : ICommandHandler<LoginUserCommand, LoginResult>
+    IPasswordHasher passwordHasher) : ICommandHandler<LoginUserCommand, LoginResult>
 {
     public async Task<Result<LoginResult>> Handle(LoginUserCommand command, CancellationToken cancellationToken)
     {
@@ -20,9 +19,6 @@ public sealed class LoginUserCommandHandler(
             return Result.Failure<LoginResult>(DomainErrors.Identity.InvalidCredentials);
         }
 
-        var loginResult = new LoginResult(user.Id, user.Email, user.FullName);
-        await authSession.SignInAsync(new AuthUser(user.Id, user.Email, user.FullName), cancellationToken);
-
-        return Result.Success(loginResult);
+        return Result.Success(new LoginResult(user.Id, user.Email, user.FullName));
     }
 }

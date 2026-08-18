@@ -6,6 +6,7 @@ using PersonaScript.Modules.Identity.Infrastructure;
 using PersonaScript.Modules.Personas.Infrastructure;
 using PersonaScript.Modules.Scripts.Infrastructure;
 using PersonaScript.Server.Components;
+using PersonaScript.Server.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +26,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddTenancy();
-builder.Services.AddIdentityModule(builder.Configuration);
+builder.Services.AddIdentityModule(builder.Configuration, builder.Environment);
 builder.Services.AddBillingModule();
 builder.Services.AddPersonasModule();
 builder.Services.AddScriptsModule();
@@ -56,6 +57,7 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+app.MapAccountEndpoints();
 app.MapGet("/logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

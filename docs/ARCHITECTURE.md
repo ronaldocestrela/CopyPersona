@@ -40,34 +40,47 @@ flowchart TB
 
 ### Rotas
 
-| Rota | Página | Função |
-|------|--------|--------|
-| `/cadastro` | Cadastro | Registro self-service + auto-login |
-| `/login` | Login | Autenticação por e-mail/senha |
-| `/esqueci-senha` | Stub | Placeholder para reset via e-mail |
-| `/logout` | Endpoint | Encerra cookie e redireciona para `/login` |
+| Rota | Tipo | Função |
+|------|------|--------|
+| `/cadastro` | Página SSR | Formulário de registro (POST → `/account/register`) |
+| `/login` | Página SSR | Formulário de login (POST → `/account/login`) |
+| `POST /account/register` | Endpoint | Registra usuário, emite cookie, redirect `/` ou `/cadastro?error=...` |
+| `POST /account/login` | Endpoint | Autentica, emite cookie, redirect `/` ou `/login?error=...` |
+| `/esqueci-senha` | Página | Placeholder para reset via e-mail |
+| `/logout` | Endpoint GET | Encerra cookie e redireciona para `/login` |
 
 Design Stitch exportado em [`docs/design/stitch/`](design/stitch/README.md).
 
 ### Fluxo
 
+As páginas auth são **SSR com form HTML** (sem `@rendermode InteractiveServer`). O `SignInAsync` ocorre nos endpoints HTTP **antes** do redirect — evita o erro *Headers are read-only* do circuito Blazor SignalR.
+
 ```mermaid
 sequenceDiagram
-  participant UI as Blazor Auth Pages
+  participant Browser
+  participant Page as Blazor Auth Page SSR
+  participant Endpoint as POST /account/*
   participant Handler as CQRS Handler
   participant Repo as UserRepository
   participant Cookie as CookieAuthSession
   participant Tenant as HttpContextTenantContext
 
-  UI->>Handler: RegisterUserCommand / LoginUserCommand
+  Browser->>Page: GET /cadastro ou /login
+  Page-->>Browser: HTML + AntiforgeryToken
+  Browser->>Endpoint: form POST + antiforgery
+  Endpoint->>Handler: RegisterUserCommand / LoginUserCommand
   Handler->>Repo: Persist / lookup (IgnoreQueryFilters no login)
-  Handler->>Cookie: SignInAsync com claims
+  Handler-->>Endpoint: Result LoginResult
+  Endpoint->>Cookie: SignInAsync com claims
+  Cookie-->>Browser: Set-Cookie PersonaScript.Auth
+  Endpoint-->>Browser: 302 /
   Cookie-->>Tenant: claim tenant_id = UserId
 ```
 
 ### Decisões
 
-- **Cookie authentication** no Host (Blazor Interactive Server).
+- **Cookie authentication** no Host; emissão de cookie apenas em endpoints HTTP (`POST /account/*`), não no circuito Blazor.
+- **Handlers CQRS** fazem persistência/validação e retornam `LoginResult`; **não** chamam `IAuthSession`.
 - Claim `tenant_id` = `UserId` (B2C 1:1); consumida por `HttpContextTenantContext`.
 - Entidade `User` em schema `identity.Users`; `TenantId = Id` na criação.
 - Hash de senha via `PasswordHasher<User>` (ASP.NET Identity Core).
@@ -79,8 +92,8 @@ sequenceDiagram
 
 | Command | Retorno | Regras principais |
 |---------|---------|-------------------|
-| `RegisterUserCommand` | `Result<Guid>` | Termos obrigatórios, senha ≥ 8, e-mail único, auto-login |
-| `LoginUserCommand` | `Result<LoginResult>` | Mensagem genérica se credenciais inválidas |
+| `RegisterUserCommand` | `Result<LoginResult>` | Termos obrigatórios, senha ≥ 8, e-mail único; sign-in no endpoint |
+| `LoginUserCommand` | `Result<LoginResult>` | Mensagem genérica se credenciais inválidas; sign-in no endpoint |
 
 ## Mapa de projetos
 
@@ -120,10 +133,10 @@ Variáveis: [`.env.example`](../.env.example) → copiar para `.env`.
 Implementado:
 
 - BuildingBlocks + testes TDD
-- Identity: cadastro, login, cookie auth, migration `InitialIdentity`
-- UI `/cadastro` e `/login` alinhadas ao Stitch (dark card, social UI stub)
+- Identity: cadastro, login, cookie auth via `POST /account/*`, migration `InitialIdentity`
+- UI `/cadastro` e `/login` alinhadas ao Stitch (SSR form post, dark card, social UI stub)
 - `HttpContextTenantContext` + claim `tenant_id`
-- Testes: domínio, handlers, repositório InMemory, bUnit das páginas auth
+- Testes: domínio, handlers, repositório InMemory, bUnit das páginas auth, integração dos endpoints de conta
 
 Próximas entregas:
 
