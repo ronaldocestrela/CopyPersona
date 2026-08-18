@@ -6,6 +6,10 @@
 <AuthShell Title="Crie sua conta" Subtitle="Comece a gerar conteúdo inteligente em segundos.">
     <form method="post" action="/account/register" class="auth-form">
         <AntiforgeryToken />
+        @if (!string.IsNullOrWhiteSpace(ReturnUrl))
+        {
+            <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+        }
 
         <AuthAlert Message="@Error" />
 
@@ -48,14 +52,24 @@
     </form>
 
     <AuthDivider Text="Ou continue com" />
-    <AuthSocialButtons />
+    <AuthSocialButtons ReturnUrl="@ReturnUrl" />
 
     <p class="auth-footer-text">
-        Já tem uma conta? <a class="auth-link" href="/login">Entre</a>
+        Já tem uma conta? <a class="auth-link" href="@GetLoginUrl()">Entre</a>
     </p>
 </AuthShell>
 
 @code {
     [SupplyParameterFromQuery(Name = "error")]
     public string? Error { get; set; }
+
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    private string GetLoginUrl()
+    {
+        return string.IsNullOrWhiteSpace(ReturnUrl)
+            ? "/login"
+            : $"/login?returnUrl={Uri.EscapeDataString(ReturnUrl)}";
+    }
 }

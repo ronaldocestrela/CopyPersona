@@ -34,7 +34,8 @@ public static class AccountEndpoints
         [FromForm] string fullName,
         [FromForm] string email,
         [FromForm] string password,
-        [FromForm] bool acceptTerms = false)
+        [FromForm] bool acceptTerms = false,
+        [FromForm] string? returnUrl = null)
     {
         var result = await handler.Handle(
             new RegisterUserCommand(fullName, email, password, acceptTerms),
@@ -42,14 +43,15 @@ public static class AccountEndpoints
 
         if (result.IsFailure)
         {
-            return Results.Redirect($"/cadastro?error={Uri.EscapeDataString(result.Error.Message)}");
+            var returnParam = !string.IsNullOrWhiteSpace(returnUrl) ? $"&returnUrl={Uri.EscapeDataString(returnUrl)}" : string.Empty;
+            return Results.Redirect($"/cadastro?error={Uri.EscapeDataString(result.Error.Message)}{returnParam}");
         }
 
         await authSession.SignInAsync(
             new AuthUser(result.Value.UserId, result.Value.Email, result.Value.FullName, result.Value.Role),
             context.RequestAborted);
 
-        return Results.Redirect("/");
+        return Results.Redirect(GetDestinationUrl(returnUrl, result.Value.Role));
     }
 
     private static async Task<IResult> LoginAsync(
@@ -57,7 +59,8 @@ public static class AccountEndpoints
         ICommandHandler<LoginUserCommand, LoginResult> handler,
         IAuthSession authSession,
         [FromForm] string email,
-        [FromForm] string password)
+        [FromForm] string password,
+        [FromForm] string? returnUrl = null)
     {
         var result = await handler.Handle(
             new LoginUserCommand(email, password),
@@ -65,14 +68,15 @@ public static class AccountEndpoints
 
         if (result.IsFailure)
         {
-            return Results.Redirect($"/login?error={Uri.EscapeDataString(result.Error.Message)}");
+            var returnParam = !string.IsNullOrWhiteSpace(returnUrl) ? $"&returnUrl={Uri.EscapeDataString(returnUrl)}" : string.Empty;
+            return Results.Redirect($"/login?error={Uri.EscapeDataString(result.Error.Message)}{returnParam}");
         }
 
         await authSession.SignInAsync(
             new AuthUser(result.Value.UserId, result.Value.Email, result.Value.FullName, result.Value.Role),
             context.RequestAborted);
 
-        return Results.Redirect("/");
+        return Results.Redirect(GetDestinationUrl(returnUrl, result.Value.Role));
     }
 
     private static async Task<IResult> RequestPasswordResetAsync(
@@ -168,7 +172,28 @@ public static class AccountEndpoints
             new AuthUser(commandResult.Value.UserId, commandResult.Value.Email, commandResult.Value.FullName, commandResult.Value.Role),
             context.RequestAborted);
 
-        return Results.Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
+        return Results.Redirect(GetDestinationUrl(returnUrl, commandResult.Value.Role));
+    }
+
+    private static string GetDestinationUrl(string? returnUrl, string? role)
+    {
+        if (!string.IsNullOrWhiteSpace(returnUrl) &&
+            returnUrl.StartsWith("/") &&
+            !returnUrl.StartsWith("//") &&
+            !returnUrl.StartsWith("/\\") &&
+            returnUrl != "/")
+        {
+            return returnUrl;
+        }
+
+        if (role == PersonaScript.Modules.Identity.Domain.UserRole.SystemAdmin.ToString() ||
+            role == PersonaScript.Modules.Identity.Domain.UserRole.SupportAgent.ToString() ||
+            role == PersonaScript.Modules.Identity.Domain.UserRole.FinanceAdmin.ToString())
+        {
+            return "/admin";
+        }
+
+        return "/anamnese";
     }
 
     public sealed record IssueTokenRequest(string? Email, string? Password);

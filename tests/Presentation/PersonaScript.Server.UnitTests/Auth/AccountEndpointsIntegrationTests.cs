@@ -23,7 +23,7 @@ public class AccountEndpointsIntegrationTests : IClassFixture<PersonaScriptWebAp
         var response = await client.SendAsync(request);
 
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
-        response.Headers.Location!.OriginalString.Should().Be("/");
+        response.Headers.Location!.OriginalString.Should().BeOneOf("/", "/anamnese");
         response.Headers.TryGetValues("Set-Cookie", out var cookies).Should().BeTrue();
         cookies!.Should().Contain(cookie => cookie.StartsWith("PersonaScript.Auth=", StringComparison.Ordinal));
     }

@@ -1,8 +1,23 @@
 <div class="auth-social-grid">
-    <a href="/account/external-login/Google" class="auth-social-btn" title="Entrar com o Google">
+    <a href="@GetSocialUrl("Google")" class="auth-social-btn" title="Entrar com o Google">
         <span aria-hidden="true">G</span> Google
     </a>
-    <a href="/account/external-login/Apple" class="auth-social-btn" title="Entrar com a Apple">
+    <a href="@GetSocialUrl("Apple")" class="auth-social-btn" title="Entrar com a Apple">
         <span aria-hidden="true">&#63743;</span> Apple
     </a>
 </div>
+
+@code {
+    [Parameter]
+    public string? ReturnUrl { get; set; }
+
+    private string GetSocialUrl(string provider)
+    {
+        var url = $"/account/external-login/{provider}";
+        if (!string.IsNullOrWhiteSpace(ReturnUrl))
+        {
+            url += $"?returnUrl={Uri.EscapeDataString(ReturnUrl)}";
+        }
+        return url;
+    }
+}
