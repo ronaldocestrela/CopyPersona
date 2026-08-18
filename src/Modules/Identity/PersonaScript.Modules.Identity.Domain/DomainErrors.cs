@@ -35,5 +35,8 @@ public static class DomainErrors
 
         public static Error UserNotFound =>
             Error.NotFound("identity.user_not_found", "Usuário não encontrado.");
+
+        public static Error ProviderRequired =>
+            Error.Validation("identity.provider_required", "Provedor de autenticação é obrigatório.");
     }
 }

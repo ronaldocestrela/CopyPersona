@@ -92,4 +92,28 @@ public sealed class User : BaseEntity, IMustHaveTenant
 
         return Result.Success(user);
     }
+
+    public static Result<User> RegisterFromExternalProvider(string fullName, string email, string provider, string providerKey)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            return Result.Failure<User>(DomainErrors.Identity.FullNameRequired);
+        }
+
+        if (string.IsNullOrWhiteSpace(email) || !EmailRegex.IsMatch(email.Trim()))
+        {
+            return Result.Failure<User>(DomainErrors.Identity.EmailInvalid);
+        }
+
+        var user = new User
+        {
+            FullName = fullName.Trim(),
+            Email = email.Trim().ToLowerInvariant(),
+            PasswordHash = $"EXTERNAL_OAUTH_{provider.ToUpperInvariant()}_{providerKey}",
+        };
+
+        user.TenantId = user.Id;
+
+        return Result.Success(user);
+    }
 }

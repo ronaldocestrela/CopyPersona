@@ -36,15 +36,15 @@ O desenvolvimento segue estritamente os princípios definidos em [`AGENTS.md`](f
   - [x] Fluxo completo de recuperação de senha operante em ambiente de dev.
   - [x] Testes de integração de e-mail e comandos CQRS passando sem falhas (53 testes verdes no total).
 
-### Subfase 1.3: Autenticação OAuth2 (Google & Apple) e Suporte a JWT
+### Subfase 1.3: Autenticação OAuth2 (Google & Apple) e Suporte a JWT [CONCLUÍDO]
 - **Tarefas:**
-  - Configurar autenticação OAuth2 social (Google e Apple Identity Providers) nos endpoints `POST /account/external-login`.
-  - Implementar emissão de JWT Bearer Token para futuras integrações de API / Mobile no `Identity.Application`.
-  - Atualizar telas de `/login` e `/cadastro` ativando visualmente os botões sociais (Stitch UI).
-  - Testes unitários para mapeamento de claims externas e provisionamento automático de novo Tenant/User no registro social.
+  - [x] Configurar autenticação OAuth2 social (Google e Apple Identity Providers) nos endpoints `/account/external-login/{provider}` e `/account/external-callback`.
+  - [x] Implementar emissão de JWT Bearer Token para futuras integrações de API / Mobile no `Identity.Application` e `Identity.Infrastructure`.
+  - [x] Atualizar telas de `/login` e `/cadastro` ativando visualmente os botões sociais (Stitch UI).
+  - [x] Testes unitários para mapeamento de claims externas e provisionamento automático de novo Tenant/User no registro social (`TenantId == UserId`).
 - **Entregáveis da Subfase 1.3:**
-  - Login via Google/Apple funcional em dev.
-  - Emissor e validador de JWT configurados com testes de contrato.
+  - [x] Login via Google/Apple funcional em dev.
+  - [x] Emissor e validador de JWT configurados com testes de contrato (67 testes verdes no total).
 
 ### Subfase 1.4: Sistema de Roles (RBAC) e Infraestrutura do Backoffice Operacional
 - **Tarefas:**

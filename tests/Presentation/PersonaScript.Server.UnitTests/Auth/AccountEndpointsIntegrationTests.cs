@@ -97,6 +97,67 @@ public class AccountEndpointsIntegrationTests : IClassFixture<PersonaScriptWebAp
         response.Headers.Location!.OriginalString.Should().Contain("error=");
     }
 
+    [Fact]
+    public async Task IssueToken_ShouldReturnJwtToken_WhenCredentialsAreValid()
+    {
+        var client = CreateClient();
+        var email = $"jwt-user-{Guid.NewGuid():N}@example.com";
+        var password = "password123";
+
+        using (var registerRequest = await CreateCustomRegisterRequestAsync(client, "JWT User", email, password))
+        {
+            var regResponse = await client.SendAsync(registerRequest);
+            regResponse.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        }
+
+        var fields = new Dictionary<string, string>
+        {
+            ["Email"] = email,
+            ["Password"] = password,
+        };
+
+        var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "/account/token")
+        {
+            Content = new FormUrlEncodedContent(fields),
+        };
+
+        var response = await client.SendAsync(tokenRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var json = await response.Content.ReadAsStringAsync();
+        json.Should().Contain("accessToken");
+        json.Should().Contain("Bearer");
+    }
+
+    [Fact]
+    public async Task IssueToken_ShouldReturnBadRequest_WhenCredentialsAreInvalid()
+    {
+        var client = CreateClient();
+        var fields = new Dictionary<string, string>
+        {
+            ["Email"] = "nonexistent@example.com",
+            ["Password"] = "wrongpassword",
+        };
+
+        var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "/account/token")
+        {
+            Content = new FormUrlEncodedContent(fields),
+        };
+
+        var response = await client.SendAsync(tokenRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task ExternalLogin_ShouldRedirectToError_WhenProviderIsInvalid()
+    {
+        var client = CreateClient();
+        var response = await client.GetAsync("/account/external-login/InvalidProvider");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.OriginalString.Should().Contain("/login?error=");
+    }
+
     private HttpClient CreateClient() =>
         _factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -120,6 +181,32 @@ public class AccountEndpointsIntegrationTests : IClassFixture<PersonaScriptWebAp
         {
             fields["AcceptTerms"] = "true";
         }
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/account/register")
+        {
+            Content = new FormUrlEncodedContent(fields),
+        };
+
+        if (!string.IsNullOrEmpty(cookieHeader))
+        {
+            request.Headers.Add("Cookie", cookieHeader);
+        }
+
+        return request;
+    }
+
+    private static async Task<HttpRequestMessage> CreateCustomRegisterRequestAsync(HttpClient client, string fullName, string email, string password)
+    {
+        var (token, cookieHeader) = await GetAntiforgeryAsync(client, "/cadastro");
+
+        var fields = new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = token,
+            ["FullName"] = fullName,
+            ["Email"] = email,
+            ["Password"] = password,
+            ["AcceptTerms"] = "true",
+        };
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/account/register")
         {

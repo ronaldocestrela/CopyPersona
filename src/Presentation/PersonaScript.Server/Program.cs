@@ -1,7 +1,11 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using PersonaScript.BuildingBlocks.Tenancy;
 using PersonaScript.Modules.Billing.Infrastructure;
+using PersonaScript.Modules.Identity.Application.Abstractions;
 using PersonaScript.Modules.Identity.Infrastructure;
 using PersonaScript.Modules.Personas.Infrastructure;
 using PersonaScript.Modules.Scripts.Infrastructure;
@@ -13,13 +17,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+var jwtKey = Encoding.UTF8.GetBytes(jwtOptions.Secret);
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
     .AddCookie(options =>
     {
         options.LoginPath = "/login";
         options.LogoutPath = "/logout";
         options.Cookie.Name = "PersonaScript.Auth";
         options.SlidingExpiration = true;
+    })
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(jwtKey)
+        };
     });
 
 builder.Services.AddAuthorization();

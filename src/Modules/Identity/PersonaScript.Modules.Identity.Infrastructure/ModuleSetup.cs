@@ -47,6 +47,9 @@ public static class ModuleSetup
             services.AddScoped<IEmailSender, ResendEmailSender>();
         }
 
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher, AspNetPasswordHasher>();
         services.AddScoped<IAuthSession, CookieAuthSession>();
@@ -54,6 +57,8 @@ public static class ModuleSetup
         services.AddScoped<ICommandHandler<LoginUserCommand, LoginResult>, LoginUserCommandHandler>();
         services.AddScoped<ICommandHandler<RequestPasswordResetCommand>, RequestPasswordResetCommandHandler>();
         services.AddScoped<ICommandHandler<ResetPasswordCommand>, ResetPasswordCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Identity.Application.Commands.ExternalLogin.ExternalLoginCommand, LoginResult>, PersonaScript.Modules.Identity.Application.Commands.ExternalLogin.ExternalLoginCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Identity.Application.Commands.GenerateJwtToken.GenerateJwtTokenCommand, JwtTokenResult>, PersonaScript.Modules.Identity.Application.Commands.GenerateJwtToken.GenerateJwtTokenCommandHandler>();
 
         return services;
     }
