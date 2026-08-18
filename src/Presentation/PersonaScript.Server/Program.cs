@@ -88,6 +88,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     await app.Services.ApplyIdentityMigrationsAsync();
+    await app.Services.ApplyAnamneseMigrationsAsync();
 }
 
 if (!app.Environment.IsDevelopment())
