@@ -12,6 +12,8 @@ using PersonaScript.Modules.Scripts.Infrastructure;
 using PersonaScript.Server.Components;
 using PersonaScript.Server.Endpoints;
 
+using PersonaScript.Modules.Identity.Domain;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
@@ -27,6 +29,7 @@ builder.Services.AddAuthentication(options =>
     .AddCookie(options =>
     {
         options.LoginPath = "/login";
+        options.AccessDeniedPath = "/acesso-negado";
         options.LogoutPath = "/logout";
         options.Cookie.Name = "PersonaScript.Auth";
         options.SlidingExpiration = true;
@@ -45,7 +48,29 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    var defaultAuthSchemes = new[] { CookieAuthenticationDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme };
+
+    options.AddPolicy("RequireSystemAdmin", policy =>
+        policy.AddAuthenticationSchemes(defaultAuthSchemes)
+              .RequireRole(UserRole.SystemAdmin.ToString()));
+
+    options.AddPolicy("RequireSupportAgent", policy =>
+        policy.AddAuthenticationSchemes(defaultAuthSchemes)
+              .RequireRole(UserRole.SupportAgent.ToString(), UserRole.SystemAdmin.ToString()));
+
+    options.AddPolicy("RequireFinanceAdmin", policy =>
+        policy.AddAuthenticationSchemes(defaultAuthSchemes)
+              .RequireRole(UserRole.FinanceAdmin.ToString(), UserRole.SystemAdmin.ToString()));
+
+    options.AddPolicy("RequireBackofficeAccess", policy =>
+        policy.AddAuthenticationSchemes(defaultAuthSchemes)
+              .RequireRole(
+                  UserRole.SupportAgent.ToString(),
+                  UserRole.FinanceAdmin.ToString(),
+                  UserRole.SystemAdmin.ToString()));
+});
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddTenancy();
@@ -81,6 +106,7 @@ app.MapRazorComponents<App>()
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapAccountEndpoints();
+app.MapBackofficeEndpoints();
 app.MapGet("/logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

@@ -24,6 +24,11 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             entity.Property(user => user.PasswordHash).HasMaxLength(500).IsRequired();
             entity.Property(user => user.PasswordResetToken).HasMaxLength(256);
             entity.Property(user => user.PasswordResetTokenExpiresAt);
+            entity.Property(user => user.Role)
+                .HasConversion<string>()
+                .HasMaxLength(50)
+                .IsRequired()
+                .HasDefaultValue(UserRole.Subscriber);
             entity.Property(user => user.TenantId).IsRequired();
         });
 

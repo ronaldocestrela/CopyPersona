@@ -46,7 +46,7 @@ public static class AccountEndpoints
         }
 
         await authSession.SignInAsync(
-            new AuthUser(result.Value.UserId, result.Value.Email, result.Value.FullName),
+            new AuthUser(result.Value.UserId, result.Value.Email, result.Value.FullName, result.Value.Role),
             context.RequestAborted);
 
         return Results.Redirect("/");
@@ -69,7 +69,7 @@ public static class AccountEndpoints
         }
 
         await authSession.SignInAsync(
-            new AuthUser(result.Value.UserId, result.Value.Email, result.Value.FullName),
+            new AuthUser(result.Value.UserId, result.Value.Email, result.Value.FullName, result.Value.Role),
             context.RequestAborted);
 
         return Results.Redirect("/");
@@ -165,7 +165,7 @@ public static class AccountEndpoints
         }
 
         await authSession.SignInAsync(
-            new AuthUser(commandResult.Value.UserId, commandResult.Value.Email, commandResult.Value.FullName),
+            new AuthUser(commandResult.Value.UserId, commandResult.Value.Email, commandResult.Value.FullName, commandResult.Value.Role),
             context.RequestAborted);
 
         return Results.Redirect(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);

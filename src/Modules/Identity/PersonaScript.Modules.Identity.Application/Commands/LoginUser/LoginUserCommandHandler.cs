@@ -19,6 +19,6 @@ public sealed class LoginUserCommandHandler(
             return Result.Failure<LoginResult>(DomainErrors.Identity.InvalidCredentials);
         }
 
-        return Result.Success(new LoginResult(user.Id, user.Email, user.FullName));
+        return Result.Success(new LoginResult(user.Id, user.Email, user.FullName, user.Role.ToString()));
     }
 }

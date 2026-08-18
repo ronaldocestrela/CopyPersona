@@ -98,6 +98,21 @@ sequenceDiagram
 | `RegisterUserCommand` | `Result<LoginResult>` | Termos obrigatórios, senha ≥ 8, e-mail único; sign-in no endpoint |
 | `LoginUserCommand` | `Result<LoginResult>` | Mensagem genérica se credenciais inválidas; sign-in no endpoint |
 
+### Sistema de Roles (RBAC) e Políticas do Backoffice
+
+- **UserRole (Domain Enum):**
+  - `Subscriber` (Default para novos cadastros B2C)
+  - `SupportAgent` (Atendimento ao cliente e suporte operacional)
+  - `FinanceAdmin` (Gestão financeira e assinaturas)
+  - `SystemAdmin` (Administração total do sistema)
+- **Claims de Autorização:** `ClaimTypes.Role` e `"role"` incluídas no cookie `PersonaScript.Auth` e nos tokens JWT.
+- **Políticas registradas no DI:**
+  - `RequireSystemAdmin` (Exige `SystemAdmin`)
+  - `RequireSupportAgent` (Exige `SupportAgent` ou `SystemAdmin`)
+  - `RequireFinanceAdmin` (Exige `FinanceAdmin` ou `SystemAdmin`)
+  - `RequireBackofficeAccess` (Exige `SupportAgent`, `FinanceAdmin` ou `SystemAdmin`)
+- **Rotas & Telas:** `/backoffice` (dashboard operacional Blazor), `/acesso-negado` (403 Forbidden).
+
 ## Mapa de projetos
 
 | Projeto | Responsabilidade |
@@ -106,11 +121,11 @@ sequenceDiagram
 | `PersonaScript.BuildingBlocks.Domain` | `BaseEntity` (com `DomainEvents`), `ValueObject`, `IMustHaveTenant` (`SetTenantId`), `IDomainEvent`, `IAggregateRoot` |
 | `PersonaScript.BuildingBlocks.Tenancy` | `TenantId`, `ITenantContext`, `HttpContextTenantContext` (claims: `tenant_id`, `NameIdentifier`, `sub`), `TenantDbContextInterceptor`, `ApplyTenantQueryFilters` |
 | `PersonaScript.BuildingBlocks.CQRS` | Interfaces Command/Query/Handler |
-| `PersonaScript.Modules.Identity.*` | User, auth commands, DbContext, cookie session |
+| `PersonaScript.Modules.Identity.*` | User, UserRole, auth commands, DbContext, cookie session, JWT generator, Resend email sender |
 | `PersonaScript.Modules.*.Domain` | Entidades e contratos do módulo |
 | `PersonaScript.Modules.*.Application` | Commands, Queries, Handlers |
 | `PersonaScript.Modules.*.Infrastructure` | EF Core, repositórios, `ModuleSetup` |
-| `PersonaScript.Server` | Host Blazor, páginas auth, `/health` |
+| `PersonaScript.Server` | Host Blazor, páginas auth, `/backoffice`, endpoints de conta e API |
 
 ## Multi-tenancy (isolamento lógico)
 
@@ -136,17 +151,14 @@ Variáveis: [`.env.example`](../.env.example) → copiar para `.env`.
 
 Implementado:
 
-- Subfase 1.1 concluída: BuildingBlocks + Tenancy B2C totalmente consolidados com `TenantDbContextInterceptor`, eventos de domínio (`IDomainEvent`), resiliência de claims e testes TDD (39 testes na solução).
-- Identity: cadastro, login, cookie auth via `POST /account/*`, migration `InitialIdentity`.
-- UI `/cadastro` e `/login` alinhadas ao Stitch (SSR form post, dark card, social UI stub).
-- `HttpContextTenantContext` + claims `tenant_id`, `NameIdentifier` e `sub`.
-- Testes: domínio, handlers, repositório InMemory, interceptor EF Core, isolamento cross-tenant, bUnit das páginas auth e integração dos endpoints de conta.
+- Subfase 1.1 concluída: BuildingBlocks + Tenancy B2C totalmente consolidados com `TenantDbContextInterceptor`, eventos de domínio (`IDomainEvent`), resiliência de claims e testes TDD.
+- Subfase 1.2 concluída: Expansão do módulo Identity com fluxo de esqueci/redefinir senha, envio de e-mails via Resend/FakeEmailSender e páginas SSR.
+- Subfase 1.3 concluída: Autenticação OAuth2 (Google/Apple) e emissão/validação de tokens JWT Bearer.
+- Subfase 1.4 concluída: Sistema de Roles (RBAC), claims de role em cookie e JWT, políticas de autorização no container de DI, dashboard Blazor do Backoffice Operacional (`/backoffice`), página `/acesso-negado` e suíte completa de testes TDD (74 testes verdes na solução).
 
-Próximas entregas:
+Próxima entrega:
 
-- Subfase 1.2: Expansão do Módulo Identity (Recuperação de Senha & E-mails)
-- Subfase 1.3: Autenticação OAuth2 (Google & Apple) e JWT
-- Subfase 1.4: Sistema de Roles (RBAC) e Backoffice
+- FASE 2: Módulo de Anamnese Digital (Engine de Coleta em 10 Etapas)
 
 ## Referências
 

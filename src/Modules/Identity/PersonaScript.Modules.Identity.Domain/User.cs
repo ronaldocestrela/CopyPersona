@@ -24,6 +24,13 @@ public sealed class User : BaseEntity, IMustHaveTenant
 
     public DateTimeOffset? PasswordResetTokenExpiresAt { get; private set; }
 
+    public UserRole Role { get; private set; } = UserRole.Subscriber;
+
+    public void AssignRole(UserRole role)
+    {
+        Role = role;
+    }
+
     private User()
     {
     }

@@ -58,7 +58,28 @@ public class AuthCommandHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.Email.Should().Be("maria@example.com");
         result.Value.FullName.Should().Be("Maria Silva");
+        result.Value.Role.Should().Be("Subscriber");
         result.Value.UserId.Should().NotBe(Guid.Empty);
+    }
+
+    [Fact]
+    public async Task Login_ShouldReturnLoginResultWithRole_WhenSuccessful()
+    {
+        var user = User.Register("Maria Silva", "maria@example.com", "hash").Value;
+        user.AssignRole(UserRole.SystemAdmin);
+
+        _userRepository.GetByEmailAsync("maria@example.com", Arg.Any<CancellationToken>())
+            .Returns(user);
+        _passwordHasher.VerifyPassword("password123", "hash").Returns(true);
+
+        var handler = new LoginUserCommandHandler(_userRepository, _passwordHasher);
+
+        var result = await handler.Handle(
+            new LoginUserCommand("maria@example.com", "password123"),
+            CancellationToken.None);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Role.Should().Be("SystemAdmin");
     }
 
     [Fact]

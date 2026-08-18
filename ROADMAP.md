@@ -46,18 +46,18 @@ O desenvolvimento segue estritamente os princípios definidos em [`AGENTS.md`](f
   - [x] Login via Google/Apple funcional em dev.
   - [x] Emissor e validador de JWT configurados com testes de contrato (67 testes verdes no total).
 
-### Subfase 1.4: Sistema de Roles (RBAC) e Infraestrutura do Backoffice Operacional
+### Subfase 1.4: Sistema de Roles (RBAC) e Infraestrutura do Backoffice Operacional [CONCLUÍDO]
 - **Tarefas:**
-  - Estender o modelo de `User` para suportar papéis (`UserRole`: `Subscriber`, `SupportAgent`, `FinanceAdmin`, `SystemAdmin`).
-  - Adicionar claim `role` ao cookie de autenticação e aos tokens JWT.
-  - Criar autorização baseada em Roles/Policies no Blazor e na camada de API.
-  - Testar isolamento de acesso às rotas administrativas por perfil.
+  - [x] Estender o modelo de `User` para suportar papéis (`UserRole`: `Subscriber`, `SupportAgent`, `FinanceAdmin`, `SystemAdmin`).
+  - [x] Adicionar claim `role` ao cookie de autenticação e aos tokens JWT.
+  - [x] Criar autorização baseada em Roles/Policies no Blazor e na camada de API.
+  - [x] Testar isolamento de acesso às rotas administrativas por perfil.
 - **Entregáveis da Subfase 1.4:**
-  - Atribuição e verificação de roles testada no backend e frontend.
-  - Policies `RequireSystemAdmin` e `RequireSupportAgent` registradas no container de DI.
+  - [x] Atribuição e verificação de roles testada no backend e frontend.
+  - [x] Policies `RequireSystemAdmin`, `RequireSupportAgent`, `RequireFinanceAdmin` e `RequireBackofficeAccess` registradas no container de DI.
 
 #### Resultado Esperado da FASE 1:
-Infraestrutura base de segurança, multi-tenancy B2C e autenticação totalmente funcional, testada via TDD, com e-mails funcionais via Mailpit, login social pronto e RBAC estruturado para suportar assinantes e administradores.
+Infraestrutura base de segurança, multi-tenancy B2C e autenticação totalmente funcional, testada via TDD, com e-mails funcionais via Resend/Mailpit, login social pronto e RBAC estruturado para suportar assinantes e administradores.
 
 ---
 

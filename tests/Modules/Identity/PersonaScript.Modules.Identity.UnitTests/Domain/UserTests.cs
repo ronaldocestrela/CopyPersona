@@ -13,6 +13,17 @@ public class UserTests
         result.IsSuccess.Should().BeTrue();
         result.Value.TenantId.Should().Be(result.Value.Id);
         result.Value.Email.Should().Be("maria@example.com");
+        result.Value.Role.Should().Be(UserRole.Subscriber);
+    }
+
+    [Fact]
+    public void AssignRole_ShouldUpdateUserRole()
+    {
+        var user = User.Register("Maria Silva", "maria@example.com", "hashed-password").Value;
+
+        user.AssignRole(UserRole.SystemAdmin);
+
+        user.Role.Should().Be(UserRole.SystemAdmin);
     }
 
     [Fact]

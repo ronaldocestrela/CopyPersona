@@ -39,5 +39,6 @@ public class JwtTokenGeneratorTests
         jwtToken.Claims.First(c => c.Type == "tenant_id").Value.Should().Be(user.TenantId.ToString());
         jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value.Should().Be("ana@example.com");
         jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value.Should().Be("Ana Souza");
+        jwtToken.Claims.First(c => c.Type == "role" || c.Type == System.Security.Claims.ClaimTypes.Role).Value.Should().Be("Subscriber");
     }
 }

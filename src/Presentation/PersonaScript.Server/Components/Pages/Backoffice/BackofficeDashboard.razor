@@ -1,0 +1,104 @@
+@page "/backoffice"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "RequireBackofficeAccess")]
+
+<PageTitle>Backoffice Operacional — PersonaScript AI</PageTitle>
+
+<div class="min-h-screen bg-slate-950 text-slate-100 font-sans p-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+        <!-- Header -->
+        <header class="flex items-center justify-between border-b border-slate-800 pb-6">
+            <div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-white">Backoffice Operacional</h1>
+                <p class="text-slate-400 text-sm mt-1">Gestão técnica, suporte ao cliente e observabilidade de LLM</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    Sistema Operacional
+                </span>
+                <a href="/" class="text-xs text-slate-400 hover:text-white transition-colors">Sair para o App &rarr;</a>
+            </div>
+        </header>
+
+        <!-- Stats Overview Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Assinantes Ativos</span>
+                <p class="text-3xl font-bold text-white">1,248</p>
+                <p class="text-xs text-emerald-400">+12% este mês</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Chamados de Suporte</span>
+                <p class="text-3xl font-bold text-amber-400">3 PENDENTES</p>
+                <p class="text-xs text-slate-400">Tempo médio 14m</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Execuções de IA</span>
+                <p class="text-3xl font-bold text-indigo-400">8,920</p>
+                <p class="text-xs text-indigo-300">Latência média 1.8s</p>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-2">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">MRR Recorrente</span>
+                <p class="text-3xl font-bold text-emerald-400">R$ 48.900</p>
+                <p class="text-xs text-slate-400">Churn rate 1.4%</p>
+            </div>
+        </div>
+
+        <!-- Role-restricted Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Support & Operations Card -->
+            <AuthorizeView Policy="RequireSupportAgent">
+                <Authorized>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                            Painel de Suporte & Operação
+                        </h2>
+                        <p class="text-slate-400 text-sm">Acesso concedido aos agentes de suporte para atendimento e gestão de tickets.</p>
+                        <div class="pt-4 border-t border-slate-800 flex gap-3">
+                            <button class="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors">
+                                Listar Usuários
+                            </button>
+                            <button class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors">
+                                Logs de Anamnese
+                            </button>
+                        </div>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-6 opacity-60">
+                        <h2 class="text-lg font-bold text-slate-400">Painel de Suporte (Bloqueado)</h2>
+                        <p class="text-slate-500 text-xs mt-1">Requer papel de SupportAgent ou SystemAdmin.</p>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+
+            <!-- Admin & Configuration Card -->
+            <AuthorizeView Policy="RequireSystemAdmin">
+                <Authorized>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                            Administração do Sistema & Prompts
+                        </h2>
+                        <p class="text-slate-400 text-sm">Acesso restrito a administradores para alteração de papéis, chaves e prompts de IA.</p>
+                        <div class="pt-4 border-t border-slate-800 flex gap-3">
+                            <button class="px-4 py-2 text-xs font-semibold rounded-lg bg-purple-600 hover:bg-purple-500 text-white transition-colors">
+                                Versionamento de Prompts
+                            </button>
+                            <button class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors">
+                                Gestão de Permissões
+                            </button>
+                        </div>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-6 opacity-60">
+                        <h2 class="text-lg font-bold text-slate-400">Administração de Prompts (Bloqueado)</h2>
+                        <p class="text-slate-500 text-xs mt-1">Requer papel de SystemAdmin.</p>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+    </div>
+</div>

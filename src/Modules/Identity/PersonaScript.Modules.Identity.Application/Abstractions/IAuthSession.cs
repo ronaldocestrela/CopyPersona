@@ -1,6 +1,6 @@
 namespace PersonaScript.Modules.Identity.Application.Abstractions;
 
-public sealed record AuthUser(Guid UserId, string Email, string FullName);
+public sealed record AuthUser(Guid UserId, string Email, string FullName, string Role);
 
 public interface IAuthSession
 {

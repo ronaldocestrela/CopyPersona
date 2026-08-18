@@ -52,6 +52,6 @@ public sealed class ExternalLoginCommandHandler : ICommandHandler<ExternalLoginC
             await _emailSender.SendWelcomeEmailAsync(user.Email, user.FullName, cancellationToken);
         }
 
-        return Result.Success(new LoginResult(user.Id, user.Email, user.FullName));
+        return Result.Success(new LoginResult(user.Id, user.Email, user.FullName, user.Role.ToString()));
     }
 }
