@@ -16,15 +16,15 @@ O desenvolvimento segue estritamente os princípios definidos em [`AGENTS.md`](f
 
 ## FASE 1: Fundação Arquitetural, Identidade e Segurança Base
 
-### Subfase 1.1: Consolidação do BuildingBlocks e Tenancy B2C
+### Subfase 1.1: Consolidação do BuildingBlocks e Tenancy B2C [CONCLUÍDO]
 - **Tarefas:**
-  - Validar e estender as abstrações em `PersonaScript.BuildingBlocks.Domain` (`BaseEntity`, `ValueObject`, `IMustHaveTenant`, `IAggregateRoot`).
-  - Reforçar em `PersonaScript.BuildingBlocks.Tenancy` o resolvedor `HttpContextTenantContext` garantindo que `TenantId` seja obtido exclusivamente via claims HTTP do cookie/JWT autenticado.
-  - Implementar suporte completo ao `TenantDbContextInterceptor` para atribuição automática do `TenantId` em inserções EF Core.
-  - Escrever testes unitários e de integração validando a recusa e atribuição correta do `TenantId`.
+  - [x] Validar e estender as abstrações em `PersonaScript.BuildingBlocks.Domain` (`BaseEntity`, `ValueObject`, `IMustHaveTenant`, `IAggregateRoot`, `IDomainEvent`).
+  - [x] Reforçar em `PersonaScript.BuildingBlocks.Tenancy` o resolvedor `HttpContextTenantContext` garantindo que `TenantId` seja obtido exclusivamente via claims HTTP (`tenant_id`, `NameIdentifier`, `sub`).
+  - [x] Implementar suporte completo ao `TenantDbContextInterceptor` para atribuição automática do `TenantId` em inserções EF Core e bloqueio de mutações cross-tenant.
+  - [x] Escrever testes unitários e de integração validando a recusa e atribuição correta do `TenantId`.
 - **Entregáveis da Subfase 1.1:**
-  - `BuildingBlocks.Tenancy` 100% testado com cobertura de 95%+.
-  - Interceptor EF Core configurado e injetado no container de DI.
+  - [x] `BuildingBlocks.Tenancy` 100% testado com cobertura de 95%+.
+  - [x] Interceptor EF Core configurado e injetado no container de DI.
 
 ### Subfase 1.2: Expansão do Módulo Identity (Recuperação de Senha & E-mails)
 - **Tarefas:**

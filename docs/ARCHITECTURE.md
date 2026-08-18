@@ -100,8 +100,8 @@ sequenceDiagram
 | Projeto | Responsabilidade |
 |---------|------------------|
 | `PersonaScript.BuildingBlocks.Results` | `Result`, `Result<T>`, `Error` |
-| `PersonaScript.BuildingBlocks.Domain` | `BaseEntity`, `ValueObject`, `IMustHaveTenant`, `IAggregateRoot` |
-| `PersonaScript.BuildingBlocks.Tenancy` | `TenantId`, `ITenantContext`, `HttpContextTenantContext`, filtros EF |
+| `PersonaScript.BuildingBlocks.Domain` | `BaseEntity` (com `DomainEvents`), `ValueObject`, `IMustHaveTenant` (`SetTenantId`), `IDomainEvent`, `IAggregateRoot` |
+| `PersonaScript.BuildingBlocks.Tenancy` | `TenantId`, `ITenantContext`, `HttpContextTenantContext` (claims: `tenant_id`, `NameIdentifier`, `sub`), `TenantDbContextInterceptor`, `ApplyTenantQueryFilters` |
 | `PersonaScript.BuildingBlocks.CQRS` | Interfaces Command/Query/Handler |
 | `PersonaScript.Modules.Identity.*` | User, auth commands, DbContext, cookie session |
 | `PersonaScript.Modules.*.Domain` | Entidades e contratos do módulo |
@@ -113,7 +113,8 @@ sequenceDiagram
 
 - Banco e schema **compartilhados**; discriminação por coluna `TenantId`.
 - `TenantId` em B2C equivale ao `UserId` autenticado.
-- `HttpContextTenantContext` lê claim `tenant_id` do cookie (fallback `Guid.Empty` se anônimo).
+- `HttpContextTenantContext` lê prioritariamente a claim `tenant_id` do cookie/JWT com fallbacks para `ClaimTypes.NameIdentifier` e `sub` (retorna `Guid.Empty` se anônimo ou inválido).
+- `TenantDbContextInterceptor` atribui automaticamente o `TenantId` no EF Core (`EntityState.Added`), impede gravações sob contextos anônimos e bloqueia alterações no `TenantId` em entidades modificadas (`EntityState.Modified`).
 - Commands/Queries **nunca** recebem `TenantId` do cliente.
 - Entidades de negócio implementam `IMustHaveTenant`.
 
@@ -132,18 +133,17 @@ Variáveis: [`.env.example`](../.env.example) → copiar para `.env`.
 
 Implementado:
 
-- BuildingBlocks + testes TDD
-- Identity: cadastro, login, cookie auth via `POST /account/*`, migration `InitialIdentity`
-- UI `/cadastro` e `/login` alinhadas ao Stitch (SSR form post, dark card, social UI stub)
-- `HttpContextTenantContext` + claim `tenant_id`
-- Testes: domínio, handlers, repositório InMemory, bUnit das páginas auth, integração dos endpoints de conta
+- Subfase 1.1 concluída: BuildingBlocks + Tenancy B2C totalmente consolidados com `TenantDbContextInterceptor`, eventos de domínio (`IDomainEvent`), resiliência de claims e testes TDD (39 testes na solução).
+- Identity: cadastro, login, cookie auth via `POST /account/*`, migration `InitialIdentity`.
+- UI `/cadastro` e `/login` alinhadas ao Stitch (SSR form post, dark card, social UI stub).
+- `HttpContextTenantContext` + claims `tenant_id`, `NameIdentifier` e `sub`.
+- Testes: domínio, handlers, repositório InMemory, interceptor EF Core, isolamento cross-tenant, bUnit das páginas auth e integração dos endpoints de conta.
 
 Próximas entregas:
 
-- OAuth Google/Apple
-- Reset de senha via Mailpit
-- JWT bearer para APIs externas
-- Billing (Stripe), Personas, Scripts
+- Subfase 1.2: Expansão do Módulo Identity (Recuperação de Senha & E-mails)
+- Subfase 1.3: Autenticação OAuth2 (Google & Apple) e JWT
+- Subfase 1.4: Sistema de Roles (RBAC) e Backoffice
 
 ## Referências
 
