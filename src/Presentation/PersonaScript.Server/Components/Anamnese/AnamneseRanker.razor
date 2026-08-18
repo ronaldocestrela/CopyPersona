@@ -1,0 +1,85 @@
+@namespace PersonaScript.Server.Components.Anamnese
+
+<div class="anamnese-ranker-list">
+    @for (int i = 0; i < _items.Count; i++)
+    {
+        var index = i;
+        var item = _items[index];
+        <div class="anamnese-ranker-item">
+            <div class="d-flex align-items-center gap-2">
+                <span style="font-weight: 700; color: #a5b4fc; min-width: 24px;">#@(index + 1)</span>
+                <span style="font-weight: 500;">@item</span>
+            </div>
+            <div class="anamnese-ranker-controls">
+                <button type="button" 
+                        class="anamnese-ranker-btn" 
+                        disabled="@(index == 0)" 
+                        @onclick="() => MoveUp(index)">
+                    ▲
+                </button>
+                <button type="button" 
+                        class="anamnese-ranker-btn" 
+                        disabled="@(index == _items.Count - 1)" 
+                        @onclick="() => MoveDown(index)">
+                    ▼
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public List<string> DefaultItems { get; set; } = new() 
+    { 
+        "Vídeos curtos (Reels / TikTok)", 
+        "Carrossel explicativo", 
+        "Stories com bastidores", 
+        "Foto com legenda profunda", 
+        "Transmissões ao vivo (Lives)" 
+    };
+
+    private List<string> _items = new();
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(Value))
+        {
+            var parsed = Value.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                              .Select(s => s.Trim())
+                              .Where(s => !string.IsNullOrWhiteSpace(s))
+                              .ToList();
+            if (parsed.Any())
+            {
+                _items = parsed;
+                return;
+            }
+        }
+        _items = new List<string>(DefaultItems);
+    }
+
+    private async Task MoveUp(int index)
+    {
+        if (index <= 0) return;
+        var temp = _items[index];
+        _items[index] = _items[index - 1];
+        _items[index - 1] = temp;
+        await UpdateValue();
+    }
+
+    private async Task MoveDown(int index)
+    {
+        if (index >= _items.Count - 1) return;
+        var temp = _items[index];
+        _items[index] = _items[index + 1];
+        _items[index + 1] = temp;
+        await UpdateValue();
+    }
+
+    private async Task UpdateValue()
+    {
+        var joined = string.Join("; ", _items);
+        await ValueChanged.InvokeAsync(joined);
+    }
+}

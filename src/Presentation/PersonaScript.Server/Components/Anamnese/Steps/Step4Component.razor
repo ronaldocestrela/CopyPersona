@@ -1,0 +1,94 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+@using PersonaScript.Modules.Anamnese.Domain
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 4 — Seu Paciente
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        Para quem você fala. Entender a mente e as dores do seu cliente ideal.
+    </p>
+
+    <!-- 4.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">4.1 Quem é o seu paciente ideal (perfil demográfico/psicográfico)?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Mulheres entre 35 e 55 anos, executivas ou empreendedoras que buscam rejuvenescimento natural..."
+                  value="@Model.PerfilDemograficoPsicografico" @onchange="OnPerfilChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.PerfilDemograficoPsicografico" />
+    </div>
+
+    <!-- 4.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">4.2 Quais são os maiores MEDOS e inseguranças dele(a)?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Medo de dor, medo de ficar artificial, medo de dar errado..."
+                  value="@Model.MaioresMedos" @onchange="OnMedosChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.MaioresMedos" />
+    </div>
+
+    <!-- 4.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">4.3 Quais são os maiores DESEJOS e sonhos dele(a)?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Sentir-se confiante em reuniões, parecer mais jovem sem cirurgia..."
+                  value="@Model.MaioresDesejos" @onchange="OnDesejosChanged"></textarea>
+    </div>
+
+    <!-- 4.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">4.4 Quais as perguntas mais frequentes que eles fazem em consulta?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Dói? Quanto tempo dura? Quando posso voltar a trabalhar?..."
+                  value="@Model.PerguntasFrequentes" @onchange="OnPerguntasChanged"></textarea>
+    </div>
+
+    <!-- 4.5 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">4.5 Quais mitos ou informações erradas eles trazem da internet?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Acham que botox deixa o rosto congelado..."
+                  value="@Model.MitosInformacoesErradas" @onchange="OnMitosChanged"></textarea>
+    </div>
+
+    <!-- 4.6 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">4.6 Qual é o principal canal de origem dos seus pacientes hoje?</label>
+        <div class="anamnese-card-grid">
+            @foreach (var opt in Enum.GetValues<CanalOrigemEnum>())
+            {
+                var isSelected = Model.CanalOrigem == opt;
+                <div class="anamnese-option-card @(isSelected ? "selected" : "")" @onclick="() => SelectCanal(opt)">
+                    <input type="radio" name="canalOrigem" checked="@isSelected" />
+                    <span>@GetCanalText(opt)</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa4Dto Model { get; set; } = new("", "", "", "", "", CanalOrigemEnum.Instagram);
+    [Parameter] public EventCallback<Etapa4Dto> ModelChanged { get; set; }
+
+    private async Task OnPerfilChanged(ChangeEventArgs e) => await Update(Model with { PerfilDemograficoPsicografico = e.Value?.ToString() ?? "" });
+    private async Task OnMedosChanged(ChangeEventArgs e) => await Update(Model with { MaioresMedos = e.Value?.ToString() ?? "" });
+    private async Task OnDesejosChanged(ChangeEventArgs e) => await Update(Model with { MaioresDesejos = e.Value?.ToString() ?? "" });
+    private async Task OnPerguntasChanged(ChangeEventArgs e) => await Update(Model with { PerguntasFrequentes = e.Value?.ToString() ?? "" });
+    private async Task OnMitosChanged(ChangeEventArgs e) => await Update(Model with { MitosInformacoesErradas = e.Value?.ToString() ?? "" });
+
+    private async Task SelectCanal(CanalOrigemEnum val) => await Update(Model with { CanalOrigem = val });
+
+    private async Task Update(Etapa4Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+
+    private string GetCanalText(CanalOrigemEnum e) => e switch
+    {
+        CanalOrigemEnum.Indicacao => "Indicação de amigos/pacientes",
+        CanalOrigemEnum.Instagram => "Instagram / Redes sociais",
+        CanalOrigemEnum.Google => "Google / Tráfego pago",
+        CanalOrigemEnum.ConvenioParcerias => "Convênio / Parcerias",
+        CanalOrigemEnum.PassamEmFrente => "Passam em frente ao consultório",
+        CanalOrigemEnum.Outro => "Outros canais",
+        _ => e.ToString()
+    };
+}

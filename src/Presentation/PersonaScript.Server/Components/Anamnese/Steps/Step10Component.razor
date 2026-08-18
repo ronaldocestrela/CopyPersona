@@ -1,0 +1,75 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+@using PersonaScript.Modules.Anamnese.Domain
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 10 — Objetivos e Visão de Futuro
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        Onde você quer chegar e o que considera o maior sucesso do seu posicionamento.
+    </p>
+
+    <!-- 10.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">10.1 Qual sua meta principal para os próximos 3 MESES?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Atrair 15 novos pacientes de alto valor para harmonização..."
+                  value="@Model.Meta3Meses" @onchange="OnMeta3MesesChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.Meta3Meses" />
+    </div>
+
+    <!-- 10.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">10.2 Onde você quer estar daqui a 1 ANO?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Com agenda lotada 2 meses antes e lançando meu primeiro curso..."
+                  value="@Model.Meta1Ano" @onchange="OnMeta1AnoChanged"></textarea>
+    </div>
+
+    <!-- 10.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">10.3 Experiência passada com agências ou marketing digital:</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Já contratei agência mas postavam artes genéricas sem minha cara..."
+                  value="@Model.ExperienciaPassadaMarketing" @onchange="OnExperienciaChanged"></textarea>
+    </div>
+
+    <!-- 10.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">10.4 Qual o RESULTADO PRIORITÁRIO que você mais deseja agora?</label>
+        <div class="anamnese-card-grid">
+            @foreach (var opt in Enum.GetValues<ResultadoPrioritarioEnum>())
+            {
+                var isSelected = Model.ResultadoPrioritario == opt;
+                <div class="anamnese-option-card @(isSelected ? "selected" : "")" @onclick="() => SelectResultado(opt)">
+                    <input type="radio" name="resultadoPrioritario" checked="@isSelected" />
+                    <span>@GetResultadoText(opt)</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa10Dto Model { get; set; } = new("", "", "", ResultadoPrioritarioEnum.MaisPacientesAgenda);
+    [Parameter] public EventCallback<Etapa10Dto> ModelChanged { get; set; }
+
+    private async Task OnMeta3MesesChanged(ChangeEventArgs e) => await Update(Model with { Meta3Meses = e.Value?.ToString() ?? "" });
+    private async Task OnMeta1AnoChanged(ChangeEventArgs e) => await Update(Model with { Meta1Ano = e.Value?.ToString() ?? "" });
+    private async Task OnExperienciaChanged(ChangeEventArgs e) => await Update(Model with { ExperienciaPassadaMarketing = e.Value?.ToString() ?? "" });
+
+    private async Task SelectResultado(ResultadoPrioritarioEnum val) => await Update(Model with { ResultadoPrioritario = val });
+
+    private async Task Update(Etapa10Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+
+    private string GetResultadoText(ResultadoPrioritarioEnum e) => e switch
+    {
+        ResultadoPrioritarioEnum.MaisSeguidoresVisibilidade => "Mais seguidores e visibilidade de marca",
+        ResultadoPrioritarioEnum.MaisAutoridadeRespeito => "Mais autoridade e respeito na minha especialidade",
+        ResultadoPrioritarioEnum.MaisPacientesAgenda => "Mais pacientes e agenda cheia",
+        ResultadoPrioritarioEnum.PacientesMelhoresTicketAlto => "Pacientes melhores de ticket mais alto",
+        _ => e.ToString()
+    };
+}

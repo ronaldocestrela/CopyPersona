@@ -1,0 +1,328 @@
+@namespace PersonaScript.Server.Components.Anamnese
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.BuildingBlocks.Results
+@using PersonaScript.Modules.Anamnese.Application.Commands.CompleteAnamnese
+@using PersonaScript.Modules.Anamnese.Application.Commands.SaveAnamneseStep
+@using PersonaScript.Modules.Anamnese.Application.Commands.StartAnamnese
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+@using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStatus
+@using PersonaScript.Modules.Anamnese.Application.Queries.GetFullAnamnese
+@using PersonaScript.Modules.Anamnese.Domain
+@using PersonaScript.Server.Components.Anamnese.Steps
+
+@inject IQueryHandler<GetAnamneseStatusQuery, AnamneseStatusDto> StatusQueryHandler
+@inject IQueryHandler<GetFullAnamneseQuery, FullAnamneseDto> FullAnamneseQueryHandler
+@inject ICommandHandler<StartAnamneseCommand, Guid> StartAnamneseHandler
+@inject ICommandHandler<SaveAnamneseStepCommand> SaveStepHandler
+@inject ICommandHandler<CompleteAnamneseCommand> CompleteAnamneseHandler
+
+<div class="anamnese-container">
+    <div class="text-center mb-4">
+        <h1 class="anamnese-header-title">Anamnese do Posicionamento Digital</h1>
+        <p class="anamnese-header-sub">
+            Conhecendo o profissional a fundo para desenhar a estratégia de conteúdo perfeita.
+        </p>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="anamnese-step-card text-center py-5">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <p style="color: #94a3b8;">Carregando seu progresso...</p>
+        </div>
+    }
+    else if (_isCompletedState)
+    {
+        <div class="anamnese-step-card text-center py-5">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem;">🎉</div>
+            <h2 style="font-weight: 800; color: #6ee7b7; margin-bottom: 1rem;">Anamnese Concluída com Sucesso!</h2>
+            <p style="color: #cbd5e1; max-width: 600px; margin: 0 auto 2rem auto;">
+                Suas respostas foram salvas com segurança. O Agente 1 (Estrategista de Persona) já pode gerar o seu diagnóstico de posicionamento personalizado.
+            </p>
+            <a href="/posicionamento" class="btn-anamnese-primary" style="text-decoration: none; display: inline-flex;">
+                Ver Diagnóstico de Posicionamento →
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Alert Banners -->
+        @if (!string.IsNullOrEmpty(_message))
+        {
+            <div class="alert alert-success d-flex align-items-center justify-content-between mb-3" style="background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #6ee7b7; border-radius: 0.75rem;">
+                <span>✓ @_message</span>
+                <button type="button" class="btn-close btn-close-white" @onclick="() => _message = null"></button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger d-flex align-items-center justify-content-between mb-3" style="background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #fca5a5; border-radius: 0.75rem;">
+                <span>⚠️ @_errorMessage</span>
+                <button type="button" class="btn-close btn-close-white" @onclick="() => _errorMessage = null"></button>
+            </div>
+        }
+
+        <!-- Stepper e Barra de Progresso -->
+        <AnamneseProgressBar CurrentStep="_currentStep" 
+                             TotalSteps="10" 
+                             PercentualConclusao="CalculatedPercentual" 
+                             Title="@GetStepTitle(_currentStep)" 
+                             OnSelectStep="GoToStepAsync" />
+
+        <!-- Renderização da Etapa Ativa -->
+        @switch (_currentStep)
+        {
+            case 1:
+                <Step1Component @bind-Model="_etapa1" />
+                break;
+            case 2:
+                <Step2Component @bind-Model="_etapa2" />
+                break;
+            case 3:
+                <Step3Component @bind-Model="_etapa3" />
+                break;
+            case 4:
+                <Step4Component @bind-Model="_etapa4" />
+                break;
+            case 5:
+                <Step5Component @bind-Model="_etapa5" />
+                break;
+            case 6:
+                <Step6Component @bind-Model="_etapa6" />
+                break;
+            case 7:
+                <Step7Component @bind-Model="_etapa7" />
+                break;
+            case 8:
+                <Step8Component @bind-Model="_etapa8" />
+                break;
+            case 9:
+                <Step9Component @bind-Model="_etapa9" />
+                break;
+            case 10:
+                <Step10Component @bind-Model="_etapa10" />
+                break;
+        }
+
+        <!-- Actions Footer Bar -->
+        <div class="anamnese-actions-bar">
+            <div>
+                @if (_currentStep > 1)
+                {
+                    <button type="button" class="btn-anamnese-secondary" @onclick="PreviousStepAsync" disabled="@_isSaving">
+                        ← Etapa Anterior
+                    </button>
+                }
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="button" class="btn-anamnese-secondary" @onclick="SaveAndResumeAsync" disabled="@_isSaving">
+                    @(_isSaving ? "Salvando..." : "💾 Salvar e Continuar Depois")
+                </button>
+
+                @if (_currentStep < 10)
+                {
+                    <button type="button" class="btn-anamnese-primary" @onclick="NextStepAsync" disabled="@_isSaving">
+                        Próxima Etapa →
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn-anamnese-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);" 
+                            @onclick="CompleteWizardAsync" disabled="@(_isSaving || _isCompleting)">
+                        @(_isCompleting ? "Concluindo..." : "✓ Concluir Anamnese")
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _isLoading = true;
+    private bool _isSaving = false;
+    private bool _isCompleting = false;
+    private bool _isCompletedState = false;
+    private int _currentStep = 1;
+    private string? _message;
+    private string? _errorMessage;
+
+    private Etapa1Dto _etapa1 = new("", "", "", 0, "", "", 0, MomentoAtualEnum.IniciandoAgenda);
+    private Etapa2Dto _etapa2 = new("", "", "", "");
+    private Etapa3Dto _etapa3 = new("", "", "", "", "", "");
+    private Etapa4Dto _etapa4 = new("", "", "", "", "", CanalOrigemEnum.Instagram);
+    private Etapa5Dto _etapa5 = new("", "", "", "", "");
+    private Etapa6Dto _etapa6 = new("", "", "", "", NivelConfortoCameraEnum.SuperAVontade, "");
+    private Etapa7Dto _etapa7 = new("", "", "", "", "", "");
+    private Etapa8Dto _etapa8 = new(new List<ArquetipoComunicacaoEnum>(), "", "", "");
+    private Etapa9Dto _etapa9 = new("", "", "", "", "");
+    private Etapa10Dto _etapa10 = new("", "", "", ResultadoPrioritarioEnum.MaisPacientesAgenda);
+
+    private int CalculatedPercentual => Math.Min(100, (_currentStep * 10));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStateAsync();
+    }
+
+    private async Task LoadStateAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        var statusResult = await StatusQueryHandler.Handle(new GetAnamneseStatusQuery(), CancellationToken.None);
+        if (statusResult.IsSuccess)
+        {
+            var status = statusResult.Value;
+            if (status.Status == AnamneseStatus.Concluido)
+            {
+                _isCompletedState = true;
+                _isLoading = false;
+                return;
+            }
+
+            _currentStep = Math.Clamp(status.EtapaAtual, 1, 10);
+            var fullResult = await FullAnamneseQueryHandler.Handle(new GetFullAnamneseQuery(), CancellationToken.None);
+            if (fullResult.IsSuccess && fullResult.Value != null)
+            {
+                PopulateDtos(fullResult.Value);
+            }
+        }
+        else if (statusResult.Error.Code == "Anamnese.NotFound")
+        {
+            await StartAnamneseHandler.Handle(new StartAnamneseCommand(), CancellationToken.None);
+            _currentStep = 1;
+        }
+        else
+        {
+            _errorMessage = statusResult.Error.Message;
+        }
+
+        _isLoading = false;
+    }
+
+    private void PopulateDtos(FullAnamneseDto full)
+    {
+        if (full.Etapa1 != null) _etapa1 = full.Etapa1;
+        if (full.Etapa2 != null) _etapa2 = full.Etapa2;
+        if (full.Etapa3 != null) _etapa3 = full.Etapa3;
+        if (full.Etapa4 != null) _etapa4 = full.Etapa4;
+        if (full.Etapa5 != null) _etapa5 = full.Etapa5;
+        if (full.Etapa6 != null) _etapa6 = full.Etapa6;
+        if (full.Etapa7 != null) _etapa7 = full.Etapa7;
+        if (full.Etapa8 != null) _etapa8 = full.Etapa8;
+        if (full.Etapa9 != null) _etapa9 = full.Etapa9;
+        if (full.Etapa10 != null) _etapa10 = full.Etapa10;
+    }
+
+    private async Task SaveCurrentStepInternalAsync()
+    {
+        var command = new SaveAnamneseStepCommand(
+            _currentStep,
+            _currentStep == 1 ? _etapa1 : null,
+            _currentStep == 2 ? _etapa2 : null,
+            _currentStep == 3 ? _etapa3 : null,
+            _currentStep == 4 ? _etapa4 : null,
+            _currentStep == 5 ? _etapa5 : null,
+            _currentStep == 6 ? _etapa6 : null,
+            _currentStep == 7 ? _etapa7 : null,
+            _currentStep == 8 ? _etapa8 : null,
+            _currentStep == 9 ? _etapa9 : null,
+            _currentStep == 10 ? _etapa10 : null
+        );
+
+        var result = await SaveStepHandler.Handle(command, CancellationToken.None);
+        if (result.IsFailure)
+        {
+            _errorMessage = result.Error.Message;
+        }
+    }
+
+    private async Task SaveAndResumeAsync()
+    {
+        _isSaving = true;
+        _message = null;
+        _errorMessage = null;
+
+        await SaveCurrentStepInternalAsync();
+
+        if (string.IsNullOrEmpty(_errorMessage))
+        {
+            _message = $"Rascunho da Etapa {_currentStep} salvo com sucesso!";
+        }
+
+        _isSaving = false;
+    }
+
+    private async Task NextStepAsync()
+    {
+        _isSaving = true;
+        _message = null;
+        _errorMessage = null;
+
+        await SaveCurrentStepInternalAsync();
+
+        if (string.IsNullOrEmpty(_errorMessage) && _currentStep < 10)
+        {
+            _currentStep++;
+        }
+
+        _isSaving = false;
+    }
+
+    private async Task PreviousStepAsync()
+    {
+        if (_currentStep > 1)
+        {
+            await SaveCurrentStepInternalAsync();
+            _currentStep--;
+        }
+    }
+
+    private async Task GoToStepAsync(int targetStep)
+    {
+        if (targetStep >= 1 && targetStep <= 10 && targetStep != _currentStep)
+        {
+            await SaveCurrentStepInternalAsync();
+            _currentStep = targetStep;
+        }
+    }
+
+    private async Task CompleteWizardAsync()
+    {
+        _isCompleting = true;
+        _errorMessage = null;
+
+        await SaveCurrentStepInternalAsync();
+
+        if (string.IsNullOrEmpty(_errorMessage))
+        {
+            var result = await CompleteAnamneseHandler.Handle(new CompleteAnamneseCommand(), CancellationToken.None);
+            if (result.IsSuccess)
+            {
+                _isCompletedState = true;
+            }
+            else
+            {
+                _errorMessage = result.Error.Message;
+            }
+        }
+
+        _isCompleting = false;
+    }
+
+    private string GetStepTitle(int step) => step switch
+    {
+        1 => "Quem é você",
+        2 => "Sua história",
+        3 => "Seu trabalho",
+        4 => "Seu paciente",
+        5 => "Suas referências",
+        6 => "Limites e exposição",
+        7 => "Seu conhecimento",
+        8 => "Seu jeito",
+        9 => "Sua rotina e capacidade",
+        10 => "Objetivos e visão de futuro",
+        _ => ""
+    };
+}

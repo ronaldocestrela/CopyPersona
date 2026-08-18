@@ -1,0 +1,90 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+@using PersonaScript.Modules.Anamnese.Domain
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 6 — Limites e Exposição
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        Até onde você vai e o que deve ser estritamente preservado.
+    </p>
+
+    <!-- 6.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">6.1 Quais assuntos são ESTRITAMENTE PROIBIDOS nas suas redes?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Política, religião, detalhes da vida amorosa, polêmicas..."
+                  value="@Model.AssuntosProibidos" @onchange="OnProibidosChanged"></textarea>
+    </div>
+
+    <!-- 6.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">6.2 Quanto da sua VIDA PESSOAL você aceita mostrar?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Família, filhos, viagens, hobbies..."
+                  value="@Model.VidaPessoalAceita" @onchange="OnVidaPessoalChanged"></textarea>
+    </div>
+
+    <!-- 6.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">6.3 Quanto do seu ESTILO DE VIDA você aceita mostrar?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Treinos na academia, alimentação, momentos de lazer..."
+                  value="@Model.EstiloVidaAceito" @onchange="OnEstiloVidaChanged"></textarea>
+    </div>
+
+    <!-- 6.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">6.4 Quanto do seu BASTIDOR DE TRABALHO você aceita mostrar?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Preparativo de sala, estudos de casos, rotina de equipe..."
+                  value="@Model.TrabalhoAceito" @onchange="OnTrabalhoChanged"></textarea>
+    </div>
+
+    <!-- 6.5 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">6.5 Qual é o seu nível de conforto gravando com a CÂMERA?</label>
+        <div class="anamnese-card-grid">
+            @foreach (var opt in Enum.GetValues<NivelConfortoCameraEnum>())
+            {
+                var isSelected = Model.NivelConfortoCamera == opt;
+                <div class="anamnese-option-card @(isSelected ? "selected" : "")" @onclick="() => SelectConforto(opt)">
+                    <input type="radio" name="nivelConforto" checked="@isSelected" />
+                    <span>@GetConfortoText(opt)</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 6.6 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">6.6 Regras específicas do seu Conselho Regional (CFM, CRO, etc.):</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Proibido antes/depois sem autorização, proibido promessa de resultado..."
+                  value="@Model.RegrasConselhoRegional" @onchange="OnRegrasChanged"></textarea>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa6Dto Model { get; set; } = new("", "", "", "", NivelConfortoCameraEnum.SuperAVontade, "");
+    [Parameter] public EventCallback<Etapa6Dto> ModelChanged { get; set; }
+
+    private async Task OnProibidosChanged(ChangeEventArgs e) => await Update(Model with { AssuntosProibidos = e.Value?.ToString() ?? "" });
+    private async Task OnVidaPessoalChanged(ChangeEventArgs e) => await Update(Model with { VidaPessoalAceita = e.Value?.ToString() ?? "" });
+    private async Task OnEstiloVidaChanged(ChangeEventArgs e) => await Update(Model with { EstiloVidaAceito = e.Value?.ToString() ?? "" });
+    private async Task OnTrabalhoChanged(ChangeEventArgs e) => await Update(Model with { TrabalhoAceito = e.Value?.ToString() ?? "" });
+    private async Task OnRegrasChanged(ChangeEventArgs e) => await Update(Model with { RegrasConselhoRegional = e.Value?.ToString() ?? "" });
+
+    private async Task SelectConforto(NivelConfortoCameraEnum val) => await Update(Model with { NivelConfortoCamera = val });
+
+    private async Task Update(Etapa6Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+
+    private string GetConfortoText(NivelConfortoCameraEnum e) => e switch
+    {
+        NivelConfortoCameraEnum.SuperAVontade => "Super à vontade — Falo naturalmente sem travamentos",
+        NivelConfortoCameraEnum.NaoNatural => "Não me sinto 100% natural, mas gravo com roteiro",
+        NivelConfortoCameraEnum.VergonhaMasTopoAprender => "Tenho vergonha, mas topo aprender com ajuda",
+        NivelConfortoCameraEnum.PrefiroEvitar => "Prefiro evitar gravá-la (prefiro áudio / texto / fotos)",
+        _ => e.ToString()
+    };
+}

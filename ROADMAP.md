@@ -95,16 +95,16 @@ Infraestrutura base de segurança, multi-tenancy B2C e autenticação totalmente
 
 ### Subfase 2.3: Interface Blazor Interativa — Wizard em 10 Etapas (Stitch UI)
 - **Tarefas:**
-  - Desenvolver o componente Blazor `AnamneseWizard.razor` e subcomponentes para cada etapa (`Step1Component.razor` até `Step10Component.razor`).
-  - Implementar barra de progresso visual ("Etapa X de 10 — Y% concluído"), botão "Salvar e Continuar Depois", validação em tempo real e tooltips de exemplos didáticos em todas as perguntas.
-  - Renderizar tipos de campos dinâmicos:
-    - Campos de texto livre com contagem de caracteres e sugestões.
-    - Seleção única e múltipla (Checkboxes/Radio buttons estilizados).
-    - Componente de reordenação (Drag-and-Drop ou botões cima/baixo para a Etapa 9.4).
-    - Validação de links de Instagram (Etapa 5.1 e 5.4).
-  - Escrever testes de componente Blazor via bUnit para o wizard e navegação interetapas.
+  - [x] Desenvolver o componente Blazor `AnamneseWizard.razor` e subcomponentes para cada etapa (`Step1Component.razor` até `Step10Component.razor`).
+  - [x] Implementar barra de progresso visual ("Etapa X de 10 — Y% concluído"), botão "Salvar e Continuar Depois", validação em tempo real e tooltips de exemplos didáticos em todas as perguntas.
+  - [x] Renderizar tipos de campos dinâmicos:
+    - [x] Campos de texto livre com contagem de caracteres e sugestões.
+    - [x] Seleção única e múltipla (Checkboxes/Radio buttons estilizados).
+    - [x] Componente de reordenação (Drag-and-Drop ou botões cima/baixo para a Etapa 9.4).
+    - [x] Validação de links de Instagram (Etapa 5.1 e 5.4).
+  - [x] Escrever testes de componente Blazor via bUnit para o wizard e navegação interetapas.
 - **Entregáveis da Subfase 2.3:**
-  - UI de Anamnese fluida, responsiva, alinhada ao Stitch UI e totalmente testada no frontend.
+  - [x] UI de Anamnese fluida, responsiva, alinhada ao Stitch UI e totalmente testada no frontend.
 
 ### Subfase 2.4: Motor de Acompanhamento Automático por IA (AI Clarification Follow-up)
 - **Tarefas:**

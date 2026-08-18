@@ -1,0 +1,102 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+@using PersonaScript.Modules.Anamnese.Domain
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 1 — Quem é você
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        Dados básicos e momento atual da sua carreira. Vamos começar pelo essencial.
+    </p>
+
+    <!-- 1.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">1.1 Qual seu nome completo e como você gosta de ser chamado(a)?</label>
+        <input type="text" class="anamnese-input" placeholder="Ex: Dra. Mariana Costa, mas me chamam de Dra. Mari" 
+               value="@Model.NomeCompleto" @onchange="OnNomeCompletoChanged" />
+        <AnamneseDidacticTooltip>
+            Defina exatamente como o público deve se referir a você nas redes.
+        </AnamneseDidacticTooltip>
+    </div>
+
+    <!-- 1.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">1.2 Qual sua profissão e especialidade principal?</label>
+        <input type="text" class="anamnese-input" placeholder="Ex: Dentista especialista em lentes de contato" 
+               value="@Model.ProfissaoEspecialidade" @onchange="OnProfissaoChanged" />
+    </div>
+
+    <!-- 1.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">1.3 Há quanto tempo você atua na área (anos)?</label>
+        <input type="number" class="anamnese-input" min="0" max="60" 
+               value="@Model.TempoAtuacaoAnos" @onchange="OnTempoAtuacaoChanged" />
+    </div>
+
+    <!-- 1.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">1.4 Principais formações e especializações de credibilidade:</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Pós-graduações, certificações internacionais, congressos..."
+                  value="@Model.FormacoesEspecializacoes" @onchange="OnFormacoesChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.FormacoesEspecializacoes" />
+    </div>
+
+    <!-- 1.5 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">1.5 Prêmios, títulos ou reconhecimentos marcantes:</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Títulos, matérias em jornais/revistas, palestras..."
+                  value="@Model.PremiosTitulos" @onchange="OnPremiosChanged"></textarea>
+    </div>
+
+    <!-- 1.6 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">1.6 Em média, quantos pacientes você atende por mês?</label>
+        <input type="number" class="anamnese-input" min="0" 
+               value="@Model.PacientesMes" @onchange="OnPacientesMesChanged" />
+    </div>
+
+    <!-- 1.7 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">1.7 Qual frase descreve melhor seu momento atual?</label>
+        <div class="anamnese-card-grid">
+            @foreach (var opt in Enum.GetValues<MomentoAtualEnum>())
+            {
+                var isSelected = Model.MomentoAtual == opt;
+                <div class="anamnese-option-card @(isSelected ? "selected" : "")" @onclick="() => SelectMomento(opt)">
+                    <input type="radio" name="momentoAtual" checked="@isSelected" />
+                    <span>@GetMomentoText(opt)</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa1Dto Model { get; set; } = new("", "", "", 0, "", "", 0, MomentoAtualEnum.IniciandoAgenda);
+    [Parameter] public EventCallback<Etapa1Dto> ModelChanged { get; set; }
+
+    private async Task OnNomeCompletoChanged(ChangeEventArgs e) => await Update(Model with { NomeCompleto = e.Value?.ToString() ?? "" });
+    private async Task OnProfissaoChanged(ChangeEventArgs e) => await Update(Model with { ProfissaoEspecialidade = e.Value?.ToString() ?? "" });
+    private async Task OnTempoAtuacaoChanged(ChangeEventArgs e) => await Update(Model with { TempoAtuacaoAnos = int.TryParse(e.Value?.ToString(), out var v) ? v : 0 });
+    private async Task OnFormacoesChanged(ChangeEventArgs e) => await Update(Model with { FormacoesEspecializacoes = e.Value?.ToString() ?? "" });
+    private async Task OnPremiosChanged(ChangeEventArgs e) => await Update(Model with { PremiosTitulos = e.Value?.ToString() ?? "" });
+    private async Task OnPacientesMesChanged(ChangeEventArgs e) => await Update(Model with { PacientesMes = int.TryParse(e.Value?.ToString(), out var v) ? v : 0 });
+
+    private async Task SelectMomento(MomentoAtualEnum val) => await Update(Model with { MomentoAtual = val });
+
+    private async Task Update(Etapa1Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+
+    private string GetMomentoText(MomentoAtualEnum e) => e switch
+    {
+        MomentoAtualEnum.IniciandoAgenda => "Estou começando e quero encher minha agenda",
+        MomentoAtualEnum.AgendaRazoavel => "Tenho agenda razoável, mas quero pacientes qualificados",
+        MomentoAtualEnum.AgendaCheiaCobrarMais => "Minha agenda está cheia — quero cobrar mais e ter mais autoridade",
+        MomentoAtualEnum.ReferenciaExpansao => "Já sou referência — quero expandir (cursos, mentorias, filiais)",
+        _ => e.ToString()
+    };
+}

@@ -1,0 +1,29 @@
+@namespace PersonaScript.Server.Components.Anamnese
+
+<div class="d-flex align-items-center gap-2">
+    <span class="anamnese-counter-badge @BadgeClass">
+        @TextLength caracteres (@BadgeText)
+    </span>
+</div>
+
+@code {
+    [Parameter] public string? Text { get; set; }
+
+    private int TextLength => Text?.Trim().Length ?? 0;
+
+    private string BadgeClass => TextLength switch
+    {
+        0 => "short",
+        < 30 => "short",
+        < 120 => "good",
+        _ => "great"
+    };
+
+    private string BadgeText => TextLength switch
+    {
+        0 => "Pendente",
+        < 30 => "Resposta muito curta",
+        < 120 => "Boa resposta",
+        _ => "Excelente detalhamento"
+    };
+}

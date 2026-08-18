@@ -1,0 +1,62 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 2 — Sua História
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        O que ninguém vê. Aqui nasce a conexão emocional autêntica com o seu público.
+    </p>
+
+    <!-- 2.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">2.1 Por que você escolheu essa profissão? Houve um momento marcante?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Usei aparelho na infância e vi como o sorriso mudou minha autoestima..."
+                  value="@Model.MotivacaoEscolha" @onchange="OnMotivacaoChanged"></textarea>
+        <AnamneseDidacticTooltip>
+            Histórias de origem geram imediata identificação com quem está lendo.
+        </AnamneseDidacticTooltip>
+        <AnamneseCharacterCounter Text="@Model.MotivacaoEscolha" />
+    </div>
+
+    <!-- 2.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">2.2 Qual paciente ou caso te deu mais orgulho até hoje? Conte essa história:</label>
+        <textarea class="anamnese-textarea" rows="4" placeholder="Ex: Uma paciente que não sorria há 10 anos e chorou ao ver o resultado final..."
+                  value="@Model.CasoMarcante" @onchange="OnCasoMarcanteChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.CasoMarcante" />
+    </div>
+
+    <!-- 2.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">2.3 Qual foi a fase mais difícil da sua carreira e como superou?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: No início quando quase não tinha clientes e precisei aprender gestão..."
+                  value="@Model.FaseMaisDificil" @onchange="OnFaseDificilChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.FaseMaisDificil" />
+    </div>
+
+    <!-- 2.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">2.4 Qual é o seu motor pessoal diário (sua missão de vida)?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Devolver o prazer de sorrir e se olhar no espelho com orgulho..."
+                  value="@Model.MotorPessoal" @onchange="OnMotorPessoalChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.MotorPessoal" />
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa2Dto Model { get; set; } = new("", "", "", "");
+    [Parameter] public EventCallback<Etapa2Dto> ModelChanged { get; set; }
+
+    private async Task OnMotivacaoChanged(ChangeEventArgs e) => await Update(Model with { MotivacaoEscolha = e.Value?.ToString() ?? "" });
+    private async Task OnCasoMarcanteChanged(ChangeEventArgs e) => await Update(Model with { CasoMarcante = e.Value?.ToString() ?? "" });
+    private async Task OnFaseDificilChanged(ChangeEventArgs e) => await Update(Model with { FaseMaisDificil = e.Value?.ToString() ?? "" });
+    private async Task OnMotorPessoalChanged(ChangeEventArgs e) => await Update(Model with { MotorPessoal = e.Value?.ToString() ?? "" });
+
+    private async Task Update(Etapa2Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+}

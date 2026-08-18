@@ -1,0 +1,40 @@
+@namespace PersonaScript.Server.Components.Anamnese
+
+<div class="anamnese-progress-box">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <span style="font-weight: 700; font-size: 0.95rem; color: #f1f5f9;">
+            Etapa @CurrentStep de @TotalSteps — @Title
+        </span>
+        <span style="font-weight: 700; font-size: 0.9rem; color: #a5b4fc;">
+            @PercentualConclusao% concluído
+        </span>
+    </div>
+
+    <div class="anamnese-progress-bar-bg">
+        <div class="anamnese-progress-bar-fill" style="width: @(PercentualConclusao)%"></div>
+    </div>
+
+    <div class="anamnese-stepper-pills">
+        @for (int i = 1; i <= TotalSteps; i++)
+        {
+            var stepIndex = i;
+            var isCompleted = stepIndex < CurrentStep || (stepIndex == TotalSteps && PercentualConclusao == 100);
+            var isActive = stepIndex == CurrentStep;
+            var pillClass = isActive ? "active" : (isCompleted ? "completed" : "");
+
+            <button type="button" 
+                    class="anamnese-stepper-pill @pillClass" 
+                    @onclick="() => OnSelectStep.InvokeAsync(stepIndex)">
+                @(isCompleted ? "✓ " : "")Etapa @stepIndex
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public int CurrentStep { get; set; } = 1;
+    [Parameter] public int TotalSteps { get; set; } = 10;
+    [Parameter] public int PercentualConclusao { get; set; } = 0;
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public EventCallback<int> OnSelectStep { get; set; }
+}

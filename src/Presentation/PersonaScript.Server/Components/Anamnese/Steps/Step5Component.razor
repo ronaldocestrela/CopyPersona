@@ -1,0 +1,64 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 5 — Suas Referências
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        O que você admira e inspira seu olhar estético e profissional.
+    </p>
+
+    <!-- 5.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">5.1 Perfis de referência NA SUA ÁREA (Instagram):</label>
+        <InstagramLinkInput Value="@Model.PerfisArea" ValueChanged="OnPerfisAreaChanged" Placeholder="ex: dramarianacosta" />
+        <AnamneseDidacticTooltip>
+            Digite o nome de usuário ou cole o link do Instagram dos profissionais da sua área que você admira.
+        </AnamneseDidacticTooltip>
+    </div>
+
+    <!-- 5.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">5.2 O que você mais ADMIRA NESSES PERFIS?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: O tom elegante, a clareza das explicações, a fotografia..."
+                  value="@Model.OQueAdmiraArea" @onchange="OnAdmiraAreaChanged"></textarea>
+    </div>
+
+    <!-- 5.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">5.3 O que você NUNCA FARIA igual aos concorrentes da sua área?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Dancinhas de TikTok, linguagem apelativa, fotos sanguinolentas..."
+                  value="@Model.OQueNaoFariaArea" @onchange="OnNaoFariaAreaChanged"></textarea>
+    </div>
+
+    <!-- 5.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">5.4 Perfis de referência FORA DA SUA ÁREA (Instagram):</label>
+        <InstagramLinkInput Value="@Model.PerfisForaArea" ValueChanged="OnPerfisForaAreaChanged" Placeholder="ex: marcasouinfluencer" />
+    </div>
+
+    <!-- 5.5 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">5.5 O que te atrai NESSES PERFIS fora da sua área?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: A estética minimalista, o storytelling de bastidores..."
+                  value="@Model.OQueAtraiForaArea" @onchange="OnAtraiForaAreaChanged"></textarea>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa5Dto Model { get; set; } = new("", "", "", "", "");
+    [Parameter] public EventCallback<Etapa5Dto> ModelChanged { get; set; }
+
+    private async Task OnPerfisAreaChanged(string val) => await Update(Model with { PerfisArea = val });
+    private async Task OnAdmiraAreaChanged(ChangeEventArgs e) => await Update(Model with { OQueAdmiraArea = e.Value?.ToString() ?? "" });
+    private async Task OnNaoFariaAreaChanged(ChangeEventArgs e) => await Update(Model with { OQueNaoFariaArea = e.Value?.ToString() ?? "" });
+    private async Task OnPerfisForaAreaChanged(string val) => await Update(Model with { PerfisForaArea = val });
+    private async Task OnAtraiForaAreaChanged(ChangeEventArgs e) => await Update(Model with { OQueAtraiForaArea = e.Value?.ToString() ?? "" });
+
+    private async Task Update(Etapa5Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+}

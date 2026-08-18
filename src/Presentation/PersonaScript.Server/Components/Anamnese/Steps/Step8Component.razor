@@ -1,0 +1,85 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+@using PersonaScript.Modules.Anamnese.Domain
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 8 — Seu Jeito
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        Como você se comunica e a sua identidade de marca.
+    </p>
+
+    <!-- 8.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">8.1 Arquétipos de Comunicação (Selecione 1 a 2 opções principais):</label>
+        <div class="anamnese-card-grid">
+            @foreach (var opt in Enum.GetValues<ArquetipoComunicacaoEnum>())
+            {
+                var isSelected = SelectedArquetipos.Contains(opt);
+                <div class="anamnese-option-card @(isSelected ? "selected" : "")" @onclick="() => ToggleArquetipo(opt)">
+                    <input type="checkbox" checked="@isSelected" />
+                    <span>@GetArquetipoText(opt)</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- 8.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">8.2 Amostra de escrita explicativa (Escreva como você fala naturalmente):</label>
+        <textarea class="anamnese-textarea" rows="4" placeholder="Ex: Olá! Hoje quero te explicar de forma bem simples por que você não deve usar receita caseira no rosto..."
+                  value="@Model.AmostraEscritaExplicativa" @onchange="OnAmostraEscritaChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.AmostraEscritaExplicativa" />
+    </div>
+
+    <!-- 8.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">8.3 Status da sua Identidade Visual (Cores, Fontes, Logotipo):</label>
+        <input type="text" class="anamnese-input" placeholder="Ex: Já tenho paleta em tons nude e dourado / Preciso criar do zero" 
+               value="@Model.IdentidadeVisualStatus" @onchange="OnIdentidadeVisualChanged" />
+    </div>
+
+    <!-- 8.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">8.4 Qual estilo ou estética visual você ODEIA e quer EVITAR?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Cores neon, elementos exagerados, fontes difíceis de ler..."
+                  value="@Model.EsteticaOdiada" @onchange="OnEsteticaOdiadaChanged"></textarea>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa8Dto Model { get; set; } = new(new List<ArquetipoComunicacaoEnum>(), "", "", "");
+    [Parameter] public EventCallback<Etapa8Dto> ModelChanged { get; set; }
+
+    private HashSet<ArquetipoComunicacaoEnum> SelectedArquetipos => new(Model.ArquetiposComunicacao ?? new List<ArquetipoComunicacaoEnum>());
+
+    private async Task ToggleArquetipo(ArquetipoComunicacaoEnum val)
+    {
+        var set = SelectedArquetipos;
+        if (set.Contains(val)) set.Remove(val);
+        else set.Add(val);
+
+        await Update(Model with { ArquetiposComunicacao = set.ToList() });
+    }
+
+    private async Task OnAmostraEscritaChanged(ChangeEventArgs e) => await Update(Model with { AmostraEscritaExplicativa = e.Value?.ToString() ?? "" });
+    private async Task OnIdentidadeVisualChanged(ChangeEventArgs e) => await Update(Model with { IdentidadeVisualStatus = e.Value?.ToString() ?? "" });
+    private async Task OnEsteticaOdiadaChanged(ChangeEventArgs e) => await Update(Model with { EsteticaOdiada = e.Value?.ToString() ?? "" });
+
+    private async Task Update(Etapa8Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+
+    private string GetArquetipoText(ArquetipoComunicacaoEnum e) => e switch
+    {
+        ArquetipoComunicacaoEnum.Professor => "Professor — Didático, explicativo e focado no ensino",
+        ArquetipoComunicacaoEnum.Amigo => "Amigo — Acolhedor, empático e próximo do público",
+        ArquetipoComunicacaoEnum.Autoridade => "Autoridade — Técnico, preciso e de alta reputação",
+        ArquetipoComunicacaoEnum.Descomplicador => "Descomplicador — Direto ao ponto e desmistificador",
+        ArquetipoComunicacaoEnum.Inspirador => "Inspirador — Motivacional e com histórias marcantes",
+        _ => e.ToString()
+    };
+}

@@ -1,0 +1,51 @@
+@namespace PersonaScript.Server.Components.Anamnese
+
+<div class="anamnese-instagram-input-group">
+    <div style="position: relative; display: flex; align-items: center;">
+        <span style="position: absolute; left: 0.75rem; color: #a5b4fc; font-weight: 600;">@@</span>
+        <input type="text" 
+               class="anamnese-input" 
+               style="padding-left: 2rem;" 
+               placeholder="@Placeholder" 
+               value="@FormattedUsername" 
+               @oninput="OnInputChanged" />
+    </div>
+    @if (!string.IsNullOrWhiteSpace(FormattedUsername))
+    {
+        <div style="font-size: 0.75rem; color: #34d399; margin-top: 0.25rem;">
+            ✓ Perfil: instagram.com/@FormattedUsername
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "nomedoperfil";
+
+    private string FormattedUsername => ExtractHandle(Value);
+
+    private async Task OnInputChanged(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString() ?? string.Empty;
+        var handle = ExtractHandle(input);
+        await ValueChanged.InvokeAsync(handle);
+    }
+
+    public static string ExtractHandle(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+
+        var text = input.Trim();
+        if (text.StartsWith("@")) text = text.Substring(1);
+
+        if (text.Contains("instagram.com/"))
+        {
+            var idx = text.IndexOf("instagram.com/", StringComparison.OrdinalIgnoreCase);
+            text = text.Substring(idx + "instagram.com/".Length);
+            text = text.Split('/', '?', '#')[0];
+        }
+
+        return text.Trim().TrimEnd('/');
+    }
+}

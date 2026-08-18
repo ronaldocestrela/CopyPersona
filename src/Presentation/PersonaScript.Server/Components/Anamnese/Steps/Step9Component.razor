@@ -1,0 +1,65 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 9 — Sua Rotina e Capacidade
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        O que dá para fazer de verdade na sua rotina sem gerar sobrecarga.
+    </p>
+
+    <!-- 9.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">9.1 Descreva o seu dia típico de trabalho:</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Atendo das 8h às 18h com 1h de almoço. Segundas e quartas são mais tranquilas..."
+                  value="@Model.DiaTipicoRotina" @onchange="OnDiaTipicoChanged"></textarea>
+    </div>
+
+    <!-- 9.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">9.2 Quantas HORAS POR SEMANA você pode dedicar à gravação/criação?</label>
+        <input type="text" class="anamnese-input" placeholder="Ex: 2 horas na quinta-feira à tarde" 
+               value="@Model.HorasSemanaConteudo" @onchange="OnHorasSemanaChanged" />
+    </div>
+
+    <!-- 9.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">9.3 Qual o apoio disponível para sua produção?</label>
+        <input type="text" class="anamnese-input" placeholder="Ex: Faço tudo sozinho(a) / Tenho secretária que ajuda / Tenho videomaker" 
+               value="@Model.ApoioDisponivel" @onchange="OnApoioChanged" />
+    </div>
+
+    <!-- 9.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">9.4 Ordene por facilidade de execução (do mais fácil para o mais difícil):</label>
+        <AnamneseRanker Value="@Model.RankingFacilidadeFormatos" ValueChanged="OnRankingChanged" />
+        <AnamneseDidacticTooltip>
+            Use os botões ▲ e ▼ para posicionar no topo os formatos que você cria com mais facilidade.
+        </AnamneseDidacticTooltip>
+    </div>
+
+    <!-- 9.5 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">9.5 Como foi seu histórico de postagens na última semana?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Postei 3 Stories e 1 Reel..."
+                  value="@Model.HistoricoPostagensUltimaSemana" @onchange="OnHistoricoChanged"></textarea>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa9Dto Model { get; set; } = new("", "", "", "", "");
+    [Parameter] public EventCallback<Etapa9Dto> ModelChanged { get; set; }
+
+    private async Task OnDiaTipicoChanged(ChangeEventArgs e) => await Update(Model with { DiaTipicoRotina = e.Value?.ToString() ?? "" });
+    private async Task OnHorasSemanaChanged(ChangeEventArgs e) => await Update(Model with { HorasSemanaConteudo = e.Value?.ToString() ?? "" });
+    private async Task OnApoioChanged(ChangeEventArgs e) => await Update(Model with { ApoioDisponivel = e.Value?.ToString() ?? "" });
+    private async Task OnRankingChanged(string val) => await Update(Model with { RankingFacilidadeFormatos = val });
+    private async Task OnHistoricoChanged(ChangeEventArgs e) => await Update(Model with { HistoricoPostagensUltimaSemana = e.Value?.ToString() ?? "" });
+
+    private async Task Update(Etapa9Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+}

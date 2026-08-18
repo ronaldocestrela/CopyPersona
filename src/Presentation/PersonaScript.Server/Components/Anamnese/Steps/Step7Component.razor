@@ -1,0 +1,75 @@
+@namespace PersonaScript.Server.Components.Anamnese.Steps
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+
+<div class="anamnese-step-card">
+    <h3 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+        Etapa 7 — Seu Conhecimento
+    </h3>
+    <p style="color: #94a3b8; margin-bottom: 1.5rem;">
+        O que você tem para ensinar e a sua visão de autoridade técnica.
+    </p>
+
+    <!-- 7.1 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">7.1 Quais temas você mais GOSTA de explicar para os pacientes?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Prevenção do envelhecimento precoce, higienização pós-procedimento..."
+                  value="@Model.TemasFavoritos" @onchange="OnTemasFavoritosChanged"></textarea>
+    </div>
+
+    <!-- 7.2 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">7.2 Se você tivesse que dar uma PALESTRA DE 1 HORA hoje sem slides, sobre o que seria?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Como a estética facial impacta a saúde mental e autoestima..."
+                  value="@Model.TemaPalestra" @onchange="OnTemaPalestraChanged"></textarea>
+        <AnamneseDidacticTooltip>
+            Esse costuma ser o seu maior pilar de autoridade e paixão profissional.
+        </AnamneseDidacticTooltip>
+    </div>
+
+    <!-- 7.3 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">7.3 Qual a sua VERDADE CORAJOSA (opinião forte contrária à maioria)?</label>
+        <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Preenchimento labial excessivo estraga a harmonia do rosto..."
+                  value="@Model.VerdadeCorajosa" @onchange="OnVerdadeCorajosaChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.VerdadeCorajosa" />
+    </div>
+
+    <!-- 7.4 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">7.4 Quais posts ou vídeos que você já fez DEU MAIS CERTO?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Um vídeo explicando por que tal procedimento dói ou não dói..."
+                  value="@Model.PostsDeuCerto" @onchange="OnPostsDeuCertoChanged"></textarea>
+    </div>
+
+    <!-- 7.5 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">7.5 Quais posts ou vídeos NÃO FUNCIONARAM como você esperava?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Post muito técnico com termos em inglês..."
+                  value="@Model.PostsNaoFuncionaram" @onchange="OnPostsNaoFuncionaramChanged"></textarea>
+    </div>
+
+    <!-- 7.6 -->
+    <div class="anamnese-field-group">
+        <label class="anamnese-label">7.6 Qual é o tipo de CONTEÚDO DOS SONHOS que você quer criar?</label>
+        <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Mini-documentários, séries de perguntas em vídeo profissional..."
+                  value="@Model.ConteudoDosSonhos" @onchange="OnConteudoSonhosChanged"></textarea>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Etapa7Dto Model { get; set; } = new("", "", "", "", "", "");
+    [Parameter] public EventCallback<Etapa7Dto> ModelChanged { get; set; }
+
+    private async Task OnTemasFavoritosChanged(ChangeEventArgs e) => await Update(Model with { TemasFavoritos = e.Value?.ToString() ?? "" });
+    private async Task OnTemaPalestraChanged(ChangeEventArgs e) => await Update(Model with { TemaPalestra = e.Value?.ToString() ?? "" });
+    private async Task OnVerdadeCorajosaChanged(ChangeEventArgs e) => await Update(Model with { VerdadeCorajosa = e.Value?.ToString() ?? "" });
+    private async Task OnPostsDeuCertoChanged(ChangeEventArgs e) => await Update(Model with { PostsDeuCerto = e.Value?.ToString() ?? "" });
+    private async Task OnPostsNaoFuncionaramChanged(ChangeEventArgs e) => await Update(Model with { PostsNaoFuncionaram = e.Value?.ToString() ?? "" });
+    private async Task OnConteudoSonhosChanged(ChangeEventArgs e) => await Update(Model with { ConteudoDosSonhos = e.Value?.ToString() ?? "" });
+
+    private async Task Update(Etapa7Dto updated)
+    {
+        Model = updated;
+        await ModelChanged.InvokeAsync(Model);
+    }
+}

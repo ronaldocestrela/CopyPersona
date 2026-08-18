@@ -1,0 +1,28 @@
+@namespace PersonaScript.Server.Components.Anamnese
+
+<div class="anamnese-tooltip-box">
+    <div class="anamnese-tooltip-title" @onclick="Toggle" style="cursor: pointer;">
+        <span>💡 Exemplo didático & Dica:</span>
+        <span style="margin-left: auto; font-size: 0.75rem;">@(_isOpen ? "▲ Ocultar" : "▼ Ver exemplo")</span>
+    </div>
+    @if (_isOpen)
+    {
+        <div style="margin-top: 0.4rem; line-height: 1.4;">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool InitiallyOpen { get; set; } = true;
+
+    private bool _isOpen = true;
+
+    protected override void OnInitialized()
+    {
+        _isOpen = InitiallyOpen;
+    }
+
+    private void Toggle() => _isOpen = !_isOpen;
+}
