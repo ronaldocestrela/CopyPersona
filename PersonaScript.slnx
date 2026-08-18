@@ -9,6 +9,7 @@
   </Folder>
   <Folder Name="/src/Modules/" />
   <Folder Name="/src/Modules/Anamnese/">
+    <Project Path="src/Modules/Anamnese/PersonaScript.Modules.Anamnese.Application/PersonaScript.Modules.Anamnese.Application.csproj" />
     <Project Path="src/Modules/Anamnese/PersonaScript.Modules.Anamnese.Domain/PersonaScript.Modules.Anamnese.Domain.csproj" />
     <Project Path="src/Modules/Anamnese/PersonaScript.Modules.Anamnese.Infrastructure/PersonaScript.Modules.Anamnese.Infrastructure.csproj" />
   </Folder>
@@ -46,6 +47,9 @@
   </Folder>
   <Folder Name="/tests/Modules/Identity/">
     <Project Path="tests/Modules/Identity/PersonaScript.Modules.Identity.UnitTests/PersonaScript.Modules.Identity.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Modules/Personas/">
+    <Project Path="tests/Modules/Personas/PersonaScript.Modules.Personas.Tests/PersonaScript.Modules.Personas.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Presentation/">
     <Project Path="tests/Presentation/PersonaScript.Server.UnitTests/PersonaScript.Server.UnitTests.csproj" />

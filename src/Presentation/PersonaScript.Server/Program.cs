@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using PersonaScript.BuildingBlocks.AI;
 using PersonaScript.BuildingBlocks.Tenancy;
 using PersonaScript.Modules.Anamnese.Infrastructure;
 using PersonaScript.Modules.Billing.Infrastructure;
@@ -75,10 +76,11 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddTenancy();
+builder.Services.AddAIBuildingBlock(builder.Configuration);
 builder.Services.AddIdentityModule(builder.Configuration, builder.Environment);
 builder.Services.AddAnamneseModule(builder.Configuration);
 builder.Services.AddBillingModule();
-builder.Services.AddPersonasModule();
+builder.Services.AddPersonasModule(builder.Configuration);
 builder.Services.AddScriptsModule();
 
 builder.Services.AddHealthChecks();
@@ -89,6 +91,7 @@ if (app.Environment.IsDevelopment())
 {
     await app.Services.ApplyIdentityMigrationsAsync();
     await app.Services.ApplyAnamneseMigrationsAsync();
+    await app.Services.ApplyPersonasMigrationsAsync();
 }
 
 if (!app.Environment.IsDevelopment())

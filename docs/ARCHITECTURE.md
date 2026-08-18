@@ -172,11 +172,12 @@ Implementado:
 - Subfase 2.2 concluída: Camada de Aplicação (CQRS) com `StartAnamneseCommand`, `SaveAnamneseStepCommand`, `CompleteAnamneseCommand`, `GetAnamneseStatusQuery`, `GetAnamneseStepQuery` e `GetFullAnamneseQuery`.
 - Subfase 2.3 concluída: Interface Blazor Interativa (`AnamneseWizard.razor`), subcomponentes das 10 etapas (`Step1Component.razor` até `Step10Component.razor`), barra de progresso visual, ranker, tooltip didático e testes bUnit.
 - Subfase 2.4 concluída: Motor de Acompanhamento Automático por IA (`IAnamneseClarificationService` / `HeuristicClarificationAnalyzer`), query CQRS `AnalyzeStepClarificationQuery`, modal Blazor Stitch UI `AnamneseAIClarificationModal.razor` e testes automatizados TDD.
-- Subfase 3.1 concluída: Abstração de Integração com Provedores LLM (`PersonaScript.BuildingBlocks.AI`), interface `ILLMProvider`, resiliência e fallback automático de provedores com Polly, parsing e validação de schema JSON (`ILLMJsonParser`) e suíte de testes unitários TDD (139 testes verdes na solução).
+- Subfase 3.1 concluída: Abstração de Integração com Provedores LLM (`PersonaScript.BuildingBlocks.AI`), interface `ILLMProvider`, resiliência e fallback automático de provedores com Polly, parsing e validação de schema JSON (`ILLMJsonParser`) e suíte de testes unitários TDD.
+- Subfase 3.2 concluída: Motor de Prompt do Agente 1 (Estrategista de Persona), entidade `PersonaDiagnosis` (schema EF Core `personas`), Value Objects `IdentidadeMarca`, `PilarConteudo` (validação de 100% de distribuição) e `MatrizRestricoes`, `PersonaPromptBuilder`, `PersonaDiagnosisGenerator`, CQRS command/query (`GeneratePersonaDiagnosisCommand`, `GetPersonaDiagnosisQuery`) e 150 testes automatizados verdes na solução.
 
 Próxima entrega:
 
-- Subfase 3.2: Motor de Prompt do Agente 1 (Estrategista de Persona) e Geração do Diagnóstico de Posicionamento.
+- Subfase 3.3: Interface de Exibição e Ajuste do Diagnóstico de Posicionamento (`/posicionamento` e `/posicionamento/diagnostico`).
 
 ## Referências
 

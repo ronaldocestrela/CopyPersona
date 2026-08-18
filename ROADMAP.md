@@ -130,19 +130,19 @@ Módulo de Anamnese 100% funcional, permitindo que o profissional responda pausa
 - **Entregáveis da Subfase 3.1:**
   - [x] Abstração de LLM robusta com suporte a streaming, resiliência Polly, fallbacks transparentes e retorno em JSON estrito.
 
-### Subfase 3.2: Motor de Prompt do Agente 1 (Estrategista de Persona)
+### Subfase 3.2: Motor de Prompt do Agente 1 (Estrategista de Persona) [CONCLUÍDO]
 - **Tarefas:**
-  - Desenvolver o handler `GeneratePersonaDiagnosisCommandHandler` no módulo `Modules.Personas`.
-  - Construir a engenharia de prompt do Agente 1 consumindo o objeto completo `Anamnese`:
-    - Síntese de perfil do profissional e dor principal do paciente.
-    - Geração da **Frase Única de Posicionamento** (Item 1 do entregável).
-    - Mapeamento da **Identidade da Marca** (Tom de voz, estilo visual sugerido, arquétipo) alinhada às referências da Etapa 5 e proibições da Etapa 8.4 (Item 2).
-    - Definição dos **Pilares de Conteúdo com Distribuição Percentual** (ex: 30% Educação, 25% Prova/Casos, 25% Autoridade/Opinião, 20% Bastidores) (Item 3).
-    - Matriz de **Restrições e Diretrizes Inegociáveis** (derivadas das Etapas 5.3, 6.1 e 8.4).
-  - Salvar o resultado na entidade `PersonaDiagnosis` associada ao `TenantId`.
+  - [x] Desenvolver o handler `GeneratePersonaDiagnosisCommandHandler` no módulo `Modules.Personas`.
+  - [x] Construir a engenharia de prompt do Agente 1 consumindo o objeto completo `Anamnese`:
+    - [x] Síntese de perfil do profissional e dor principal do paciente.
+    - [x] Geração da **Frase Única de Posicionamento** (Item 1 do entregável).
+    - [x] Mapeamento da **Identidade da Marca** (Tom de voz, estilo visual sugerido, arquétipo) alinhada às referências da Etapa 5 e proibições da Etapa 8.4 (Item 2).
+    - [x] Definição dos **Pilares de Conteúdo com Distribuição Percentual** (ex: 30% Educação, 25% Prova/Casos, 25% Autoridade/Opinião, 20% Bastidores) (Item 3).
+    - [x] Matriz de **Restrições e Diretrizes Inegociáveis** (derivadas das Etapas 5.3, 6.1 e 8.4).
+  - [x] Salvar o resultado na entidade `PersonaDiagnosis` associada ao `TenantId`.
 - **Entregáveis da Subfase 3.2:**
-  - Agente 1 capaz de ler uma Anamnese concluída e gerar o perfil estruturado em JSON em menos de 15 segundos.
-  - Testes unitários do prompt handler e parsing de saída.
+  - [x] Agente 1 capaz de ler uma Anamnese concluída e gerar o perfil estruturado em JSON em menos de 15 segundos.
+  - [x] Testes unitários do prompt handler e parsing de saída (150 testes verdes na solução).
 
 ### Subfase 3.3: Interface de Exibição e Ajuste do Diagnóstico de Posicionamento
 - **Tarefas:**
