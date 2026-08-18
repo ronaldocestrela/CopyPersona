@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using PersonaScript.BuildingBlocks.Tenancy;
+using PersonaScript.Modules.Anamnese.Infrastructure;
 using PersonaScript.Modules.Billing.Infrastructure;
 using PersonaScript.Modules.Identity.Application.Abstractions;
 using PersonaScript.Modules.Identity.Infrastructure;
@@ -75,6 +76,7 @@ builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddTenancy();
 builder.Services.AddIdentityModule(builder.Configuration, builder.Environment);
+builder.Services.AddAnamneseModule(builder.Configuration);
 builder.Services.AddBillingModule();
 builder.Services.AddPersonasModule();
 builder.Services.AddScriptsModule();

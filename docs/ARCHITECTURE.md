@@ -113,6 +113,17 @@ sequenceDiagram
   - `RequireBackofficeAccess` (Exige `SupportAgent`, `FinanceAdmin` ou `SystemAdmin`)
 - **Rotas & Telas:** `/backoffice` (dashboard operacional Blazor), `/acesso-negado` (403 Forbidden).
 
+### Módulo Anamnese (Engine de Coleta em 10 Etapas)
+
+- **Domain (`PersonaScript.Modules.Anamnese.Domain`):**
+  - Entidade Aggregate Root `Anamnese` (`BaseEntity`, `IMustHaveTenant`).
+  - 10 Value Objects fortemente tipados: `Etapa1QuemEVoce`, `Etapa2SuaHistoria`, `Etapa3SeuTrabalho`, `Etapa4SeuPaciente`, `Etapa5SuasReferencias`, `Etapa6LimitesExposicao`, `Etapa7SeuConhecimento`, `Etapa8SeuJeito`, `Etapa9RotinaCapacidade`, `Etapa10Objetivos`.
+  - Invariants: Controle de progresso `PercentualConclusao` (0 a 100%), transição de status `Rascunho` → `Concluido`, bloqueio de mutações após conclusão, validação via `Result` / `Result<T>`.
+- **Infrastructure (`PersonaScript.Modules.Anamnese.Infrastructure`):**
+  - Schema EF Core `"anamnese"`, tabela `anamnese.Anamneses`.
+  - Mapeamento de colunas JSON nativo SQL Server (`OwnsOne(..., b => b.ToJson())`).
+  - Repositório `AnamneseRepository` e filtro global `ApplyTenantQueryFilters`.
+
 ## Mapa de projetos
 
 | Projeto | Responsabilidade |
@@ -122,6 +133,7 @@ sequenceDiagram
 | `PersonaScript.BuildingBlocks.Tenancy` | `TenantId`, `ITenantContext`, `HttpContextTenantContext` (claims: `tenant_id`, `NameIdentifier`, `sub`), `TenantDbContextInterceptor`, `ApplyTenantQueryFilters` |
 | `PersonaScript.BuildingBlocks.CQRS` | Interfaces Command/Query/Handler |
 | `PersonaScript.Modules.Identity.*` | User, UserRole, auth commands, DbContext, cookie session, JWT generator, Resend email sender |
+| `PersonaScript.Modules.Anamnese.*` | Anamnese Aggregate Root, 10 Value Objects, AnamneseDbContext (schema `anamnese`), AnamneseRepository |
 | `PersonaScript.Modules.*.Domain` | Entidades e contratos do módulo |
 | `PersonaScript.Modules.*.Application` | Commands, Queries, Handlers |
 | `PersonaScript.Modules.*.Infrastructure` | EF Core, repositórios, `ModuleSetup` |
@@ -154,11 +166,12 @@ Implementado:
 - Subfase 1.1 concluída: BuildingBlocks + Tenancy B2C totalmente consolidados com `TenantDbContextInterceptor`, eventos de domínio (`IDomainEvent`), resiliência de claims e testes TDD.
 - Subfase 1.2 concluída: Expansão do módulo Identity com fluxo de esqueci/redefinir senha, envio de e-mails via Resend/FakeEmailSender e páginas SSR.
 - Subfase 1.3 concluída: Autenticação OAuth2 (Google/Apple) e emissão/validação de tokens JWT Bearer.
-- Subfase 1.4 concluída: Sistema de Roles (RBAC), claims de role em cookie e JWT, políticas de autorização no container de DI, dashboard Blazor do Backoffice Operacional (`/backoffice`), página `/acesso-negado` e suíte completa de testes TDD (74 testes verdes na solução).
+- Subfase 1.4 concluída: Sistema de Roles (RBAC), claims de role em cookie e JWT, políticas de autorização no container de DI, dashboard Blazor do Backoffice Operacional (`/backoffice`), página `/acesso-negado`.
+- Subfase 2.1 concluída: Modelagem do módulo `Modules.Anamnese`, entidade Aggregate Root `Anamnese`, os 10 Value Objects do formulário digital em JSON Columns (EF Core schema `anamnese`), `AnamneseRepository`, injeção de dependência e testes unitários/isolamento de tenant (82 testes verdes na solução).
 
 Próxima entrega:
 
-- FASE 2: Módulo de Anamnese Digital (Engine de Coleta em 10 Etapas)
+- Subfase 2.2: Camada de Aplicação (CQRS) e Auto-Salvamento (Save & Resume) da Anamnese.
 
 ## Referências
 

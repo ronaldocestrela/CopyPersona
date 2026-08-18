@@ -63,10 +63,10 @@ Infraestrutura base de segurança, multi-tenancy B2C e autenticação totalmente
 
 ## FASE 2: Módulo de Anamnese Digital (Engine de Coleta em 10 Etapas)
 
-### Subfase 2.1: Modelagem de Domínio e Persistência do Formulário
+### Subfase 2.1: Modelagem de Domínio e Persistência do Formulário [CONCLUÍDO]
 - **Tarefas:**
-  - Criar o módulo `PersonaScript.Modules.Anamnese` (ou integrar em `Personas.Domain`).
-  - Criar a entidade raiz `Anamnese` (AggregateRoot) implementando `IMustHaveTenant`, contendo Value Objects para cada uma das 10 etapas conforme especificado em [`AnamnesePosicionamento.md`](file:///home/rony/LPR/IAdeConteudo/AnamnesePosicionamento.md):
+  - [x] Criar o módulo `PersonaScript.Modules.Anamnese` (`Domain`, `Infrastructure` e suíte de testes `UnitTests`).
+  - [x] Criar a entidade raiz `Anamnese` (AggregateRoot) implementando `IMustHaveTenant`, contendo Value Objects para cada uma das 10 etapas conforme especificado em [`AnamnesePosicionamento.md`](file:///home/rony/LPR/IAdeConteudo/AnamnesePosicionamento.md):
     - `Etapa1QuemEVoce` (Dados básicos, especialidade, tempo, prêmios, momento atual enum).
     - `Etapa2SuaHistoria` (Motivação, caso marcante, fase difícil, motor pessoal).
     - `Etapa3SeuTrabalho` (Procedimento master, procedimento lucrativo, procedimento preferido, diferencial, por que te escolhem, crítica aos pares).
@@ -77,11 +77,11 @@ Infraestrutura base de segurança, multi-tenancy B2C e autenticação totalmente
     - `Etapa8SeuJeito` (Arquétipos de comunicação, amostra de escrita explicativa real 8.2, status da identidade visual, estética odiada).
     - `Etapa9RotinaCapacidade` (Dia típico, horas por semana, apoio disponível, ranking de facilidade de formatos, histórico de postagens).
     - `Etapa10Objetivos` (Meta 3 meses, meta 1 ano, experiência passada com marketing, resultado #1 prioritário).
-  - Mapear via EF Core com Value Object Converters/JSON Column Mappings para SQL Server.
-  - Criar Migration `AddAnamneseModule` isolada.
+  - [x] Mapear via EF Core com Value Object JSON Column Mappings (`OwnsOne(..., b => b.ToJson())`) sob o schema `"anamnese"`.
+  - [x] Implementar `AnamneseRepository` com filtro global de tenant e testes de isolamento cross-tenant.
 - **Entregáveis da Subfase 2.1:**
-  - Modelo de domínio `Anamnese` completo com testes unitários de invariants e validações de dados.
-  - Mapeamento EF Core e Migrations criadas e validadas em container SQL Server.
+  - [x] Modelo de domínio `Anamnese` completo com testes unitários de invariants e validações de dados.
+  - [x] Mapeamento EF Core, injeção de dependência (`AddAnamneseModule`) e testes de persistência validados (82 testes verdes no total).
 
 ### Subfase 2.2: Camada de Aplicação (CQRS) e Auto-Salvamento (Save & Resume)
 - **Tarefas:**

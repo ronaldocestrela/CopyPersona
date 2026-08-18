@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Modules\Identity\PersonaScript.Modules.Identity.Infrastructure\PersonaScript.Modules.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Anamnese\PersonaScript.Modules.Anamnese.Infrastructure\PersonaScript.Modules.Anamnese.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Billing\PersonaScript.Modules.Billing.Infrastructure\PersonaScript.Modules.Billing.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Personas\PersonaScript.Modules.Personas.Infrastructure\PersonaScript.Modules.Personas.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Scripts\PersonaScript.Modules.Scripts.Infrastructure\PersonaScript.Modules.Scripts.Infrastructure.csproj" />

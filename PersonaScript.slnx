@@ -7,6 +7,10 @@
     <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.Tenancy/PersonaScript.BuildingBlocks.Tenancy.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Anamnese/">
+    <Project Path="src/Modules/Anamnese/PersonaScript.Modules.Anamnese.Domain/PersonaScript.Modules.Anamnese.Domain.csproj" />
+    <Project Path="src/Modules/Anamnese/PersonaScript.Modules.Anamnese.Infrastructure/PersonaScript.Modules.Anamnese.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Billing/">
     <Project Path="src/Modules/Billing/PersonaScript.Modules.Billing.Application/PersonaScript.Modules.Billing.Application.csproj" />
     <Project Path="src/Modules/Billing/PersonaScript.Modules.Billing.Domain/PersonaScript.Modules.Billing.Domain.csproj" />
@@ -35,6 +39,9 @@
     <Project Path="tests/BuildingBlocks/PersonaScript.BuildingBlocks.UnitTests/PersonaScript.BuildingBlocks.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/" />
+  <Folder Name="/tests/Modules/Anamnese/">
+    <Project Path="tests/Modules/Anamnese/PersonaScript.Modules.Anamnese.UnitTests/PersonaScript.Modules.Anamnese.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/tests/Modules/Identity/">
     <Project Path="tests/Modules/Identity/PersonaScript.Modules.Identity.UnitTests/PersonaScript.Modules.Identity.UnitTests.csproj" />
   </Folder>
