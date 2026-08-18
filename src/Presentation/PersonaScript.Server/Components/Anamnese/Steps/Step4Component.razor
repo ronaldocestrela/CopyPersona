@@ -14,7 +14,7 @@
     <div class="anamnese-field-group">
         <label class="anamnese-label">4.1 Quem é o seu paciente ideal (perfil demográfico/psicográfico)?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Mulheres entre 35 e 55 anos, executivas ou empreendedoras que buscam rejuvenescimento natural..."
-                  value="@Model.PerfilDemograficoPsicografico" @onchange="OnPerfilChanged"></textarea>
+                  value="@Model.PerfilDemograficoPsicografico" @oninput="OnPerfilChanged"></textarea>
         <AnamneseCharacterCounter Text="@Model.PerfilDemograficoPsicografico" />
     </div>
 
@@ -22,29 +22,30 @@
     <div class="anamnese-field-group">
         <label class="anamnese-label">4.2 Quais são os maiores MEDOS e inseguranças dele(a)?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Medo de dor, medo de ficar artificial, medo de dar errado..."
-                  value="@Model.MaioresMedos" @onchange="OnMedosChanged"></textarea>
-        <AnamneseCharacterCounter Text="@Model.MaioresMedos" />
+                  value="@Model.MaioresMedos" @oninput="OnMedosChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.MaioresMedos"
+                                  CustomCliches="@PersonaScript.Modules.Anamnese.Application.Services.HeuristicClarificationAnalyzer.GenericClichesEtapa4" />
     </div>
 
     <!-- 4.3 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">4.3 Quais são os maiores DESEJOS e sonhos dele(a)?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Sentir-se confiante em reuniões, parecer mais jovem sem cirurgia..."
-                  value="@Model.MaioresDesejos" @onchange="OnDesejosChanged"></textarea>
+                  value="@Model.MaioresDesejos" @oninput="OnDesejosChanged"></textarea>
     </div>
 
     <!-- 4.4 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">4.4 Quais as perguntas mais frequentes que eles fazem em consulta?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Dói? Quanto tempo dura? Quando posso voltar a trabalhar?..."
-                  value="@Model.PerguntasFrequentes" @onchange="OnPerguntasChanged"></textarea>
+                  value="@Model.PerguntasFrequentes" @oninput="OnPerguntasChanged"></textarea>
     </div>
 
     <!-- 4.5 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">4.5 Quais mitos ou informações erradas eles trazem da internet?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Acham que botox deixa o rosto congelado..."
-                  value="@Model.MitosInformacoesErradas" @onchange="OnMitosChanged"></textarea>
+                  value="@Model.MitosInformacoesErradas" @oninput="OnMitosChanged"></textarea>
     </div>
 
     <!-- 4.6 -->

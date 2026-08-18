@@ -13,14 +13,14 @@
     <div class="anamnese-field-group">
         <label class="anamnese-label">7.1 Quais temas você mais GOSTA de explicar para os pacientes?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Prevenção do envelhecimento precoce, higienização pós-procedimento..."
-                  value="@Model.TemasFavoritos" @onchange="OnTemasFavoritosChanged"></textarea>
+                  value="@Model.TemasFavoritos" @oninput="OnTemasFavoritosChanged"></textarea>
     </div>
 
     <!-- 7.2 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">7.2 Se você tivesse que dar uma PALESTRA DE 1 HORA hoje sem slides, sobre o que seria?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Como a estética facial impacta a saúde mental e autoestima..."
-                  value="@Model.TemaPalestra" @onchange="OnTemaPalestraChanged"></textarea>
+                  value="@Model.TemaPalestra" @oninput="OnTemaPalestraChanged"></textarea>
         <AnamneseDidacticTooltip>
             Esse costuma ser o seu maior pilar de autoridade e paixão profissional.
         </AnamneseDidacticTooltip>
@@ -30,29 +30,30 @@
     <div class="anamnese-field-group">
         <label class="anamnese-label">7.3 Qual a sua VERDADE CORAJOSA (opinião forte contrária à maioria)?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Preenchimento labial excessivo estraga a harmonia do rosto..."
-                  value="@Model.VerdadeCorajosa" @onchange="OnVerdadeCorajosaChanged"></textarea>
-        <AnamneseCharacterCounter Text="@Model.VerdadeCorajosa" />
+                  value="@Model.VerdadeCorajosa" @oninput="OnVerdadeCorajosaChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.VerdadeCorajosa" 
+                                  CustomCliches="@PersonaScript.Modules.Anamnese.Application.Services.HeuristicClarificationAnalyzer.GenericClichesEtapa7" />
     </div>
 
     <!-- 7.4 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">7.4 Quais posts ou vídeos que você já fez DEU MAIS CERTO?</label>
         <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Um vídeo explicando por que tal procedimento dói ou não dói..."
-                  value="@Model.PostsDeuCerto" @onchange="OnPostsDeuCertoChanged"></textarea>
+                  value="@Model.PostsDeuCerto" @oninput="OnPostsDeuCertoChanged"></textarea>
     </div>
 
     <!-- 7.5 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">7.5 Quais posts ou vídeos NÃO FUNCIONARAM como você esperava?</label>
         <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Post muito técnico com termos em inglês..."
-                  value="@Model.PostsNaoFuncionaram" @onchange="OnPostsNaoFuncionaramChanged"></textarea>
+                  value="@Model.PostsNaoFuncionaram" @oninput="OnPostsNaoFuncionaramChanged"></textarea>
     </div>
 
     <!-- 7.6 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">7.6 Qual é o tipo de CONTEÚDO DOS SONHOS que você quer criar?</label>
         <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Mini-documentários, séries de perguntas em vídeo profissional..."
-                  value="@Model.ConteudoDosSonhos" @onchange="OnConteudoSonhosChanged"></textarea>
+                  value="@Model.ConteudoDosSonhos" @oninput="OnConteudoSonhosChanged"></textarea>
     </div>
 </div>
 

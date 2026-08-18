@@ -13,28 +13,28 @@
     <div class="anamnese-field-group">
         <label class="anamnese-label">3.1 Qual o seu procedimento ou serviço MÁSTER (seu maior destaque)?</label>
         <input type="text" class="anamnese-input" placeholder="Ex: Harmonização facial de alta precisão" 
-               value="@Model.ProcedimentoMaster" @onchange="OnMasterChanged" />
+               value="@Model.ProcedimentoMaster" @oninput="OnMasterChanged" />
     </div>
 
     <!-- 3.2 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">3.2 Qual o procedimento mais LUCRATIVO do seu consultório?</label>
         <input type="text" class="anamnese-input" placeholder="Ex: Protocolos de rejuvenescimento de 12 meses" 
-               value="@Model.ProcedimentoLucrativo" @onchange="OnLucrativoChanged" />
+               value="@Model.ProcedimentoLucrativo" @oninput="OnLucrativoChanged" />
     </div>
 
     <!-- 3.3 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">3.3 Qual procedimento você mais GOSTA de realizar?</label>
         <input type="text" class="anamnese-input" placeholder="Ex: Cirurgia de implantes complexos" 
-               value="@Model.ProcedimentoPreferido" @onchange="OnPreferidoChanged" />
+               value="@Model.ProcedimentoPreferido" @oninput="OnPreferidoChanged" />
     </div>
 
     <!-- 3.4 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">3.4 Qual o grande diferencial do seu atendimento?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Consulta sem pressa de 1h30, escuta ativa, café personalizado..."
-                  value="@Model.DiferencialAtendimento" @onchange="OnDiferencialChanged"></textarea>
+                  value="@Model.DiferencialAtendimento" @oninput="OnDiferencialChanged"></textarea>
         <AnamneseCharacterCounter Text="@Model.DiferencialAtendimento" />
     </div>
 
@@ -42,7 +42,7 @@
     <div class="anamnese-field-group">
         <label class="anamnese-label">3.5 Por que os pacientes escolhem você e não o concorrente?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Pela naturalidade dos resultados e pela segurança da pós-consulta..."
-                  value="@Model.PorQueEscolhemVoce" @onchange="OnPorQueEscolhemChanged"></textarea>
+                  value="@Model.PorQueEscolhemVoce" @oninput="OnPorQueEscolhemChanged"></textarea>
         <AnamneseCharacterCounter Text="@Model.PorQueEscolhemVoce" />
     </div>
 
@@ -50,7 +50,7 @@
     <div class="anamnese-field-group">
         <label class="anamnese-label">3.6 Qual sua crítica respeitosa às práticas ultrapassadas ou ruins dos seus pares?</label>
         <textarea class="anamnese-textarea" rows="3" placeholder="Ex: Tratamento padronizado em massa sem olhar a individualidade..."
-                  value="@Model.CriticaAosPares" @onchange="OnCriticaChanged"></textarea>
+                  value="@Model.CriticaAosPares" @oninput="OnCriticaChanged"></textarea>
     </div>
 </div>
 

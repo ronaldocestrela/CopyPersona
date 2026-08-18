@@ -29,22 +29,23 @@
     <div class="anamnese-field-group">
         <label class="anamnese-label">8.2 Amostra de escrita explicativa (Escreva como você fala naturalmente):</label>
         <textarea class="anamnese-textarea" rows="4" placeholder="Ex: Olá! Hoje quero te explicar de forma bem simples por que você não deve usar receita caseira no rosto..."
-                  value="@Model.AmostraEscritaExplicativa" @onchange="OnAmostraEscritaChanged"></textarea>
-        <AnamneseCharacterCounter Text="@Model.AmostraEscritaExplicativa" />
+                  value="@Model.AmostraEscritaExplicativa" @oninput="OnAmostraEscritaChanged"></textarea>
+        <AnamneseCharacterCounter Text="@Model.AmostraEscritaExplicativa" 
+                                  CustomCliches="@PersonaScript.Modules.Anamnese.Application.Services.HeuristicClarificationAnalyzer.GenericClichesEtapa8" />
     </div>
 
     <!-- 8.3 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">8.3 Status da sua Identidade Visual (Cores, Fontes, Logotipo):</label>
         <input type="text" class="anamnese-input" placeholder="Ex: Já tenho paleta em tons nude e dourado / Preciso criar do zero" 
-               value="@Model.IdentidadeVisualStatus" @onchange="OnIdentidadeVisualChanged" />
+               value="@Model.IdentidadeVisualStatus" @oninput="OnIdentidadeVisualChanged" />
     </div>
 
     <!-- 8.4 -->
     <div class="anamnese-field-group">
         <label class="anamnese-label">8.4 Qual estilo ou estética visual você ODEIA e quer EVITAR?</label>
         <textarea class="anamnese-textarea" rows="2" placeholder="Ex: Cores neon, elementos exagerados, fontes difíceis de ler..."
-                  value="@Model.EsteticaOdiada" @onchange="OnEsteticaOdiadaChanged"></textarea>
+                  value="@Model.EsteticaOdiada" @oninput="OnEsteticaOdiadaChanged"></textarea>
     </div>
 </div>
 

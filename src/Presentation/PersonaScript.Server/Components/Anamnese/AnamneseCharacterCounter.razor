@@ -1,4 +1,5 @@
 @namespace PersonaScript.Server.Components.Anamnese
+@using PersonaScript.Modules.Anamnese.Application.Services
 
 <div class="d-flex align-items-center gap-2">
     <span class="anamnese-counter-badge @BadgeClass">
@@ -8,22 +9,29 @@
 
 @code {
     [Parameter] public string? Text { get; set; }
+    [Parameter] public string[]? CustomCliches { get; set; }
 
     private int TextLength => Text?.Trim().Length ?? 0;
 
-    private string BadgeClass => TextLength switch
+    private bool IsVague => HeuristicClarificationAnalyzer.IsVagueOrShort(
+        Text,
+        20,
+        CustomCliches ?? HeuristicClarificationAnalyzer.GenericClichesEtapa3
+    );
+
+    private string BadgeClass => (TextLength, IsVague) switch
     {
-        0 => "short",
-        < 30 => "short",
-        < 120 => "good",
-        _ => "great"
+        (0, _) => "short",
+        (< 20, _) => "short",
+        (_, true) => "short", // Exibe badge em amarelo/âmbar quando detectada vagueza/clichê
+        _ => "good"
     };
 
-    private string BadgeText => TextLength switch
+    private string BadgeText => (TextLength, IsVague) switch
     {
-        0 => "Pendente",
-        < 30 => "Resposta muito curta",
-        < 120 => "Boa resposta",
-        _ => "Excelente detalhamento"
+        (0, _) => "Pendente",
+        (< 20, _) => "Resposta muito curta",
+        (_, true) => "Resposta genérica — pode aprofundar",
+        _ => "Boa resposta"
     };
 }
