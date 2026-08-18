@@ -7,6 +7,7 @@
     <ProjectReference Include="..\..\Modules\Personas\PersonaScript.Modules.Personas.Infrastructure\PersonaScript.Modules.Personas.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\Scripts\PersonaScript.Modules.Scripts.Infrastructure\PersonaScript.Modules.Scripts.Infrastructure.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Tenancy\PersonaScript.BuildingBlocks.Tenancy.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.AI\PersonaScript.BuildingBlocks.AI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

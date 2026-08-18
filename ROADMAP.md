@@ -121,14 +121,14 @@ Módulo de Anamnese 100% funcional, permitindo que o profissional responda pausa
 
 ## FASE 3: Agente 1 — Estrategista de Persona e Diagnóstico de Posicionamento
 
-### Subfase 3.1: Abstração de Integração com Provedores LLM
+### Subfase 3.1: Abstração de Integração com Provedores LLM [CONCLUÍDO]
 - **Tarefas:**
-  - Criar o BuildingBlock de IA `PersonaScript.BuildingBlocks.AI` com a interface `ILLMProvider`.
-  - Implementar suporte a provedores (OpenAI API / Azure OpenAI / Anthropic / Google Gemini) com fallback automático em caso de indisponibilidade ou rate limit.
-  - Implementar mecanismos de Retry com Exponential Backoff via Resilience (Polly) e Structured Output JSON Parsing com Schema Enforcement.
-  - Testes de unidade utilizando Mocks do `ILLMProvider`.
+  - [x] Criar o BuildingBlock de IA `PersonaScript.BuildingBlocks.AI` com a interface `ILLMProvider`.
+  - [x] Implementar suporte a provedores (OpenAI API / Azure OpenAI / Anthropic / Google Gemini / Mock) com fallback automático em caso de indisponibilidade ou rate limit (`FallbackLLMProviderDecorator`).
+  - [x] Implementar mecanismos de Retry com Exponential Backoff via Resilience (Polly) e Structured Output JSON Parsing com Schema Enforcement (`ILLMJsonParser`).
+  - [x] Testes de unidade utilizando Mocks do `ILLMProvider` e suíte de testes de resiliência e DI (139 testes verdes na solução).
 - **Entregáveis da Subfase 3.1:**
-  - Abstração de LLM robusta com suporte a streaming e retorno em JSON estrito.
+  - [x] Abstração de LLM robusta com suporte a streaming, resiliência Polly, fallbacks transparentes e retorno em JSON estrito.
 
 ### Subfase 3.2: Motor de Prompt do Agente 1 (Estrategista de Persona)
 - **Tarefas:**

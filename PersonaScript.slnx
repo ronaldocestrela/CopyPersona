@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.AI/PersonaScript.BuildingBlocks.AI.csproj" />
     <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.CQRS/PersonaScript.BuildingBlocks.CQRS.csproj" />
     <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.Domain/PersonaScript.BuildingBlocks.Domain.csproj" />
     <Project Path="src/BuildingBlocks/PersonaScript.BuildingBlocks.Results/PersonaScript.BuildingBlocks.Results.csproj" />
@@ -36,6 +37,7 @@
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/BuildingBlocks/">
+    <Project Path="tests/BuildingBlocks/PersonaScript.BuildingBlocks.AI.UnitTests/PersonaScript.BuildingBlocks.AI.UnitTests.csproj" />
     <Project Path="tests/BuildingBlocks/PersonaScript.BuildingBlocks.UnitTests/PersonaScript.BuildingBlocks.UnitTests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/" />
