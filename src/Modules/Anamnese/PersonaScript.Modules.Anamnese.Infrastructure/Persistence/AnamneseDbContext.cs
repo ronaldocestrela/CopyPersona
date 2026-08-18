@@ -37,7 +37,24 @@ public sealed class AnamneseDbContext(DbContextOptions<AnamneseDbContext> option
             entity.OwnsOne(a => a.Etapa2, b => b.ToJson());
             entity.OwnsOne(a => a.Etapa3, b => b.ToJson());
             entity.OwnsOne(a => a.Etapa4, b => b.ToJson());
-            entity.OwnsOne(a => a.Etapa5, b => b.ToJson());
+            entity.OwnsOne(a => a.Etapa5, b =>
+            {
+                b.ToJson();
+                b.Property(e => e.PerfisArea)
+                    .HasConversion(
+                        v => string.Join(',', v),
+                        v => string.IsNullOrWhiteSpace(v)
+                            ? new List<string>()
+                            : v.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
+                    );
+                b.Property(e => e.PerfisForaArea)
+                    .HasConversion(
+                        v => string.Join(',', v),
+                        v => string.IsNullOrWhiteSpace(v)
+                            ? new List<string>()
+                            : v.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
+                    );
+            });
             entity.OwnsOne(a => a.Etapa6, b => b.ToJson());
             entity.OwnsOne(a => a.Etapa7, b => b.ToJson());
             entity.OwnsOne(a => a.Etapa8, b =>

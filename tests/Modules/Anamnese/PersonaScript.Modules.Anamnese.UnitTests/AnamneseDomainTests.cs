@@ -78,7 +78,7 @@ public class AnamneseDomainTests
         anamnese.UpdateEtapa2(new Etapa2SuaHistoria("Motivação", "Caso Marcante", "Fase Difícil", "Motor Pessoal"));
         anamnese.UpdateEtapa3(new Etapa3SeuTrabalho("Lentes", "Implantes", "Lentes", "Atendimento VIP", "Confiança", "Promessas falsas"));
         anamnese.UpdateEtapa4(new Etapa4SeuPaciente("Mulher 30-45", "Dor, Artificial", "Rejuvenescer", "Dói? Quanto tempo?", "Botox trava rosto", CanalOrigemEnum.Instagram));
-        anamnese.UpdateEtapa5(new Etapa5SuasReferencias("https://instagram.com/prof1, https://instagram.com/prof2", "Didática", "Dancinha", "https://instagram.com/marca1", "Estética minimalista"));
+        anamnese.UpdateEtapa5(new Etapa5SuasReferencias(new[] { "prof1", "prof2" }, "Didática", "Dancinha", new[] { "marca1" }, "Estética minimalista"));
         anamnese.UpdateEtapa6(new Etapa6LimitesExposicao("Política, Religião", "Família, Casa", "Viagens", "Bastidores", NivelConfortoCameraEnum.SuperAVontade, "Regras CRO"));
         anamnese.UpdateEtapa7(new Etapa7SeuConhecimento("Harmonização, Lentes, Botox, Preenchimento, Clareamento", "Mitos da Harmonização", "Procedimentos desnecessários vendidos", "Post sobre Mitos", "Post teórico longo", "Vídeo de bastidores"));
         anamnese.UpdateEtapa8(new Etapa8SeuJeito(new[] { ArquetipoComunicacaoEnum.Professor, ArquetipoComunicacaoEnum.Amigo }, "Explico de forma direta e acolhedora sem jargões", "Gosto da minha identidade atual", "Odeio cores chamativas"));
@@ -124,7 +124,7 @@ public class AnamneseDomainTests
         anamnese.UpdateEtapa2(new Etapa2SuaHistoria("Motivação", "Caso Marcante", "Fase Difícil", "Motor Pessoal"));
         anamnese.UpdateEtapa3(new Etapa3SeuTrabalho("Lentes", "Implantes", "Lentes", "Atendimento VIP", "Confiança", "Promessas falsas"));
         anamnese.UpdateEtapa4(new Etapa4SeuPaciente("Mulher 30-45", "Dor, Artificial", "Rejuvenescer", "Dói? Quanto tempo?", "Botox trava rosto", CanalOrigemEnum.Instagram));
-        anamnese.UpdateEtapa5(new Etapa5SuasReferencias("https://instagram.com/prof1", "Didática", "Dancinha", "https://instagram.com/marca1", "Estética minimalista"));
+        anamnese.UpdateEtapa5(new Etapa5SuasReferencias(new[] { "prof1" }, "Didática", "Dancinha", new[] { "marca1" }, "Estética minimalista"));
         anamnese.UpdateEtapa6(new Etapa6LimitesExposicao("Política", "Família", "Viagens", "Bastidores", NivelConfortoCameraEnum.SuperAVontade, "Regras CRO"));
         anamnese.UpdateEtapa7(new Etapa7SeuConhecimento("Harmonização", "Mitos", "Procedimentos desnecessários", "Post sobre Mitos", "Post longo", "Vídeo bastidores"));
         anamnese.UpdateEtapa8(new Etapa8SeuJeito(new[] { ArquetipoComunicacaoEnum.Professor }, "Acolhedora", "Gosto da atual", "Odeio chamativas"));

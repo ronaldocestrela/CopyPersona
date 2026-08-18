@@ -48,4 +48,20 @@ public class AnamneseStepComponentsTests : BunitContext
         updatedModel!.ArquetiposComunicacao.Should().Contain(ArquetipoComunicacaoEnum.Autoridade);
         updatedModel.ArquetiposComunicacao.Should().Contain(ArquetipoComunicacaoEnum.Amigo);
     }
+
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "bUnit TestContext manages component lifecycle")]
+    public void Step5Component_ShouldRenderMultiInstagramInputsAndTriggerModelChanged()
+    {
+        Etapa5Dto? updatedModel = null;
+        var initialModel = new Etapa5Dto(new[] { "dramarianacosta" }, "Didática", "Dancinha", new[] { "marcasouinfluencer" }, "Estética minimalista");
+
+        var cut = Render<Step5Component>(parameters => parameters
+            .Add(p => p.Model, initialModel)
+            .Add(p => p.ModelChanged, m => updatedModel = m));
+
+        cut.Find("h3").TextContent.Should().Contain("Etapa 5 — Suas Referências");
+        var listContainers = cut.FindAll(".anamnese-instagram-list-container");
+        listContainers.Should().HaveCount(2);
+    }
 }

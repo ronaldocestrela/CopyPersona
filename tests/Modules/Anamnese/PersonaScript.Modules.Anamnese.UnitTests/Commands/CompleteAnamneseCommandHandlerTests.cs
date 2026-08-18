@@ -86,7 +86,7 @@ public class CompleteAnamneseCommandHandlerTests
             await saveHandler.Handle(new SaveAnamneseStepCommand(2, Etapa2: new Etapa2Dto("Motivacao", "Caso", "Fase", "Motor")), CancellationToken.None);
             await saveHandler.Handle(new SaveAnamneseStepCommand(3, Etapa3: new Etapa3Dto("Master", "Lucrativo", "Preferido", "Diferencial", "PorQue", "Critica")), CancellationToken.None);
             await saveHandler.Handle(new SaveAnamneseStepCommand(4, Etapa4: new Etapa4Dto("Perfil", "Medos", "Desejos", "Perguntas", "Mitos", CanalOrigemEnum.Instagram)), CancellationToken.None);
-            await saveHandler.Handle(new SaveAnamneseStepCommand(5, Etapa5: new Etapa5Dto("Perfis", "Admira", "NaoFaria", "Fora", "Atrai")), CancellationToken.None);
+            await saveHandler.Handle(new SaveAnamneseStepCommand(5, Etapa5: new Etapa5Dto(new[] { "Perfis" }, "Admira", "NaoFaria", new[] { "Fora" }, "Atrai")), CancellationToken.None);
             await saveHandler.Handle(new SaveAnamneseStepCommand(6, Etapa6: new Etapa6Dto("Proibidos", "Vida", "Estilo", "Trabalho", NivelConfortoCameraEnum.SuperAVontade, "CRO")), CancellationToken.None);
             await saveHandler.Handle(new SaveAnamneseStepCommand(7, Etapa7: new Etapa7Dto("Temas", "Palestra", "Verdade", "Certo", "Errado", "Sonhos")), CancellationToken.None);
             await saveHandler.Handle(new SaveAnamneseStepCommand(8, Etapa8: new Etapa8Dto(new[] { ArquetipoComunicacaoEnum.Autoridade }, "Amostra", "Ok", "Nenhum")), CancellationToken.None);

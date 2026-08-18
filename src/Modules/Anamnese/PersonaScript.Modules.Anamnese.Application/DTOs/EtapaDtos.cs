@@ -1,7 +1,21 @@
+using System.Text.Json.Serialization;
+using PersonaScript.BuildingBlocks.Domain;
 using PersonaScript.Modules.Anamnese.Domain;
 using PersonaScript.Modules.Anamnese.Domain.ValueObjects;
 
 namespace PersonaScript.Modules.Anamnese.Application.DTOs;
+
+public record Etapa5Dto(
+    [property: JsonConverter(typeof(FlexibleStringCollectionJsonConverter))] IReadOnlyCollection<string> PerfisArea,
+    string OQueAdmiraArea,
+    string OQueNaoFariaArea,
+    [property: JsonConverter(typeof(FlexibleStringCollectionJsonConverter))] IReadOnlyCollection<string> PerfisForaArea,
+    string OQueAtraiForaArea
+)
+{
+    public Etapa5SuasReferencias ToValueObject() => new(PerfisArea, OQueAdmiraArea, OQueNaoFariaArea, PerfisForaArea, OQueAtraiForaArea);
+    public static Etapa5Dto FromValueObject(Etapa5SuasReferencias vo) => new(vo.PerfisArea, vo.OQueAdmiraArea, vo.OQueNaoFariaArea, vo.PerfisForaArea, vo.OQueAtraiForaArea);
+}
 
 public record Etapa1Dto(
     string NomeCompleto,
@@ -60,17 +74,6 @@ public record Etapa4Dto(
     public static Etapa4Dto FromValueObject(Etapa4SeuPaciente vo) => new(vo.PerfilDemograficoPsicografico, vo.MaioresMedos, vo.MaioresDesejos, vo.PerguntasFrequentes, vo.MitosInformacoesErradas, vo.CanalOrigem);
 }
 
-public record Etapa5Dto(
-    string PerfisArea,
-    string OQueAdmiraArea,
-    string OQueNaoFariaArea,
-    string PerfisForaArea,
-    string OQueAtraiForaArea
-)
-{
-    public Etapa5SuasReferencias ToValueObject() => new(PerfisArea, OQueAdmiraArea, OQueNaoFariaArea, PerfisForaArea, OQueAtraiForaArea);
-    public static Etapa5Dto FromValueObject(Etapa5SuasReferencias vo) => new(vo.PerfisArea, vo.OQueAdmiraArea, vo.OQueNaoFariaArea, vo.PerfisForaArea, vo.OQueAtraiForaArea);
-}
 
 public record Etapa6Dto(
     string AssuntosProibidos,

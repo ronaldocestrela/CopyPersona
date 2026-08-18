@@ -1,0 +1,128 @@
+@namespace PersonaScript.Server.Components.Anamnese
+
+<div class="anamnese-instagram-list-container d-flex flex-column gap-2">
+    @for (int i = 0; i < DisplayItemsCount; i++)
+    {
+        var index = i;
+        var currentValue = GetDisplayValueAt(index);
+        var formattedHandle = InstagramLinkInput.ExtractHandle(currentValue);
+
+        <div class="anamnese-instagram-input-row d-flex align-items-center gap-2">
+            <div class="flex-grow-1" style="position: relative; display: flex; align-items: center;">
+                <span style="position: absolute; left: 0.75rem; color: #a5b4fc; font-weight: 600;">@@</span>
+                <input type="text"
+                       class="anamnese-input"
+                       style="padding-left: 2rem;"
+                       placeholder="@Placeholder"
+                       value="@currentValue"
+                       @oninput="(e) => OnItemInputChanged(index, e)" />
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(currentValue))
+            {
+                <button type="button"
+                        class="btn-remove-profile"
+                        title="Remover perfil"
+                        style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; border-radius: 0.5rem; width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease;"
+                        @onclick="() => RemoveItemAt(index)">
+                    ✕
+                </button>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(formattedHandle))
+        {
+            <div style="font-size: 0.75rem; color: #34d399; margin-top: -0.25rem; margin-bottom: 0.25rem; padding-left: 0.5rem;">
+                ✓ Perfil @(index + 1): instagram.com/@formattedHandle
+            </div>
+        }
+    }
+
+    <div class="d-flex align-items-center justify-content-between mt-1">
+        <span style="font-size: 0.8rem; color: #94a3b8;">
+            @(FilledItemsCount == MaxItems ? $"{FilledItemsCount}/{MaxItems} perfis (limite atingido)" : $"{FilledItemsCount}/{MaxItems} perfis adicionados")
+        </span>
+    </div>
+</div>
+
+@code {
+    [Parameter] public IReadOnlyCollection<string>? Values { get; set; }
+    [Parameter] public EventCallback<IReadOnlyCollection<string>> ValuesChanged { get; set; }
+    [Parameter] public int MaxItems { get; set; } = 10;
+    [Parameter] public string Placeholder { get; set; } = "ex: dramarianacosta";
+
+    private List<string> _items = new();
+
+    protected override void OnParametersSet()
+    {
+        _items = Values != null ? Values.ToList() : new List<string>();
+    }
+
+    private int FilledItemsCount => _items.Count(x => !string.IsNullOrWhiteSpace(x));
+
+    private int DisplayItemsCount
+    {
+        get
+        {
+            if (_items.Count >= MaxItems) return MaxItems;
+            return _items.Count + 1; // Always show 1 extra empty input row until MaxItems
+        }
+    }
+
+    private string GetDisplayValueAt(int index)
+    {
+        if (index < _items.Count)
+        {
+            return _items[index];
+        }
+        return string.Empty;
+    }
+
+    private async Task OnItemInputChanged(int index, ChangeEventArgs e)
+    {
+        var rawInput = e.Value?.ToString() ?? string.Empty;
+
+        if (index < _items.Count)
+        {
+            if (string.IsNullOrWhiteSpace(rawInput))
+            {
+                _items.RemoveAt(index);
+            }
+            else
+            {
+                _items[index] = rawInput;
+            }
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(rawInput))
+            {
+                _items.Add(rawInput);
+            }
+        }
+
+        await NotifyChangedAsync();
+    }
+
+    private async Task RemoveItemAt(int index)
+    {
+        if (index >= 0 && index < _items.Count)
+        {
+            _items.RemoveAt(index);
+            await NotifyChangedAsync();
+        }
+    }
+
+    private async Task NotifyChangedAsync()
+    {
+        var normalizedList = _items
+            .Select(InstagramLinkInput.ExtractHandle)
+            .Where(h => !string.IsNullOrWhiteSpace(h))
+            .Distinct()
+            .Take(MaxItems)
+            .ToList()
+            .AsReadOnly();
+
+        await ValuesChanged.InvokeAsync(normalizedList);
+    }
+}
