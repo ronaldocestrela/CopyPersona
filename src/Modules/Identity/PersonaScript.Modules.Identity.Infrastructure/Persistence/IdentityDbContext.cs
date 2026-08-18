@@ -7,6 +7,7 @@ namespace PersonaScript.Modules.Identity.Infrastructure.Persistence;
 public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> options, ITenantContext tenantContext)
     : DbContext(options)
 {
+    public ITenantContext TenantContext => tenantContext;
     public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -24,6 +25,6 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             entity.Property(user => user.TenantId).IsRequired();
         });
 
-        modelBuilder.ApplyTenantQueryFilters(tenantContext);
+        modelBuilder.ApplyTenantQueryFilters(this);
     }
 }

@@ -12,6 +12,8 @@ public sealed class User : BaseEntity, IMustHaveTenant
 
     public Guid TenantId { get; private set; }
 
+    public void SetTenantId(Guid tenantId) => TenantId = tenantId;
+
     public string FullName { get; private set; } = string.Empty;
 
     public string Email { get; private set; } = string.Empty;

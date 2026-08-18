@@ -5,46 +5,69 @@ namespace PersonaScript.BuildingBlocks.UnitTests.Domain;
 
 public class DomainTests
 {
-    private sealed class SampleEntity : BaseEntity, IMustHaveTenant
+    private class TestEvent(string name) : DomainEvent
     {
-        public Guid TenantId { get; init; }
+        public string Name { get; } = name;
     }
 
-    private sealed class Money : ValueObject
+    private class TestEntity : BaseEntity
     {
-        public Money(decimal amount, string currency)
-        {
-            Amount = amount;
-            Currency = currency;
-        }
+    }
 
-        public decimal Amount { get; }
-        public string Currency { get; }
+    private class TestValueObject(string city, string country) : ValueObject
+    {
+        public string City { get; } = city;
+        public string Country { get; } = country;
 
         protected override IEnumerable<object?> GetEqualityComponents()
         {
-            yield return Amount;
-            yield return Currency;
+            yield return City;
+            yield return Country;
         }
     }
 
     [Fact]
-    public void BaseEntity_ShouldGenerateId()
+    public void BaseEntity_ShouldGenerateGuidId_WhenInstantiated()
     {
-        var entity = new SampleEntity { TenantId = Guid.NewGuid() };
+        var entity = new TestEntity();
 
-        entity.Id.Should().NotBe(Guid.Empty);
+        entity.Id.Should().NotBeEmpty();
     }
 
     [Fact]
-    public void ValueObject_ShouldCompareByComponents()
+    public void BaseEntity_ShouldManageDomainEvents()
     {
-        var left = new Money(10m, "BRL");
-        var right = new Money(10m, "BRL");
-        var different = new Money(20m, "BRL");
+        var entity = new TestEntity();
+        var evt1 = new TestEvent("Event1");
+        var evt2 = new TestEvent("Event2");
 
-        left.Should().Be(right);
-        left.Should().NotBe(different);
-        left.GetHashCode().Should().Be(right.GetHashCode());
+        entity.DomainEvents.Should().BeEmpty();
+
+        entity.AddDomainEvent(evt1);
+        entity.AddDomainEvent(evt2);
+
+        entity.DomainEvents.Should().HaveCount(2);
+        entity.DomainEvents.Should().Contain([evt1, evt2]);
+
+        entity.RemoveDomainEvent(evt1);
+        entity.DomainEvents.Should().HaveCount(1);
+        entity.DomainEvents.Should().Contain(evt2);
+
+        entity.ClearDomainEvents();
+        entity.DomainEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ValueObject_ShouldBeEqual_WhenComponentsAreEqual()
+    {
+        var vo1 = new TestValueObject("São Paulo", "Brasil");
+        var vo2 = new TestValueObject("São Paulo", "Brasil");
+        var vo3 = new TestValueObject("Rio de Janeiro", "Brasil");
+
+        vo1.Equals(vo2).Should().BeTrue();
+        (vo1 == vo2).Should().BeFalse(); // ValueObject equals method
+        vo1.GetHashCode().Should().Be(vo2.GetHashCode());
+
+        vo1.Equals(vo3).Should().BeFalse();
     }
 }
