@@ -1,7 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Tenancy;
+using PersonaScript.Modules.Anamnese.Application.Commands.CompleteAnamnese;
+using PersonaScript.Modules.Anamnese.Application.Commands.SaveAnamneseStep;
+using PersonaScript.Modules.Anamnese.Application.Commands.StartAnamnese;
+using PersonaScript.Modules.Anamnese.Application.DTOs;
+using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStatus;
+using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStep;
+using PersonaScript.Modules.Anamnese.Application.Queries.GetFullAnamnese;
 using PersonaScript.Modules.Anamnese.Domain;
 using PersonaScript.Modules.Anamnese.Infrastructure.Persistence;
 using PersonaScript.Modules.Anamnese.Infrastructure.Repositories;
@@ -32,6 +40,15 @@ public static class AnamneseModuleSetup
         });
 
         services.AddScoped<IAnamneseRepository, AnamneseRepository>();
+
+        // Register CQRS Handlers
+        services.AddScoped<ICommandHandler<StartAnamneseCommand, Guid>, StartAnamneseCommandHandler>();
+        services.AddScoped<ICommandHandler<SaveAnamneseStepCommand>, SaveAnamneseStepCommandHandler>();
+        services.AddScoped<ICommandHandler<CompleteAnamneseCommand>, CompleteAnamneseCommandHandler>();
+
+        services.AddScoped<IQueryHandler<GetAnamneseStatusQuery, AnamneseStatusDto>, GetAnamneseStatusQueryHandler>();
+        services.AddScoped<IQueryHandler<GetAnamneseStepQuery, object?>, GetAnamneseStepQueryHandler>();
+        services.AddScoped<IQueryHandler<GetFullAnamneseQuery, FullAnamneseDto>, GetFullAnamneseQueryHandler>();
 
         return services;
     }

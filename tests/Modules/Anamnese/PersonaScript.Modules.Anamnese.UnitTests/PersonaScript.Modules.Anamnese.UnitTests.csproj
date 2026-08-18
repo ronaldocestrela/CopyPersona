@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Modules\Anamnese\PersonaScript.Modules.Anamnese.Domain\PersonaScript.Modules.Anamnese.Domain.csproj" />
+    <ProjectReference Include="..\..\..\..\src\Modules\Anamnese\PersonaScript.Modules.Anamnese.Application\PersonaScript.Modules.Anamnese.Application.csproj" />
     <ProjectReference Include="..\..\..\..\src\Modules\Anamnese\PersonaScript.Modules.Anamnese.Infrastructure\PersonaScript.Modules.Anamnese.Infrastructure.csproj" />
   </ItemGroup>
 

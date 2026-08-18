@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PersonaScript.Modules.Anamnese.Domain\PersonaScript.Modules.Anamnese.Domain.csproj" />
+    <ProjectReference Include="..\PersonaScript.Modules.Anamnese.Application\PersonaScript.Modules.Anamnese.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Tenancy\PersonaScript.BuildingBlocks.Tenancy.csproj" />
   </ItemGroup>
 

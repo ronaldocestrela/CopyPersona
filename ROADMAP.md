@@ -85,13 +85,13 @@ Infraestrutura base de segurança, multi-tenancy B2C e autenticação totalmente
 
 ### Subfase 2.2: Camada de Aplicação (CQRS) e Auto-Salvamento (Save & Resume)
 - **Tarefas:**
-  - Criar os Commands: `StartAnamneseCommand`, `SaveAnamneseStepCommand` (para salvar cada etapa individualmente), `CompleteAnamneseCommand`.
-  - Criar as Queries: `GetAnamneseStatusQuery`, `GetAnamneseStepQuery`, `GetFullAnamneseQuery`.
-  - Implementar lógica de progresso (% de conclusão, etapa atual, status: `Draft`, `Completed`).
-  - Escrever testes de integração garantindo que o tenant A não consegue visualizar nem modificar a anamnese do tenant B.
+  - [x] Criar os Commands: `StartAnamneseCommand`, `SaveAnamneseStepCommand` (para salvar cada etapa individualmente), `CompleteAnamneseCommand`.
+  - [x] Criar as Queries: `GetAnamneseStatusQuery`, `GetAnamneseStepQuery`, `GetFullAnamneseQuery`.
+  - [x] Implementar lógica de progresso (% de conclusão, etapa atual, status: `Draft`, `Completed`).
+  - [x] Escrever testes de integração garantindo que o tenant A não consegue visualizar nem modificar a anamnese do tenant B.
 - **Entregáveis da Subfase 2.2:**
-  - CQRS Handlers para salvamento incremental e retomada de formulário.
-  - Suíte de testes TDD cobrindo cenários de sucesso, erro de validação e isolamento de tenant.
+  - [x] CQRS Handlers para salvamento incremental e retomada de formulário.
+  - [x] Suíte de testes TDD cobrindo cenários de sucesso, erro de validação e isolamento de tenant.
 
 ### Subfase 2.3: Interface Blazor Interativa — Wizard em 10 Etapas (Stitch UI)
 - **Tarefas:**
