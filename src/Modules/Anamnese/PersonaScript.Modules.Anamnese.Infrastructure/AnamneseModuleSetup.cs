@@ -13,6 +13,7 @@ using PersonaScript.Modules.Anamnese.Application.Queries.GetFullAnamnese;
 using PersonaScript.Modules.Anamnese.Domain;
 using PersonaScript.Modules.Anamnese.Infrastructure.Persistence;
 using PersonaScript.Modules.Anamnese.Infrastructure.Repositories;
+using PersonaScript.Modules.Anamnese.Application.Services;
 
 namespace PersonaScript.Modules.Anamnese.Infrastructure;
 
@@ -41,6 +42,10 @@ public static class AnamneseModuleSetup
 
         services.AddScoped<IAnamneseRepository, AnamneseRepository>();
 
+        // Register Clarification AI Engine
+        services.AddSingleton<HeuristicClarificationAnalyzer>();
+        services.AddScoped<IAnamneseClarificationService, AnamneseClarificationService>();
+
         // Register CQRS Handlers
         services.AddScoped<ICommandHandler<StartAnamneseCommand, Guid>, StartAnamneseCommandHandler>();
         services.AddScoped<ICommandHandler<SaveAnamneseStepCommand>, SaveAnamneseStepCommandHandler>();
@@ -49,6 +54,7 @@ public static class AnamneseModuleSetup
         services.AddScoped<IQueryHandler<GetAnamneseStatusQuery, AnamneseStatusDto>, GetAnamneseStatusQueryHandler>();
         services.AddScoped<IQueryHandler<GetAnamneseStepQuery, object?>, GetAnamneseStepQueryHandler>();
         services.AddScoped<IQueryHandler<GetFullAnamneseQuery, FullAnamneseDto>, GetFullAnamneseQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Anamnese.Application.Queries.AnalyzeStepClarification.AnalyzeStepClarificationQuery, PersonaScript.Modules.Anamnese.Application.DTOs.ClarificationAnalysisResultDto>, PersonaScript.Modules.Anamnese.Application.Queries.AnalyzeStepClarification.AnalyzeStepClarificationQueryHandler>();
 
         return services;
     }

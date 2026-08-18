@@ -8,6 +8,7 @@ using PersonaScript.Modules.Anamnese.Application.Commands.CompleteAnamnese;
 using PersonaScript.Modules.Anamnese.Application.Commands.SaveAnamneseStep;
 using PersonaScript.Modules.Anamnese.Application.Commands.StartAnamnese;
 using PersonaScript.Modules.Anamnese.Application.DTOs;
+using PersonaScript.Modules.Anamnese.Application.Queries.AnalyzeStepClarification;
 using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStatus;
 using PersonaScript.Modules.Anamnese.Application.Queries.GetFullAnamnese;
 using PersonaScript.Modules.Anamnese.Domain;
@@ -20,6 +21,7 @@ public class AnamneseWizardTests : BunitContext
 {
     private readonly IQueryHandler<GetAnamneseStatusQuery, AnamneseStatusDto> _statusHandler;
     private readonly IQueryHandler<GetFullAnamneseQuery, FullAnamneseDto> _fullHandler;
+    private readonly IQueryHandler<AnalyzeStepClarificationQuery, ClarificationAnalysisResultDto> _clarificationHandler;
     private readonly ICommandHandler<StartAnamneseCommand, Guid> _startHandler;
     private readonly ICommandHandler<SaveAnamneseStepCommand> _saveHandler;
     private readonly ICommandHandler<CompleteAnamneseCommand> _completeHandler;
@@ -28,12 +30,17 @@ public class AnamneseWizardTests : BunitContext
     {
         _statusHandler = Substitute.For<IQueryHandler<GetAnamneseStatusQuery, AnamneseStatusDto>>();
         _fullHandler = Substitute.For<IQueryHandler<GetFullAnamneseQuery, FullAnamneseDto>>();
+        _clarificationHandler = Substitute.For<IQueryHandler<AnalyzeStepClarificationQuery, ClarificationAnalysisResultDto>>();
         _startHandler = Substitute.For<ICommandHandler<StartAnamneseCommand, Guid>>();
         _saveHandler = Substitute.For<ICommandHandler<SaveAnamneseStepCommand>>();
         _completeHandler = Substitute.For<ICommandHandler<CompleteAnamneseCommand>>();
 
+        _clarificationHandler.Handle(Arg.Any<AnalyzeStepClarificationQuery>(), Arg.Any<CancellationToken>())
+                             .Returns(Task.FromResult(Result.Success(new ClarificationAnalysisResultDto(false, new List<ClarificationItemDto>()))));
+
         Services.AddSingleton(_statusHandler);
         Services.AddSingleton(_fullHandler);
+        Services.AddSingleton(_clarificationHandler);
         Services.AddSingleton(_startHandler);
         Services.AddSingleton(_saveHandler);
         Services.AddSingleton(_completeHandler);
@@ -78,6 +85,33 @@ public class AnamneseWizardTests : BunitContext
 
         _saveHandler.Received(1).Handle(Arg.Any<SaveAnamneseStepCommand>(), Arg.Any<CancellationToken>());
         cut.Find(".anamnese-progress-box").TextContent.Should().Contain("Etapa 2 de 10");
+    }
+
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "bUnit TestContext manages component lifecycle")]
+    public void Wizard_ShouldShowAIClarificationModalWhenVaguenessDetectedOnStep()
+    {
+        var statusDto = new AnamneseStatusDto(Guid.NewGuid(), AnamneseStatus.Rascunho, 3, 30, DateTimeOffset.UtcNow, null, null);
+        _statusHandler.Handle(Arg.Any<GetAnamneseStatusQuery>(), Arg.Any<CancellationToken>())
+                      .Returns(Task.FromResult(Result.Success(statusDto)));
+
+        _fullHandler.Handle(Arg.Any<GetFullAnamneseQuery>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.FromResult(Result.Success(new FullAnamneseDto(statusDto, null, null, null, null, null, null, null, null, null, null))));
+
+        _saveHandler.Handle(Arg.Any<SaveAnamneseStepCommand>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.FromResult(Result.Success()));
+
+        var item = new ClarificationItemDto("3.5", "PorQueEscolhemVoce", "Sou dedicado", "Resposta genérica", "Aprofunde seu diferencial", "Qual seu diferencial na 1ª consulta?", "Exemplo: consulta 3D");
+        _clarificationHandler.Handle(Arg.Any<AnalyzeStepClarificationQuery>(), Arg.Any<CancellationToken>())
+                             .Returns(Task.FromResult(Result.Success(new ClarificationAnalysisResultDto(true, new List<ClarificationItemDto> { item }))));
+
+        var cut = Render<AnamneseWizard>();
+
+        var nextBtn = cut.Find("button:contains('Próxima Etapa')");
+        nextBtn.Click();
+
+        cut.Find(".anamnese-ai-modal-card").Should().NotBeNull();
+        cut.Find(".anamnese-ai-title").TextContent.Should().Contain("Aprofunde seu diferencial");
     }
 
     [Fact]

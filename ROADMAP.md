@@ -108,11 +108,11 @@ Infraestrutura base de segurança, multi-tenancy B2C e autenticação totalmente
 
 ### Subfase 2.4: Motor de Acompanhamento Automático por IA (AI Clarification Follow-up)
 - **Tarefas:**
-  - Implementar serviço `IAnamneseClarificationService` para analisar em tempo real ou ao transicionar etapas se respostas a perguntas críticas (ex: 3.5, 4.2, 7.3, 8.2) são muito curtas ou vagas.
-  - Exibir popup/card de sugestão de aprofundamento (ex: "Sua resposta 'Sou dedicado' é genérica. E na prática, o que seu paciente percebe na 1ª consulta?").
-  - Testar os prompts e cenários de detecção de vagueza com testes unitários demotivos.
+  - [x] Implementar serviço `IAnamneseClarificationService` para analisar em tempo real ou ao transicionar etapas se respostas a perguntas críticas (ex: 3.5, 4.2, 7.3, 8.2) são muito curtas ou vagas.
+  - [x] Exibir popup/card de sugestão de aprofundamento (ex: "Sua resposta 'Sou dedicado' é genérica. E na prática, o que seu paciente percebe na 1ª consulta?").
+  - [x] Testar os prompts e cenários de detecção de vagueza com testes unitários demotivos.
 - **Entregáveis da Subfase 2.4:**
-  - Motor de acompanhamento com IA funcional no frontend, destravando respostas de baixa qualidade antes do envio final.
+  - [x] Motor de acompanhamento com IA funcional no frontend, destravando respostas de baixa qualidade antes do envio final.
 
 #### Resultado Esperado da FASE 2:
 Módulo de Anamnese 100% funcional, permitindo que o profissional responda pausadamente às 10 etapas, receba ajuda de IA para aprofundar respostas vagas, salve o rascunho em qualquer ponto e conclua o formulário com dados persistidos em SQL Server.

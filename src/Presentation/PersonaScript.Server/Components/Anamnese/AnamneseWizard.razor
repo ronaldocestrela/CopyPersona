@@ -7,11 +7,13 @@
 @using PersonaScript.Modules.Anamnese.Application.DTOs
 @using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStatus
 @using PersonaScript.Modules.Anamnese.Application.Queries.GetFullAnamnese
+@using PersonaScript.Modules.Anamnese.Application.Queries.AnalyzeStepClarification
 @using PersonaScript.Modules.Anamnese.Domain
 @using PersonaScript.Server.Components.Anamnese.Steps
 
 @inject IQueryHandler<GetAnamneseStatusQuery, AnamneseStatusDto> StatusQueryHandler
 @inject IQueryHandler<GetFullAnamneseQuery, FullAnamneseDto> FullAnamneseQueryHandler
+@inject IQueryHandler<AnalyzeStepClarificationQuery, ClarificationAnalysisResultDto> ClarificationQueryHandler
 @inject ICommandHandler<StartAnamneseCommand, Guid> StartAnamneseHandler
 @inject ICommandHandler<SaveAnamneseStepCommand> SaveStepHandler
 @inject ICommandHandler<CompleteAnamneseCommand> CompleteAnamneseHandler
@@ -136,6 +138,11 @@
             </div>
         </div>
     }
+
+    <AnamneseAIClarificationModal IsVisible="_showClarificationModal"
+                                 Item="_activeClarificationItem"
+                                 OnAdjust="HandleClarificationAdjust"
+                                 OnDismiss="HandleClarificationDismiss" />
 </div>
 
 @code {
@@ -146,6 +153,10 @@
     private int _currentStep = 1;
     private string? _message;
     private string? _errorMessage;
+
+    private ClarificationItemDto? _activeClarificationItem;
+    private bool _showClarificationModal = false;
+    private int? _pendingNextStepTarget = null;
 
     private Etapa1Dto _etapa1 = new("", "", "", 0, "", "", 0, MomentoAtualEnum.IniciandoAgenda);
     private Etapa2Dto _etapa2 = new("", "", "", "");
@@ -215,6 +226,21 @@
         if (full.Etapa10 != null) _etapa10 = full.Etapa10;
     }
 
+    private object GetCurrentStepDto(int step) => step switch
+    {
+        1 => _etapa1,
+        2 => _etapa2,
+        3 => _etapa3,
+        4 => _etapa4,
+        5 => _etapa5,
+        6 => _etapa6,
+        7 => _etapa7,
+        8 => _etapa8,
+        9 => _etapa9,
+        10 => _etapa10,
+        _ => _etapa1
+    };
+
     private async Task SaveCurrentStepInternalAsync()
     {
         var command = new SaveAnamneseStepCommand(
@@ -265,10 +291,41 @@
 
         if (string.IsNullOrEmpty(_errorMessage) && _currentStep < 10)
         {
+            var stepDto = GetCurrentStepDto(_currentStep);
+            var result = await ClarificationQueryHandler.Handle(new AnalyzeStepClarificationQuery(_currentStep, stepDto), CancellationToken.None);
+
+            if (result.IsSuccess && result.Value.IsVague && result.Value.Items.Count > 0)
+            {
+                _activeClarificationItem = result.Value.Items.First();
+                _pendingNextStepTarget = _currentStep + 1;
+                _showClarificationModal = true;
+                _isSaving = false;
+                StateHasChanged();
+                return;
+            }
+
             _currentStep++;
         }
 
         _isSaving = false;
+        StateHasChanged();
+    }
+
+    private void HandleClarificationAdjust()
+    {
+        _showClarificationModal = false;
+        _pendingNextStepTarget = null;
+        StateHasChanged();
+    }
+
+    private void HandleClarificationDismiss()
+    {
+        _showClarificationModal = false;
+        if (_pendingNextStepTarget.HasValue && _pendingNextStepTarget.Value <= 10)
+        {
+            _currentStep = _pendingNextStepTarget.Value;
+        }
+        _pendingNextStepTarget = null;
         StateHasChanged();
     }
 

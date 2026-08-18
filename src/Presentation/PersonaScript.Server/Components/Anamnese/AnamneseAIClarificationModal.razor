@@ -1,0 +1,63 @@
+@namespace PersonaScript.Server.Components.Anamnese
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+
+@if (IsVisible && Item != null)
+{
+    <div class="anamnese-ai-modal-backdrop">
+        <div class="anamnese-ai-modal-card">
+            <div class="anamnese-ai-badge">
+                <span>💡 Sugestão da IA para Aprofundamento</span>
+            </div>
+
+            <h3 class="anamnese-ai-title">@Item.SuggestionTitle</h3>
+
+            <p class="anamnese-ai-reason">
+                @Item.ReasonVague
+            </p>
+
+            <div class="anamnese-ai-prompt-box">
+                <p style="font-weight: 600; color: #6ee7b7; margin-bottom: 0.25rem;">Pergunta Orientadora:</p>
+                <p style="margin-bottom: 0.5rem; color: #f8fafc;">@Item.SuggestionPrompt</p>
+                
+                @if (!string.IsNullOrEmpty(Item.ExampleAnswer))
+                {
+                    <div style="background: rgba(0,0,0,0.25); border-left: 3px solid #10b981; padding: 0.5rem 0.75rem; border-radius: 0.375rem; font-size: 0.85rem; color: #94a3b8;">
+                        @Item.ExampleAnswer
+                    </div>
+                }
+            </div>
+
+            <div class="anamnese-ai-actions">
+                <button type="button" class="btn-anamnese-secondary" @onclick="DismissAsync">
+                    Manter assim e continuar →
+                </button>
+                <button type="button" class="btn-anamnese-primary" @onclick="AdjustAsync">
+                    ✏️ Ajustar minha resposta
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public ClarificationItemDto? Item { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnAdjust { get; set; }
+    [Parameter] public EventCallback OnDismiss { get; set; }
+
+    private async Task AdjustAsync()
+    {
+        if (OnAdjust.HasDelegate)
+        {
+            await OnAdjust.InvokeAsync();
+        }
+    }
+
+    private async Task DismissAsync()
+    {
+        if (OnDismiss.HasDelegate)
+        {
+            await OnDismiss.InvokeAsync();
+        }
+    }
+}
