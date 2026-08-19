@@ -91,7 +91,11 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+var applyMigrations = app.Environment.IsDevelopment() || 
+                      app.Configuration.GetValue<bool>("APPLY_MIGRATIONS") || 
+                      app.Configuration.GetValue<bool>("ApplyMigrationsOnStartup");
+
+if (applyMigrations)
 {
     await app.Services.ApplyIdentityMigrationsAsync();
     await app.Services.ApplyAnamneseMigrationsAsync();

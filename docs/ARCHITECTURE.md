@@ -151,6 +151,7 @@ sequenceDiagram
 
 ## Docker Compose
 
+### Desenvolvimento
 Arquivo: [`docker-compose.yml`](../docker-compose.yml)
 
 | Serviço | Imagem | Função |
@@ -159,6 +160,17 @@ Arquivo: [`docker-compose.yml`](../docker-compose.yml)
 | `mailpit` | `axllent/mailpit` | E-mail de desenvolvimento |
 
 Variáveis: [`.env.example`](../.env.example) → copiar para `.env`.
+
+### Produção / Demonstração
+Arquivo: [`docker-compose.prod.yml`](../docker-compose.prod.yml) e [`Dockerfile`](../Dockerfile)
+
+| Serviço | Imagem / Build | Função |
+|---------|----------------|--------|
+| `web` | `./Dockerfile` (.NET 10) | Host Blazor Server e APIs (porta 8080) |
+| `sqlserver` | `mcr.microsoft.com/mssql/server:2022-latest` | Banco de dados SQL Server com healthcheck |
+| `mailpit` | `axllent/mailpit` | Servidor SMTP demo (UI na porta 8025) |
+
+Variáveis: [`.env.production.example`](../.env.production.example) → copiar para `.env.production`.
 
 ## Estado atual
 

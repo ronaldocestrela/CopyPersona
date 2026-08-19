@@ -52,15 +52,27 @@ Endpoints:
 
 Mailpit (http://localhost:8025) ficará disponível para fluxos de e-mail em entregas futuras (reset de senha).
 
-### 5. Connection string (Development)
-
-Configurada em `src/Presentation/PersonaScript.Server/appsettings.Development.json`:
-
-```
-Server=localhost,1433;Database=PersonaScript;User Id=sa;Password=PersonaScript_Dev123!;TrustServerCertificate=True
-```
-
 Ajuste a senha se alterar `MSSQL_SA_PASSWORD` no `.env`.
+
+### 6. Execução em Produção / Demonstração (Docker Compose Completo)
+
+Para subir todo o ambiente containerizado (Aplicação + SQL Server + Mailpit) para demonstração ou homologação:
+
+```bash
+# 1. Copiar variáveis de ambiente de produção
+cp .env.production.example .env.production
+
+# 2. Subir o ambiente com Docker Compose de produção
+docker compose -f docker-compose.prod.yml up --build -d
+
+# 3. Verificar o status dos containers
+docker compose -f docker-compose.prod.yml ps
+```
+
+A aplicação estará acessível em:
+- **Aplicação Web (.NET 10):** `http://localhost:${APP_PORT:-8080}` (porta configurável via `APP_PORT` no `.env.production`)
+- **Healthcheck App:** `http://localhost:${APP_PORT:-8080}/health`
+- **Mailpit Web UI:** `http://localhost:8025`
 
 ## Estrutura
 

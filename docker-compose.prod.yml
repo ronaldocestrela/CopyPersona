@@ -1,0 +1,82 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: personascript-prod-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-PersonaScript_ProdPass2026!Strong}
+    ports:
+      - "${MSSQL_PORT:-1433}:1433"
+    volumes:
+      - sqlserver_prod_data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD:-PersonaScript_ProdPass2026!Strong}\" -C -Q \"SELECT 1\" || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - personascript-network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: personascript-prod-web
+    restart: unless-stopped
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+      - APPLY_MIGRATIONS=true
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-PersonaScript_ProdPass2026!Strong}
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection:-Server=sqlserver,1433;Database=PersonaScript;User Id=sa;Password=${MSSQL_SA_PASSWORD:-PersonaScript_ProdPass2026!Strong};TrustServerCertificate=True;Encrypt=False;Connect Timeout=30;}
+      - Jwt__Secret=${Jwt__Secret:-SuperSecretProductionKey_PersonaScript_2026_Min32CharsLong!}
+      - Jwt__Issuer=${Jwt__Issuer:-PersonaScript.Server}
+      - Jwt__Audience=${Jwt__Audience:-PersonaScript.Client}
+      - LLM__PrimaryProvider=${LLM__PrimaryProvider:-Mock}
+      - LLM__FallbackProviders=${LLM__FallbackProviders:-Mock}
+      - LLM__OpenAiApiKey=${LLM__OpenAiApiKey:-}
+      - LLM__OpenAiEndpoint=${LLM__OpenAiEndpoint:-https://api.openai.com/v1/chat/completions}
+      - LLM__DefaultOpenAiModel=${LLM__DefaultOpenAiModel:-gpt-4o}
+      - LLM__GeminiApiKey=${LLM__GeminiApiKey:-}
+      - LLM__DefaultGeminiModel=${LLM__DefaultGeminiModel:-gemini-1.5-pro}
+      - LLM__AnthropicApiKey=${LLM__AnthropicApiKey:-}
+      - LLM__DefaultAnthropicModel=${LLM__DefaultAnthropicModel:-claude-3-5-sonnet-20241022}
+      - Resend__ApiKey=${Resend__ApiKey:-re_123456789}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "cat /proc/net/tcp | grep -q '1F90' || exit 1"] # 8080 em HEX é 1F90
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - personascript-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: personascript-prod-mailpit
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+    networks:
+      - personascript-network
+
+volumes:
+  sqlserver_prod_data:
+    driver: local
+
+networks:
+  personascript-network:
+    driver: bridge
