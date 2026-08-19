@@ -27,6 +27,7 @@ public class TenantIsolationTests
             .Options;
 
         // Seeding database directly with scripts for Tenant A and Tenant B
+        Guid scriptBId;
         using (var seedContext = new ScriptsDbContext(options, tenantContext))
         {
             var scriptA = VideoScript.Create(
@@ -40,6 +41,8 @@ public class TenantIsolationTests
                 "Tema Tenant B", "Pilar B", "Objetivo B",
                 "Gancho B", "Retenção B", "CTA B",
                 "Legenda B", "Dicas B", "Tom B").Value;
+
+            scriptBId = scriptB.Id;
 
             seedContext.VideoScripts.AddRange(scriptA, scriptB);
             await seedContext.SaveChangesAsync();
@@ -55,6 +58,10 @@ public class TenantIsolationTests
             scripts.Should().HaveCount(1);
             scripts.Single().TenantId.Should().Be(tenantA);
             scripts.Single().Tema.Should().Be("Tema Tenant A");
+
+            // Test Direct GetById for Tenant B script from Tenant A context
+            var scriptBFromTenantA = await repository.GetByIdAsync(scriptBId);
+            scriptBFromTenantA.Should().BeNull();
         }
     }
 

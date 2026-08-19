@@ -184,16 +184,16 @@ Diagnóstico estratégico do profissional gerado automaticamente por IA a partir
 - **Entregáveis da Subfase 4.2:**
   - [x] Agente 2 gerando o plano de 90 dias e o plano de stories personalizado conforme a rotina do profissional.
 
-### Subfase 4.3: Hub de Conteúdo Blazor, Modo Teleprompter e Exportação
+### Subfase 4.3: Hub de Conteúdo Blazor, Modo Teleprompter e Exportação [CONCLUÍDO]
 - **Tarefas:**
-  - Criar o painel Blazor `/roteiros` e `/roteiros/{id}`.
-  - Desenvolver visualização de Roteiro com abas (Gancho, Retenção, CTA, Legenda do Post, Dicas de Gravação).
-  - Desenvolver o modo **Teleprompter Interativo** (scroll automático ajustável para gravação no celular ou desktop).
-  - Adicionar exportação de roteiros e plano de 90 dias para PDF, Markdown e cópia rápida para área de transferência.
-  - Adicionar botão de feedback ("Gostei", "Ajustar tom", "Regerar") para alimentar o ciclo de melhoria contínua do Agente 2.
-  - Testes bUnit para os componentes de visualização e teleprompter.
+  - [x] Criar o painel Blazor `/roteiros` e `/roteiros/{id}`.
+  - [x] Desenvolver visualização de Roteiro com abas (Gancho, Retenção, CTA, Legenda do Post, Dicas de Gravação).
+  - [x] Desenvolver o modo **Teleprompter Interativo** (scroll automático ajustável para gravação no celular ou desktop).
+  - [x] Adicionar exportação de roteiros e plano de 90 dias para PDF, Markdown e cópia rápida para área de transferência.
+  - [x] Adicionar botão de feedback ("Gostei", "Ajustar tom", "Regerar") para alimentar o ciclo de melhoria contínua do Agente 2.
+  - [x] Escrever testes unitários e de componentes bUnit para os novos handlers, visualização, teleprompter e exportação (198 testes verdes na solução).
 - **Entregáveis da Subfase 4.3:**
-  - Hub de Conteúdo com Teleprompter e exportação em PDF/Markdown funcional.
+  - [x] Hub de Conteúdo com Teleprompter e exportação em PDF/Markdown funcional operando com 198 testes verdes.
 
 #### Resultado Esperado da FASE 4:
 Sistema completo de geração de cópias e roteiros de vídeo, plano de stories e calendário de 90 dias perfeitamente calibrado com a voz, limites e rotina do profissional, equipado com Teleprompter e exportação.

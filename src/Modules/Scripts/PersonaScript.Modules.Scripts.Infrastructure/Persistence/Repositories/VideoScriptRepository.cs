@@ -43,6 +43,12 @@ public sealed class VideoScriptRepository : IVideoScriptRepository
         _context.VideoScripts.Update(script);
     }
 
+    public async Task UpdateAsync(VideoScript script, CancellationToken cancellationToken = default)
+    {
+        _context.VideoScripts.Update(script);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public void Delete(VideoScript script)
     {
         _context.VideoScripts.Remove(script);

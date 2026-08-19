@@ -45,6 +45,9 @@ public sealed class GetVideoScriptByIdQueryHandler : IQueryHandler<GetVideoScrip
             script.DicasGravacao,
             script.TomVozAplicado,
             script.Status,
+            script.FeedbackRating,
+            script.FeedbackNotes,
+            script.FeedbackAt,
             script.GeradoEm,
             script.AtualizadoEm);
 

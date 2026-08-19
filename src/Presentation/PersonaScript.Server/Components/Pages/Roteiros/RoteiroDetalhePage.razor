@@ -1,0 +1,234 @@
+@page "/roteiros/{Id:guid}"
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Scripts.Application.Commands.RegenerateVideoScript
+@using PersonaScript.Modules.Scripts.Application.Commands.SubmitVideoScriptFeedback
+@using PersonaScript.Modules.Scripts.Application.Commands.UpdateVideoScriptStatus
+@using PersonaScript.Modules.Scripts.Application.DTOs
+@using PersonaScript.Modules.Scripts.Application.Queries.GetVideoScriptById
+@using PersonaScript.Modules.Scripts.Domain
+@inject IQueryHandler<GetVideoScriptByIdQuery, VideoScriptDto> GetVideoScriptByIdQueryHandler
+@inject ICommandHandler<UpdateVideoScriptStatusCommand> UpdateStatusCommandHandler
+@inject ICommandHandler<SubmitVideoScriptFeedbackCommand> SubmitFeedbackCommandHandler
+@inject ICommandHandler<RegenerateVideoScriptCommand, Guid> RegenerateCommandHandler
+@inject NavigationManager Navigation
+
+<div class="roteiros-container">
+    <div class="mb-3">
+        <a href="/roteiros" class="btn btn-sm btn-outline-light" style="display: inline-flex; align-items: center; gap: 0.25rem;">
+            <span class="material-symbols-outlined" style="font-size: 1.1rem;">arrow_back</span>
+            Voltar para o Hub de Roteiros
+        </a>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-3 text-muted">Carregando roteiro...</p>
+        </div>
+    }
+    else if (ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <span class="material-symbols-outlined" style="vertical-align: middle;">error</span>
+            @ErrorMessage
+        </div>
+    }
+    else if (Script != null)
+    {
+        <div class="roteiro-detalhe-header">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                <div>
+                    <span class="roteiro-pilar-tag">📌 @Script.PilarConteudo</span>
+                    <h1 style="color: var(--ps-text); font-size: 1.75rem; font-weight: 700; margin: 0.25rem 0;">@Script.Tema</h1>
+                    <p style="color: var(--ps-text-muted); font-size: 0.95rem; margin: 0;">
+                        Objetivo: <strong>@Script.Objetivo</strong> | Tom: <strong>@Script.TomVozAplicado</strong>
+                    </p>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <label style="color: var(--ps-text-muted); font-size: 0.85rem; margin: 0;">Status:</label>
+                    <select class="form-select form-select-sm" value="@Script.Status" @onchange="OnStatusChanged"
+                            style="background-color: var(--ps-card-bg); border-color: var(--ps-border); color: var(--ps-text); width: auto;">
+                        <option value="@VideoScriptStatus.Draft">Rascunho</option>
+                        <option value="@VideoScriptStatus.Approved">Aprovado</option>
+                        <option value="@VideoScriptStatus.Recorded">Gravado</option>
+                        <option value="@VideoScriptStatus.Published">Publicado</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary" @onclick="OpenTeleprompter">
+                    <span class="material-symbols-outlined">live_tv</span> Modo Teleprompter
+                </button>
+                <button class="btn btn-outline-light" @onclick="OpenExportModal">
+                    <span class="material-symbols-outlined">file_download</span> Exportar / Copiar
+                </button>
+                <button class="btn btn-outline-info" @onclick="OpenRegenerateModal">
+                    <span class="material-symbols-outlined">auto_awesome</span> Ajustar com IA
+                </button>
+            </div>
+        </div>
+
+        <div class="script-tabs">
+            <button class="tab-button @(ActiveTab == "gancho" ? "active" : "")" @onclick='() => ActiveTab = "gancho"'>
+                🎣 Gancho (0-3s)
+            </button>
+            <button class="tab-button @(ActiveTab == "retencao" ? "active" : "")" @onclick='() => ActiveTab = "retencao"'>
+                🧲 Retenção (Corpo)
+            </button>
+            <button class="tab-button @(ActiveTab == "cta" ? "active" : "")" @onclick='() => ActiveTab = "cta"'>
+                🚀 Chamada para Ação (CTA)
+            </button>
+            <button class="tab-button @(ActiveTab == "legenda" ? "active" : "")" @onclick='() => ActiveTab = "legenda"'>
+                📝 Legenda do Post
+            </button>
+            <button class="tab-button @(ActiveTab == "dicas" ? "active" : "")" @onclick='() => ActiveTab = "dicas"'>
+                💡 Dicas de Gravação
+            </button>
+        </div>
+
+        <div class="tab-content-card">
+            @if (ActiveTab == "gancho")
+            {
+                <div>
+                    <h5 style="color: var(--ps-primary); font-weight: 700; margin-bottom: 1rem;">Gancho Impactante (Primeiros 3 segundos):</h5>
+                    <p style="font-size: 1.2rem; font-weight: 600; line-height: 1.8;">@Script.Gancho</p>
+                </div>
+            }
+            else if (ActiveTab == "retencao")
+            {
+                <div>
+                    <h5 style="color: var(--ps-info); font-weight: 700; margin-bottom: 1rem;">Desenvolvimento e Retenção do Vídeo:</h5>
+                    <p style="white-space: pre-line;">@Script.Retencao</p>
+                </div>
+            }
+            else if (ActiveTab == "cta")
+            {
+                <div>
+                    <h5 style="color: var(--ps-success); font-weight: 700; margin-bottom: 1rem;">Chamada para Ação (CTA Ética):</h5>
+                    <p style="font-size: 1.15rem; font-weight: 600;">@Script.ChamadaParaAcao</p>
+                </div>
+            }
+            else if (ActiveTab == "legenda")
+            {
+                <div>
+                    <h5 style="color: #c084fc; font-weight: 700; margin-bottom: 1rem;">Legenda Sugerida para Publicação:</h5>
+                    <p style="white-space: pre-line;">@Script.LegendaSugerida</p>
+                </div>
+            }
+            else if (ActiveTab == "dicas")
+            {
+                <div>
+                    <h5 style="color: var(--ps-warning); font-weight: 700; margin-bottom: 1rem;">Dicas de Gravação, Tom e Cenário:</h5>
+                    <p style="white-space: pre-line;">@Script.DicasGravacao</p>
+                </div>
+            }
+        </div>
+
+        <div class="feedback-box">
+            <div>
+                <strong style="color: #ffffff; font-size: 1rem;">Avaliação do Agente Copywriter:</strong>
+                <p style="color: var(--ps-text-muted); font-size: 0.9rem; margin: 0;">
+                    O que achou deste roteiro? Seu feedback treina o agente de IA para os próximos roteiros.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm @(Script.FeedbackRating == ScriptFeedbackRating.Liked ? "btn-success" : "btn-outline-success")"
+                        @onclick="() => RateScript(ScriptFeedbackRating.Liked)">
+                    <span class="material-symbols-outlined" style="vertical-align: middle;">thumb_up</span> Gostei
+                </button>
+                <button class="btn btn-sm @(Script.FeedbackRating == ScriptFeedbackRating.NeedsAdjustment ? "btn-warning" : "btn-outline-warning")"
+                        @onclick="OpenRegenerateModal">
+                    <span class="material-symbols-outlined" style="vertical-align: middle;">tune</span> Ajustar Tom / Regerar
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<TeleprompterModal Script="@Script" IsVisible="@ShowTeleprompter" OnClose="@(() => ShowTeleprompter = false)" />
+<ExportModal Script="@Script" IsVisible="@ShowExport" OnClose="@(() => ShowExport = false)" />
+<RegerarRoteiroModal ScriptId="@Id" IsVisible="@ShowRegenerate" OnClose="@(() => ShowRegenerate = false)" OnRegenerateRequested="HandleRegenerateRequested" />
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private VideoScriptDto? Script { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private string? ErrorMessage { get; set; }
+    private string ActiveTab { get; set; } = "gancho";
+
+    private bool ShowTeleprompter { get; set; }
+    private bool ShowExport { get; set; }
+    private bool ShowRegenerate { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadScriptAsync();
+    }
+
+    private async Task LoadScriptAsync()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+
+        var result = await GetVideoScriptByIdQueryHandler.Handle(new GetVideoScriptByIdQuery(Id), CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            Script = result.Value;
+        }
+        else
+        {
+            ErrorMessage = result.Error.Message;
+        }
+
+        IsLoading = false;
+    }
+
+    private async Task OnStatusChanged(ChangeEventArgs e)
+    {
+        if (Script is null || !Enum.TryParse<VideoScriptStatus>(e.Value?.ToString(), out var newStatus)) return;
+
+        var command = new UpdateVideoScriptStatusCommand(Script.Id, newStatus);
+        var result = await UpdateStatusCommandHandler.Handle(command, CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            await LoadScriptAsync();
+        }
+    }
+
+    private async Task RateScript(ScriptFeedbackRating rating)
+    {
+        if (Script is null) return;
+        var command = new SubmitVideoScriptFeedbackCommand(Script.Id, rating, null);
+        var result = await SubmitFeedbackCommandHandler.Handle(command, CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            await LoadScriptAsync();
+        }
+    }
+
+    private void OpenTeleprompter() => ShowTeleprompter = true;
+    private void OpenExportModal() => ShowExport = true;
+    private void OpenRegenerateModal() => ShowRegenerate = true;
+
+    private async Task HandleRegenerateRequested(string feedbackNotes)
+    {
+        ShowRegenerate = false;
+        IsLoading = true;
+
+        var command = new RegenerateVideoScriptCommand(Id, feedbackNotes);
+        var result = await RegenerateCommandHandler.Handle(command, CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            await LoadScriptAsync();
+        }
+        else
+        {
+            ErrorMessage = result.Error.Message;
+            IsLoading = false;
+        }
+    }
+}

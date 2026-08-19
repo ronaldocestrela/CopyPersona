@@ -5,5 +5,7 @@ using PersonaScript.Modules.Scripts.Domain;
 namespace PersonaScript.Modules.Scripts.Application.Queries.ListVideoScripts;
 
 public sealed record ListVideoScriptsQuery(
-    VideoScriptStatus? Status = null
+    VideoScriptStatus? Status = null,
+    string? SearchTerm = null,
+    string? PilarConteudo = null
 ) : IQuery<IReadOnlyList<VideoScriptDto>>;

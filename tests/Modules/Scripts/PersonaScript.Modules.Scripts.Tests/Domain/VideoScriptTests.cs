@@ -189,6 +189,23 @@ public class VideoScriptTests
         script.AtualizadoEm.Should().NotBeNull();
     }
 
+    [Fact]
+    public void RegisterFeedback_ShouldUpdateFeedbackFieldsAndTimestamp_WhenCalled()
+    {
+        // Arrange
+        var script = CreateValidScript();
+
+        // Act
+        var result = script.RegisterFeedback(ScriptFeedbackRating.Liked, "Excelente gancho!");
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        script.FeedbackRating.Should().Be(ScriptFeedbackRating.Liked);
+        script.FeedbackNotes.Should().Be("Excelente gancho!");
+        script.FeedbackAt.Should().NotBeNull();
+        script.AtualizadoEm.Should().NotBeNull();
+    }
+
     private static VideoScript CreateValidScript()
     {
         return VideoScript.Create(

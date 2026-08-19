@@ -1,0 +1,117 @@
+@using PersonaScript.Modules.Scripts.Application.DTOs
+@inject IJSRuntime JSRuntime
+
+@if (IsVisible && Script != null)
+{
+    <div class="teleprompter-overlay" @onkeydown="HandleKeyDown" tabindex="0">
+        <div class="teleprompter-controls-bar">
+            <div class="teleprompter-controls-group">
+                <button class="btn btn-primary" @onclick="TogglePlayPause">
+                    <span class="material-symbols-outlined">@(IsPlaying ? "pause" : "play_arrow")</span>
+                    @(IsPlaying ? "Pausar" : "Iniciar")
+                </button>
+                <button class="btn btn-secondary" @onclick="ResetScroll">
+                    <span class="material-symbols-outlined">restart_alt</span> Resetar
+                </button>
+            </div>
+
+            <div class="teleprompter-controls-group">
+                <label style="color: #cbd5e1; font-size: 0.9rem;">
+                    Velocidade (@Speed WPM):
+                    <input type="range" min="10" max="100" @bind="Speed" @bind:event="oninput" @onchange="OnSpeedChanged" style="vertical-align: middle; margin-left: 0.5rem;" />
+                </label>
+
+                <label style="color: #cbd5e1; font-size: 0.9rem; margin-left: 1rem;">
+                    Tamanho (@FontSize px):
+                    <input type="range" min="24" max="72" @bind="FontSize" @bind:event="oninput" style="vertical-align: middle; margin-left: 0.5rem;" />
+                </label>
+
+                <label style="color: #cbd5e1; font-size: 0.9rem; margin-left: 1rem; cursor: pointer;">
+                    <input type="checkbox" @bind="IsMirrored" style="margin-right: 0.25rem;" /> Modo Espelho
+                </label>
+            </div>
+
+            <div class="teleprompter-controls-group">
+                <button class="btn btn-outline-light" @onclick="ToggleFullscreen">
+                    <span class="material-symbols-outlined">fullscreen</span>
+                </button>
+                <button class="btn btn-outline-danger" @onclick="Close">
+                    <span class="material-symbols-outlined">close</span> Sair
+                </button>
+            </div>
+        </div>
+
+        <div class="teleprompter-focus-line"></div>
+
+        <div id="teleprompter-scroll-box" class="teleprompter-scroll-container @(IsMirrored ? "mirrored" : "")">
+            <div class="teleprompter-text" style="font-size: @(FontSize)px;">
+                <p style="color: var(--ps-primary); font-weight: 700; margin-bottom: 2rem;">--- GANCHO (HOOK) ---</p>
+                <p style="margin-bottom: 3rem;">@Script.Gancho</p>
+
+                <p style="color: var(--ps-info); font-weight: 700; margin-bottom: 2rem;">--- RETENÇÃO (CORPO) ---</p>
+                <p style="margin-bottom: 3rem;">@Script.Retencao</p>
+
+                <p style="color: var(--ps-success); font-weight: 700; margin-bottom: 2rem;">--- CHAMADA PARA AÇÃO (CTA) ---</p>
+                <p style="margin-bottom: 5rem;">@Script.ChamadaParaAcao</p>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public VideoScriptDto? Script { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private bool IsPlaying { get; set; }
+    private int Speed { get; set; } = 35;
+    private int FontSize { get; set; } = 36;
+    private bool IsMirrored { get; set; }
+
+    private async Task TogglePlayPause()
+    {
+        IsPlaying = !IsPlaying;
+        if (IsPlaying)
+        {
+            await JSRuntime.InvokeVoidAsync("teleprompter.startScroll", "teleprompter-scroll-box", Speed);
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("teleprompter.pauseScroll", "teleprompter-scroll-box");
+        }
+    }
+
+    private async Task OnSpeedChanged()
+    {
+        if (IsPlaying)
+        {
+            await JSRuntime.InvokeVoidAsync("teleprompter.startScroll", "teleprompter-scroll-box", Speed);
+        }
+    }
+
+    private async Task ResetScroll()
+    {
+        IsPlaying = false;
+        await JSRuntime.InvokeVoidAsync("teleprompter.resetScroll", "teleprompter-scroll-box");
+    }
+
+    private async Task ToggleFullscreen()
+    {
+        await JSRuntime.InvokeVoidAsync("teleprompter.toggleFullscreen", "teleprompter-scroll-box");
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == " ")
+        {
+            await TogglePlayPause();
+        }
+    }
+
+    private async Task Close()
+    {
+        IsPlaying = false;
+        await JSRuntime.InvokeVoidAsync("teleprompter.pauseScroll", "teleprompter-scroll-box");
+        await OnClose.InvokeAsync();
+    }
+}

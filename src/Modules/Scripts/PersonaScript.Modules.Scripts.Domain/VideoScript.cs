@@ -56,12 +56,24 @@ public sealed class VideoScript : BaseEntity, IMustHaveTenant
     public string TomVozAplicado { get; private set; } = string.Empty;
 
     public VideoScriptStatus Status { get; private set; }
+    public ScriptFeedbackRating FeedbackRating { get; private set; } = ScriptFeedbackRating.None;
+    public string? FeedbackNotes { get; private set; }
+    public DateTimeOffset? FeedbackAt { get; private set; }
     public DateTimeOffset GeradoEm { get; private set; }
     public DateTimeOffset? AtualizadoEm { get; private set; }
 
     public void SetTenantId(Guid tenantId)
     {
         TenantId = tenantId;
+    }
+
+    public Result RegisterFeedback(ScriptFeedbackRating rating, string? notes = null)
+    {
+        FeedbackRating = rating;
+        FeedbackNotes = notes?.Trim();
+        FeedbackAt = DateTimeOffset.UtcNow;
+        AtualizadoEm = DateTimeOffset.UtcNow;
+        return Result.Success();
     }
 
     public static Result<VideoScript> Create(

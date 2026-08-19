@@ -1,0 +1,91 @@
+@if (IsVisible)
+{
+    <div class="modal-backdrop fade show" style="display: block; background: rgba(0, 0, 0, 0.7); z-index: 1050;"></div>
+    <div class="modal fade show" style="display: block; z-index: 1055;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--ps-card-bg); border: 1px solid var(--ps-border); color: var(--ps-text); border-radius: 1rem;">
+                <div class="modal-header" style="border-bottom: 1px solid var(--ps-border);">
+                    <h5 class="modal-title font-weight-bold" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="material-symbols-outlined" style="color: var(--ps-primary);">auto_awesome</span>
+                        Regerar Roteiro com IA
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <p style="color: var(--ps-text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
+                        Informe abaixo o que você deseja ajustar no tom, no gancho, na linguagem ou na CTA para recriar o roteiro.
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold" style="font-size: 0.9rem;">Feedback / Instruções para a IA:</label>
+                        <textarea class="form-control" rows="4"
+                                  placeholder="Ex: Deixe o gancho mais informal, use metáforas mais simples e coloque uma CTA focada em resposta por Direct."
+                                  @bind="FeedbackNotes"
+                                  style="background-color: #0f172a; border: 1px solid var(--ps-border); color: #ffffff; border-radius: 0.5rem;"></textarea>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger mb-0" role="alert" style="border-radius: 0.5rem;">
+                            @ErrorMessage
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--ps-border);">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="Close" disabled="@IsSubmitting">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="Confirm" disabled="@IsSubmitting">
+                        @if (IsSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span>Regerando...</span>
+                        }
+                        else
+                        {
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.25rem;">auto_awesome</span>
+                            <span>Regerar Roteiro</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public Guid ScriptId { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<string> OnRegenerateRequested { get; set; }
+
+    private string FeedbackNotes { get; set; } = string.Empty;
+    private string ErrorMessage { get; set; } = string.Empty;
+    private bool IsSubmitting { get; set; }
+
+    private async Task Confirm()
+    {
+        if (string.IsNullOrWhiteSpace(FeedbackNotes))
+        {
+            ErrorMessage = "Por favor, informe instruções ou o que precisa ser ajustado.";
+            return;
+        }
+
+        ErrorMessage = string.Empty;
+        IsSubmitting = true;
+        try
+        {
+            await OnRegenerateRequested.InvokeAsync(FeedbackNotes);
+            FeedbackNotes = string.Empty;
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+
+    private async Task Close()
+    {
+        FeedbackNotes = string.Empty;
+        ErrorMessage = string.Empty;
+        await OnClose.InvokeAsync();
+    }
+}

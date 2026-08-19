@@ -40,6 +40,9 @@ public sealed class ScriptsDbContext(DbContextOptions<ScriptsDbContext> options,
             entity.Property(s => s.TomVozAplicado).HasMaxLength(200);
 
             entity.Property(s => s.Status).IsRequired().HasConversion<int>();
+            entity.Property(s => s.FeedbackRating).HasConversion<int>();
+            entity.Property(s => s.FeedbackNotes);
+            entity.Property(s => s.FeedbackAt);
             entity.Property(s => s.GeradoEm).IsRequired();
             entity.Property(s => s.AtualizadoEm);
         });

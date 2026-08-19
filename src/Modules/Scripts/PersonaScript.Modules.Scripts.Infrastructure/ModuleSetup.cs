@@ -5,6 +5,8 @@ using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Tenancy;
 using PersonaScript.Modules.Scripts.Application.Commands.GenerateContentPlan;
 using PersonaScript.Modules.Scripts.Application.Commands.GenerateVideoScript;
+using PersonaScript.Modules.Scripts.Application.Commands.RegenerateVideoScript;
+using PersonaScript.Modules.Scripts.Application.Commands.SubmitVideoScriptFeedback;
 using PersonaScript.Modules.Scripts.Application.Commands.UpdateVideoScriptStatus;
 using PersonaScript.Modules.Scripts.Application.DTOs;
 using PersonaScript.Modules.Scripts.Application.Queries.GetNinetyDayCalendar;
@@ -54,6 +56,8 @@ public static class ModuleSetup
         // Register CQRS Handlers
         services.AddScoped<ICommandHandler<GenerateVideoScriptCommand, Guid>, GenerateVideoScriptCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateVideoScriptStatusCommand>, UpdateVideoScriptStatusCommandHandler>();
+        services.AddScoped<ICommandHandler<SubmitVideoScriptFeedbackCommand>, SubmitVideoScriptFeedbackCommandHandler>();
+        services.AddScoped<ICommandHandler<RegenerateVideoScriptCommand, Guid>, RegenerateVideoScriptCommandHandler>();
         services.AddScoped<ICommandHandler<GenerateContentPlanCommand, ContentPlanResultDto>, GenerateContentPlanCommandHandler>();
         services.AddScoped<IQueryHandler<GetVideoScriptByIdQuery, VideoScriptDto>, GetVideoScriptByIdQueryHandler>();
         services.AddScoped<IQueryHandler<ListVideoScriptsQuery, IReadOnlyList<VideoScriptDto>>, ListVideoScriptsQueryHandler>();

@@ -17,5 +17,8 @@ public sealed record VideoScriptDto(
     string DicasGravacao,
     string TomVozAplicado,
     VideoScriptStatus Status,
+    ScriptFeedbackRating FeedbackRating,
+    string? FeedbackNotes,
+    DateTimeOffset? FeedbackAt,
     DateTimeOffset GeradoEm,
     DateTimeOffset? AtualizadoEm);

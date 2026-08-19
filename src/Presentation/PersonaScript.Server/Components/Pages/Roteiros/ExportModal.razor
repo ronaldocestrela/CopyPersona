@@ -1,0 +1,164 @@
+@using PersonaScript.Modules.Scripts.Application.DTOs
+@inject IJSRuntime JSRuntime
+
+@if (IsVisible && Script != null)
+{
+    <div class="modal-backdrop fade show" style="display: block; background: rgba(0, 0, 0, 0.7); z-index: 1050;"></div>
+    <div class="modal fade show" style="display: block; z-index: 1055;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--ps-card-bg); border: 1px solid var(--ps-border); color: var(--ps-text); border-radius: 1rem;">
+                <div class="modal-header" style="border-bottom: 1px solid var(--ps-border);">
+                    <h5 class="modal-title font-weight-bold" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="material-symbols-outlined" style="color: var(--ps-primary);">file_download</span>
+                        Exportar Roteiro
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <p style="color: var(--ps-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                        Escolha o formato em que deseja exportar o roteiro "<strong>@Script.Tema</strong>":
+                    </p>
+
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-outline-light p-3 text-start d-flex align-items-center justify-content-between" @onclick="CopyFullScript">
+                            <div>
+                                <strong class="d-block" style="font-size: 1rem; color: #ffffff;">Copiar Texto Completo</strong>
+                                <small style="color: var(--ps-text-muted);">Copia Gancho, Retenção, CTA e Legenda para a área de transferência</small>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: var(--ps-primary);">content_copy</span>
+                        </button>
+
+                        <button class="btn btn-outline-light p-3 text-start d-flex align-items-center justify-content-between" @onclick="DownloadMarkdown">
+                            <div>
+                                <strong class="d-block" style="font-size: 1rem; color: #ffffff;">Baixar Markdown (.md)</strong>
+                                <small style="color: var(--ps-text-muted);">Arquivo formatado compatível com Notion, Obsidian e editores de texto</small>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: var(--ps-info);">description</span>
+                        </button>
+
+                        <button class="btn btn-outline-light p-3 text-start d-flex align-items-center justify-content-between" @onclick="PrintPdf">
+                            <div>
+                                <strong class="d-block" style="font-size: 1rem; color: #ffffff;">Imprimir / Salvar em PDF</strong>
+                                <small style="color: var(--ps-text-muted);">Gera documento limpo pronto para impressão ou salvamento em PDF</small>
+                            </div>
+                            <span class="material-symbols-outlined" style="color: var(--ps-success);">print</span>
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(ToastMessage))
+                    {
+                        <div class="alert alert-success mt-3 mb-0" role="alert" style="border-radius: 0.5rem;">
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.25rem;">check_circle</span>
+                            @ToastMessage
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--ps-border);">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public VideoScriptDto? Script { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private string ToastMessage { get; set; } = string.Empty;
+
+    private async Task CopyFullScript()
+    {
+        if (Script is null) return;
+
+        var fullText = $@"# {Script.Tema}
+Pilar: {Script.PilarConteudo} | Objetivo: {Script.Objetivo}
+
+## 1. GANCHO (HOOK - 0s a 3s)
+{Script.Gancho}
+
+## 2. RETENÇÃO (BODY)
+{Script.Retencao}
+
+## 3. CHAMADA PARA AÇÃO (CTA)
+{Script.ChamadaParaAcao}
+
+## LEGENDA SUGERIDA
+{Script.LegendaSugerida}
+
+## DICAS DE GRAVAÇÃO
+{Script.DicasGravacao}
+";
+
+        var success = await JSRuntime.InvokeAsync<bool>("exportHelper.copyToClipboard", fullText);
+        if (success)
+        {
+            ToastMessage = "Roteiro copiado para a área de transferência com sucesso!";
+            StateHasChanged();
+            await Task.Delay(2500);
+            ToastMessage = string.Empty;
+        }
+    }
+
+    private async Task DownloadMarkdown()
+    {
+        if (Script is null) return;
+
+        var mdContent = $@"# Roteiro: {Script.Tema}
+**Pilar de Conteúdo:** {Script.PilarConteudo}  
+**Objetivo:** {Script.Objetivo}  
+**Tom de Voz:** {Script.TomVozAplicado}  
+**Gerado em:** {Script.GeradoEm:dd/MM/yyyy HH:mm}
+
+---
+
+### 🎣 1. GANCHO (0-3 segundos)
+> {Script.Gancho}
+
+---
+
+### 🧲 2. RETENÇÃO
+{Script.Retencao}
+
+---
+
+### 🚀 3. CHAMADA PARA AÇÃO (CTA)
+> {Script.ChamadaParaAcao}
+
+---
+
+### 📝 LEGENDA SUGERIDA
+{Script.LegendaSugerida}
+
+---
+
+### 💡 DICAS DE GRAVAÇÃO
+{Script.DicasGravacao}
+";
+
+        var filename = $"roteiro-{SanitizeFilename(Script.Tema)}.md";
+        await JSRuntime.InvokeVoidAsync("exportHelper.downloadFile", filename, mdContent, "text/markdown;charset=utf-8");
+        ToastMessage = "Arquivo Markdown (.md) baixado com sucesso!";
+        StateHasChanged();
+        await Task.Delay(2500);
+        ToastMessage = string.Empty;
+    }
+
+    private async Task PrintPdf()
+    {
+        await JSRuntime.InvokeVoidAsync("exportHelper.printPage");
+    }
+
+    private static string SanitizeFilename(string name)
+    {
+        var invalid = System.IO.Path.GetInvalidFileNameChars();
+        return string.Concat(name.Select(c => invalid.Contains(c) ? '_' : c)).Replace(" ", "-").ToLowerInvariant();
+    }
+
+    private async Task Close()
+    {
+        ToastMessage = string.Empty;
+        await OnClose.InvokeAsync();
+    }
+}

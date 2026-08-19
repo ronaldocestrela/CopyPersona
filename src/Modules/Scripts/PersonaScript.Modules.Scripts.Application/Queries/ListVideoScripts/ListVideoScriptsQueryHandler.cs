@@ -34,6 +34,25 @@ public sealed class ListVideoScriptsQueryHandler : IQueryHandler<ListVideoScript
             scripts = await _repository.ListByTenantIdAsync(cancellationToken);
         }
 
+        var filtered = scripts.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(query.SearchTerm))
+        {
+            var term = query.SearchTerm.Trim();
+            filtered = filtered.Where(s =>
+                s.Tema.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                s.Gancho.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                s.PilarConteudo.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.PilarConteudo))
+        {
+            filtered = filtered.Where(s =>
+                s.PilarConteudo.Equals(query.PilarConteudo.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        scripts = filtered.ToList();
+
         var dtos = scripts.Select(s => new VideoScriptDto(
             s.Id,
             s.TenantId,
@@ -49,6 +68,9 @@ public sealed class ListVideoScriptsQueryHandler : IQueryHandler<ListVideoScript
             s.DicasGravacao,
             s.TomVozAplicado,
             s.Status,
+            s.FeedbackRating,
+            s.FeedbackNotes,
+            s.FeedbackAt,
             s.GeradoEm,
             s.AtualizadoEm
         )).ToList();
