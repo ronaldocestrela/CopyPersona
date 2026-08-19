@@ -85,7 +85,7 @@ builder.Services.AddIdentityModule(builder.Configuration, builder.Environment);
 builder.Services.AddAnamneseModule(builder.Configuration);
 builder.Services.AddBillingModule();
 builder.Services.AddPersonasModule(builder.Configuration);
-builder.Services.AddScriptsModule();
+builder.Services.AddScriptsModule(builder.Configuration);
 
 builder.Services.AddHealthChecks();
 
@@ -96,6 +96,7 @@ if (app.Environment.IsDevelopment())
     await app.Services.ApplyIdentityMigrationsAsync();
     await app.Services.ApplyAnamneseMigrationsAsync();
     await app.Services.ApplyPersonasMigrationsAsync();
+    await app.Services.ApplyScriptsMigrationsAsync();
 }
 
 if (!app.Environment.IsDevelopment())

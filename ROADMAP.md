@@ -160,18 +160,19 @@ Diagnóstico estratégico do profissional gerado automaticamente por IA a partir
 
 ## FASE 4: Agente 2 — Copywriter de Vídeo, Conteúdos e Planos Estratégicos
 
-### Subfase 4.1: Engine de Geração de Roteiros de Vídeo (Gancho, Retenção, CTA)
+### Subfase 4.1: Engine de Geração de Roteiros de Vídeo (Gancho, Retenção, CTA) [CONCLUÍDO]
 - **Tarefas:**
-  - Criar no módulo `Modules.Scripts` o Command `GenerateVideoScriptCommand`.
-  - Injetar no prompt do Agente 2 a **amostra de escrita real 8.2** do profissional para clonagem de tom de voz humano e as **restrições inegociáveis** (5.3, 6.1, 8.4, conselho regional 6.6).
-  - Estruturar a geração de roteiro de vídeo em 3 blocos obrigatórios:
+  - [x] Criar no módulo `Modules.Scripts` o Command `GenerateVideoScriptCommand`.
+  - [x] Injetar no prompt do Agente 2 a **amostra de escrita real 8.2** do profissional para clonagem de tom de voz humano e as **restrições inegociáveis** (5.3, 6.1, 8.4, conselho regional 6.6).
+  - [x] Estruturar a geração de roteiro de vídeo em 3 blocos obrigatórios:
     1. **Gancho (Hook):** primeiros 3 segundos para parar a rolagem.
     2. **Retenção (Body):** conteúdo prático ou opinião forte mantendo a atenção.
     3. **Chamada para Ação (CTA):** direcionamento ético para comentário, direct ou agendamento.
-  - Salvar o roteiro na entidade `VideoScript` com status (`Draft`, `Approved`, `Recorded`, `Published`).
+  - [x] Salvar o roteiro na entidade `VideoScript` com status (`Draft`, `Approved`, `Recorded`, `Published`).
+  - [x] Escrever testes unitários e de integração do fluxo de copywriting (173 testes verdes na solução).
 - **Entregáveis da Subfase 4.1:**
-  - Gerador de roteiros de alta conversão funcionando com amostragem de escrita real.
-  - Testes unitários e de integração do fluxo de copywriting.
+  - [x] Gerador de roteiros de alta conversão funcionando com amostragem de escrita real.
+  - [x] Testes unitários e de integração do fluxo de copywriting.
 
 ### Subfase 4.2: Geração do Plano de Stories e Calendário Editorial de 90 Dias
 - **Tarefas:**

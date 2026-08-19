@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Domain\PersonaScript.BuildingBlocks.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Results\PersonaScript.BuildingBlocks.Results.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Tenancy\PersonaScript.BuildingBlocks.Tenancy.csproj" />
   </ItemGroup>
 

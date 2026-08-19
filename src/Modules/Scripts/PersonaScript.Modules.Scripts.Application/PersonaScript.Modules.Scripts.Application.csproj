@@ -1,10 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\PersonaScript.Modules.Scripts.Domain\PersonaScript.Modules.Scripts.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.AI\PersonaScript.BuildingBlocks.AI.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.CQRS\PersonaScript.BuildingBlocks.CQRS.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Results\PersonaScript.BuildingBlocks.Results.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Tenancy\PersonaScript.BuildingBlocks.Tenancy.csproj" />
+    <ProjectReference Include="..\..\Anamnese\PersonaScript.Modules.Anamnese.Domain\PersonaScript.Modules.Anamnese.Domain.csproj" />
+    <ProjectReference Include="..\..\Anamnese\PersonaScript.Modules.Anamnese.Application\PersonaScript.Modules.Anamnese.Application.csproj" />
+    <ProjectReference Include="..\..\Personas\PersonaScript.Modules.Personas.Domain\PersonaScript.Modules.Personas.Domain.csproj" />
+    <ProjectReference Include="..\..\Personas\PersonaScript.Modules.Personas.Application\PersonaScript.Modules.Personas.Application.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

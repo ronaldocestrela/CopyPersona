@@ -51,6 +51,9 @@
   <Folder Name="/tests/Modules/Personas/">
     <Project Path="tests/Modules/Personas/PersonaScript.Modules.Personas.Tests/PersonaScript.Modules.Personas.Tests.csproj" />
   </Folder>
+  <Folder Name="/tests/Modules/Scripts/">
+    <Project Path="tests/Modules/Scripts/PersonaScript.Modules.Scripts.Tests/PersonaScript.Modules.Scripts.Tests.csproj" />
+  </Folder>
   <Folder Name="/tests/Presentation/">
     <Project Path="tests/Presentation/PersonaScript.Server.UnitTests/PersonaScript.Server.UnitTests.csproj" />
   </Folder>
