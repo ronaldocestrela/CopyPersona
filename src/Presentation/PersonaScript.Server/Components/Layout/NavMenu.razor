@@ -1,0 +1,66 @@
+<header class="top-nav">
+    <div class="nav-container">
+        <div class="brand-group">
+            <a href="" class="brand-link">
+                <div class="brand-icon">
+                    <span class="material-symbols-outlined">auto_awesome</span>
+                </div>
+                <span class="brand-title">PersonaScript <span class="brand-badge">AI</span></span>
+            </a>
+
+            <button class="nav-toggle" @onclick="ToggleNavMenu" aria-label="Alternar navegação">
+                <span class="material-symbols-outlined">@(isNavOpen ? "close" : "menu")</span>
+            </button>
+        </div>
+
+        <nav class="nav-links-container @(isNavOpen ? "active" : "")">
+            <div class="nav-links">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All" @onclick="CloseNavMenu">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>Início</span>
+                </NavLink>
+
+                <NavLink class="nav-link" href="anamnese" Match="NavLinkMatch.Prefix" @onclick="CloseNavMenu">
+                    <span class="material-symbols-outlined">assignment</span>
+                    <span>Anamnese</span>
+                </NavLink>
+
+                <NavLink class="nav-link" href="posicionamento/diagnostico" Match="NavLinkMatch.Prefix" @onclick="CloseNavMenu">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span>Diagnóstico</span>
+                </NavLink>
+
+                <NavLink class="nav-link" href="roteiros" Match="NavLinkMatch.Prefix" @onclick="CloseNavMenu">
+                    <span class="material-symbols-outlined">movie</span>
+                    <span>Roteiros & Conteúdo</span>
+                </NavLink>
+
+                <NavLink class="nav-link" href="backoffice" Match="NavLinkMatch.Prefix" @onclick="CloseNavMenu">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                    <span>Backoffice</span>
+                </NavLink>
+            </div>
+
+            <div class="nav-actions">
+                <a href="login" class="nav-action-btn">
+                    <span class="material-symbols-outlined">account_circle</span>
+                    <span>Minha Conta</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+@code {
+    private bool isNavOpen = false;
+
+    private void ToggleNavMenu()
+    {
+        isNavOpen = !isNavOpen;
+    }
+
+    private void CloseNavMenu()
+    {
+        isNavOpen = false;
+    }
+}
