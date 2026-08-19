@@ -32,6 +32,22 @@ public static class DomainErrors
 
         public static readonly Error AnamneseOuDiagnosticoNaoEncontrado = Error.NotFound(
             "Scripts.AnamneseOuDiagnosticoNaoEncontrado",
-            "Para gerar um roteiro de vídeo, é necessário ter a Anamnese concluída.");
+            "Para gerar conteúdos ou planos estratégicos, é necessário ter a Anamnese concluída.");
+
+        public static readonly Error StoryPlanNaoEncontrado = Error.NotFound(
+            "Scripts.StoryPlanNaoEncontrado",
+            "O Plano de Stories solicitado não foi encontrado.");
+
+        public static readonly Error StoryPlanInvalido = Error.Validation(
+            "Scripts.StoryPlanInvalido",
+            "O Plano de Stories deve conter blocos horários e diretrizes válidos.");
+
+        public static readonly Error NinetyDayCalendarNaoEncontrado = Error.NotFound(
+            "Scripts.NinetyDayCalendarNaoEncontrado",
+            "O Calendário Editorial de 90 Dias não foi encontrado.");
+
+        public static readonly Error NinetyDayCalendarInvalido = Error.Validation(
+            "Scripts.NinetyDayCalendarInvalido",
+            "O Calendário Editorial de 90 Dias deve conter semanas com planejamentos válidos.");
     }
 }

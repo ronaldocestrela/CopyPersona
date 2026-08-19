@@ -174,14 +174,15 @@ Diagnóstico estratégico do profissional gerado automaticamente por IA a partir
   - [x] Gerador de roteiros de alta conversão funcionando com amostragem de escrita real.
   - [x] Testes unitários e de integração do fluxo de copywriting.
 
-### Subfase 4.2: Geração do Plano de Stories e Calendário Editorial de 90 Dias
+### Subfase 4.2: Geração do Plano de Stories e Calendário Editorial de 90 Dias [CONCLUÍDO]
 - **Tarefas:**
-  - Criar o Command `GenerateContentPlanCommand` para gerar os entregáveis 5 e 6 da Anamnese:
-    - **Plano de Stories (Item 5):** Cronograma de stories diários integrados à rotina real (Etapa 9.1), respeitando os horários em que o profissional trabalha e atende.
-    - **Plano de 90 Dias (Item 6):** Calendário editorial trimestral com sugestões de temas por semana, objetivos e formatos adaptados à facilidade de produção do cliente (Etapa 9.4).
-  - Persistir as entidades `StoryPlan` e `NinetyDayCalendar`.
+  - [x] Criar o Command `GenerateContentPlanCommand` para gerar os entregáveis 5 e 6 da Anamnese:
+    - [x] **Plano de Stories (Item 5):** Cronograma de stories diários integrados à rotina real (Etapa 9.1), respeitando os horários em que o profissional trabalha e atende.
+    - [x] **Plano de 90 Dias (Item 6):** Calendário editorial trimestral com sugestões de temas por semana, objetivos e formatos adaptados à facilidade de produção do cliente (Etapa 9.4).
+  - [x] Persistir as entidades `StoryPlan` e `NinetyDayCalendar`.
+  - [x] Escrever testes unitários e de integração de persistência e isolamento por tenant (184 testes verdes na solução).
 - **Entregáveis da Subfase 4.2:**
-  - Agente 2 gerando o plano de 90 dias e o plano de stories personalizado conforme a rotina do profissional.
+  - [x] Agente 2 gerando o plano de 90 dias e o plano de stories personalizado conforme a rotina do profissional.
 
 ### Subfase 4.3: Hub de Conteúdo Blazor, Modo Teleprompter e Exportação
 - **Tarefas:**

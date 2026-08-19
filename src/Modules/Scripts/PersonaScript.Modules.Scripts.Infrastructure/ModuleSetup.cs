@@ -3,9 +3,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Tenancy;
+using PersonaScript.Modules.Scripts.Application.Commands.GenerateContentPlan;
 using PersonaScript.Modules.Scripts.Application.Commands.GenerateVideoScript;
 using PersonaScript.Modules.Scripts.Application.Commands.UpdateVideoScriptStatus;
 using PersonaScript.Modules.Scripts.Application.DTOs;
+using PersonaScript.Modules.Scripts.Application.Queries.GetNinetyDayCalendar;
+using PersonaScript.Modules.Scripts.Application.Queries.GetStoryPlan;
 using PersonaScript.Modules.Scripts.Application.Queries.GetVideoScriptById;
 using PersonaScript.Modules.Scripts.Application.Queries.ListVideoScripts;
 using PersonaScript.Modules.Scripts.Application.Services;
@@ -39,16 +42,23 @@ public static class ModuleSetup
         });
 
         services.AddScoped<IVideoScriptRepository, VideoScriptRepository>();
+        services.AddScoped<IStoryPlanRepository, StoryPlanRepository>();
+        services.AddScoped<INinetyDayCalendarRepository, NinetyDayCalendarRepository>();
 
         // Register Services & Prompt Builder
         services.AddSingleton<IVideoScriptPromptBuilder, VideoScriptPromptBuilder>();
         services.AddScoped<IVideoScriptGenerator, VideoScriptGenerator>();
+        services.AddSingleton<IContentPlanPromptBuilder, ContentPlanPromptBuilder>();
+        services.AddScoped<IContentPlanGenerator, ContentPlanGenerator>();
 
         // Register CQRS Handlers
         services.AddScoped<ICommandHandler<GenerateVideoScriptCommand, Guid>, GenerateVideoScriptCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateVideoScriptStatusCommand>, UpdateVideoScriptStatusCommandHandler>();
+        services.AddScoped<ICommandHandler<GenerateContentPlanCommand, ContentPlanResultDto>, GenerateContentPlanCommandHandler>();
         services.AddScoped<IQueryHandler<GetVideoScriptByIdQuery, VideoScriptDto>, GetVideoScriptByIdQueryHandler>();
         services.AddScoped<IQueryHandler<ListVideoScriptsQuery, IReadOnlyList<VideoScriptDto>>, ListVideoScriptsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetStoryPlanQuery, StoryPlanDto>, GetStoryPlanQueryHandler>();
+        services.AddScoped<IQueryHandler<GetNinetyDayCalendarQuery, NinetyDayCalendarDto>, GetNinetyDayCalendarQueryHandler>();
 
         return services;
     }

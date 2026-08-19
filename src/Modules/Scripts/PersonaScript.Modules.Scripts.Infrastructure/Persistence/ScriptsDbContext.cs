@@ -9,6 +9,8 @@ public sealed class ScriptsDbContext(DbContextOptions<ScriptsDbContext> options,
 {
     public ITenantContext TenantContext => tenantContext;
     public DbSet<VideoScript> VideoScripts => Set<VideoScript>();
+    public DbSet<StoryPlan> StoryPlans => Set<StoryPlan>();
+    public DbSet<NinetyDayCalendar> NinetyDayCalendars => Set<NinetyDayCalendar>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,6 +42,43 @@ public sealed class ScriptsDbContext(DbContextOptions<ScriptsDbContext> options,
             entity.Property(s => s.Status).IsRequired().HasConversion<int>();
             entity.Property(s => s.GeradoEm).IsRequired();
             entity.Property(s => s.AtualizadoEm);
+        });
+
+        modelBuilder.Entity<StoryPlan>(entity =>
+        {
+            entity.ToTable("StoryPlans");
+            entity.HasKey(sp => sp.Id);
+
+            entity.Property(sp => sp.TenantId).IsRequired();
+            entity.HasIndex(sp => sp.TenantId);
+
+            entity.Property(sp => sp.AnamneseId).IsRequired();
+            entity.Property(sp => sp.PersonaDiagnosisId);
+
+            entity.Property(sp => sp.FrequenciaDiariaRecomendada).IsRequired().HasMaxLength(200);
+            entity.Property(sp => sp.DiretrizesHumanizacao);
+            entity.Property(sp => sp.GeradoEm).IsRequired();
+            entity.Property(sp => sp.AtualizadoEm);
+
+            entity.OwnsMany(sp => sp.BlocosHorarios, b => b.ToJson());
+        });
+
+        modelBuilder.Entity<NinetyDayCalendar>(entity =>
+        {
+            entity.ToTable("NinetyDayCalendars");
+            entity.HasKey(c => c.Id);
+
+            entity.Property(c => c.TenantId).IsRequired();
+            entity.HasIndex(c => c.TenantId);
+
+            entity.Property(c => c.AnamneseId).IsRequired();
+            entity.Property(c => c.PersonaDiagnosisId);
+
+            entity.Property(c => c.ObjetivoTrimestral).IsRequired().HasMaxLength(300);
+            entity.Property(c => c.GeradoEm).IsRequired();
+            entity.Property(c => c.AtualizadoEm);
+
+            entity.OwnsMany(c => c.Semanas, s => s.ToJson());
         });
 
         modelBuilder.ApplyTenantQueryFilters(this);
