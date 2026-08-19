@@ -5,5 +5,5 @@ namespace PersonaScript.Modules.Personas.Application.Services;
 
 public interface IPersonaPromptBuilder
 {
-    LLMRequest BuildPrompt(FullAnamneseDto anamnese);
+    LLMRequest BuildPrompt(FullAnamneseDto anamnese, string? feedback = null);
 }

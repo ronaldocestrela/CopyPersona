@@ -173,11 +173,11 @@ Implementado:
 - Subfase 2.3 concluída: Interface Blazor Interativa (`AnamneseWizard.razor`), subcomponentes das 10 etapas (`Step1Component.razor` até `Step10Component.razor`), barra de progresso visual, ranker, tooltip didático e testes bUnit.
 - Subfase 2.4 concluída: Motor de Acompanhamento Automático por IA (`IAnamneseClarificationService` / `HeuristicClarificationAnalyzer`), query CQRS `AnalyzeStepClarificationQuery`, modal Blazor Stitch UI `AnamneseAIClarificationModal.razor` e testes automatizados TDD.
 - Subfase 3.1 concluída: Abstração de Integração com Provedores LLM (`PersonaScript.BuildingBlocks.AI`), interface `ILLMProvider`, resiliência e fallback automático de provedores com Polly, parsing e validação de schema JSON (`ILLMJsonParser`) e suíte de testes unitários TDD.
-- Subfase 3.2 concluída: Motor de Prompt do Agente 1 (Estrategista de Persona), entidade `PersonaDiagnosis` (schema EF Core `personas`), Value Objects `IdentidadeMarca`, `PilarConteudo` (validação de 100% de distribuição) e `MatrizRestricoes`, `PersonaPromptBuilder`, `PersonaDiagnosisGenerator`, CQRS command/query (`GeneratePersonaDiagnosisCommand`, `GetPersonaDiagnosisQuery`) e 150 testes automatizados verdes na solução.
+- Subfase 3.3 concluída: Interface de Exibição e Ajuste do Diagnóstico de Posicionamento (`/posicionamento` e `/posicionamento/diagnostico`), suporte a edições manuais (`UpdatePersonaDiagnosisCommand`), regeneração assistida por IA com feedback do usuário (`GeneratePersonaDiagnosisCommand` com `Feedback`), componentes Blazor (`PosicionamentoDiagnosticoPage.razor`, `EditarDiagnosticoModal.razor`, `RegerarDiagnosticoModal.razor`), estilização Stitch UI (`posicionamento.css`) e testes automatizados TDD/bUnit.
 
 Próxima entrega:
 
-- Subfase 3.3: Interface de Exibição e Ajuste do Diagnóstico de Posicionamento (`/posicionamento` e `/posicionamento/diagnostico`).
+- Subfase 4.1: Engine de Geração de Roteiros de Vídeo (Gancho, Retenção, CTA) do Agente 2 (Copywriter de Vídeo).
 
 ## Referências
 

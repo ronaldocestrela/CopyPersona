@@ -11,6 +11,8 @@ using PersonaScript.Modules.Personas.Domain;
 using PersonaScript.Modules.Personas.Infrastructure.Persistence;
 using PersonaScript.Modules.Personas.Infrastructure.Repositories;
 
+using PersonaScript.Modules.Personas.Application.Commands.UpdatePersonaDiagnosis;
+
 namespace PersonaScript.Modules.Personas.Infrastructure;
 
 public static class ModuleSetup
@@ -44,6 +46,7 @@ public static class ModuleSetup
 
         // Register CQRS Handlers
         services.AddScoped<ICommandHandler<GeneratePersonaDiagnosisCommand, Guid>, GeneratePersonaDiagnosisCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdatePersonaDiagnosisCommand, Guid>, UpdatePersonaDiagnosisCommandHandler>();
         services.AddScoped<IQueryHandler<GetPersonaDiagnosisQuery, PersonaDiagnosisDto?>, GetPersonaDiagnosisQueryHandler>();
 
         return services;

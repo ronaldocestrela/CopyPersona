@@ -144,14 +144,14 @@ Módulo de Anamnese 100% funcional, permitindo que o profissional responda pausa
   - [x] Agente 1 capaz de ler uma Anamnese concluída e gerar o perfil estruturado em JSON em menos de 15 segundos.
   - [x] Testes unitários do prompt handler e parsing de saída (150 testes verdes na solução).
 
-### Subfase 3.3: Interface de Exibição e Ajuste do Diagnóstico de Posicionamento
+### Subfase 3.3: Interface de Exibição e Ajuste do Diagnóstico de Posicionamento [CONCLUÍDO]
 - **Tarefas:**
-  - Criar as telas Blazor `/posicionamento` e `/posicionamento/diagnostico`.
-  - Exibir visualmente o resumo da marca: Frase de Posicionamento em destaque, cards dos Pilares de Conteúdo com gráficos de pizza/barra (distribuição %), guia de tom de voz e lista de restrições.
-  - Permitir pequenas edições manuais pelo usuário ou solicitação de regeneração com feedback direcionado.
-  - Escrever testes bUnit da tela de diagnóstico.
+  - [x] Criar as telas Blazor `/posicionamento` e `/posicionamento/diagnostico`.
+  - [x] Exibir visualmente o resumo da marca: Frase de Posicionamento em destaque, cards dos Pilares de Conteúdo com distribuição %, guia de tom de voz e matriz de restrições.
+  - [x] Permitir pequenas edições manuais pelo usuário (`UpdatePersonaDiagnosisCommand`) e solicitação de regeneração assistida por IA com feedback direcionado.
+  - [x] Escrever testes bUnit da tela de diagnóstico e suíte unitária de commands (158 testes verdes na solução).
 - **Entregáveis da Subfase 3.3:**
-  - Tela de Diagnóstico de Posicionamento elegante, responsiva e pronta para consumo pelo usuário.
+  - [x] Tela de Diagnóstico de Posicionamento elegante, responsiva e pronta para consumo pelo usuário com suporte a edições manuais e regeneração por IA.
 
 #### Resultado Esperado da FASE 3:
 Diagnóstico estratégico do profissional gerado automaticamente por IA a partir das 10 etapas da Anamnese, definindo posicionamento, pilares e limites de marca com visualização em dashboard.

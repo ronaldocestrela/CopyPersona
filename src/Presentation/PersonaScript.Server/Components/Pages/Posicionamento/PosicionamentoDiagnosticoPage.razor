@@ -1,0 +1,351 @@
+@page "/posicionamento/diagnostico"
+@rendermode InteractiveServer
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.BuildingBlocks.Results
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+@using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStatus
+@using PersonaScript.Modules.Personas.Application.Commands.GeneratePersonaDiagnosis
+@using PersonaScript.Modules.Personas.Application.Commands.UpdatePersonaDiagnosis
+@using PersonaScript.Modules.Personas.Application.DTOs
+@using PersonaScript.Modules.Personas.Application.Queries.GetPersonaDiagnosis
+@using PersonaScript.Server.Components.Layout
+@using PersonaScript.Modules.Anamnese.Domain
+@inject IQueryHandler<GetPersonaDiagnosisQuery, PersonaDiagnosisDto?> GetDiagnosisQueryHandler
+@inject IQueryHandler<GetAnamneseStatusQuery, AnamneseStatusDto> GetAnamneseStatusQueryHandler
+@inject ICommandHandler<GeneratePersonaDiagnosisCommand, Guid> GenerateDiagnosisCommandHandler
+@inject ICommandHandler<UpdatePersonaDiagnosisCommand, Guid> UpdateDiagnosisCommandHandler
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@layout MainLayout
+
+<PageTitle>Diagnóstico de Posicionamento | PersonaScript AI</PageTitle>
+
+<HeadContent>
+    <link rel="stylesheet" href="posicionamento.css" />
+</HeadContent>
+
+<div class="posicionamento-container">
+    @if (isLoadingData)
+    {
+        <div style="text-align: center; padding: 4rem; color: #64748b;">
+            Carregando Diagnóstico de Posicionamento...
+        </div>
+    }
+    else if (!hasCompletedAnamnese)
+    {
+        <div class="empty-posicionamento-card">
+            <h2>Anamnese Pendente</h2>
+            <p>
+                Para que o Agente 1 (Estrategista de Persona) consiga construir seu Diagnóstico de Posicionamento, você precisa concluir o preenchimento da Anamnese em 10 Etapas.
+            </p>
+            <a href="/anamnese" class="btn-primary">Ir para a Anamnese</a>
+        </div>
+    }
+    else if (diagnosis is null)
+    {
+        <div class="empty-posicionamento-card">
+            <h2>Sua Anamnese está Concluída!</h2>
+            <p>
+                Clique no botão abaixo para gerar seu Diagnóstico de Posicionamento Estratégico com Inteligência Artificial.
+            </p>
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1rem; width: 100%;">
+                    @errorMessage
+                </div>
+            }
+            @if (isGenerating)
+            {
+                <div style="color: #4f46e5; font-weight: 600; padding: 1rem;">
+                    Gerando Diagnóstico...
+                </div>
+            }
+            else
+            {
+                <button type="button" class="btn-primary" @onclick="GerarDiagnosticoInicial">
+                    Gerar Diagnóstico com IA
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="posicionamento-header">
+            <div class="posicionamento-title-group">
+                <h1>Diagnóstico de Posicionamento</h1>
+                <p class="posicionamento-subtitle">
+                    Diretrizes estratégicas de marca e comunicação geradas para o seu perfil.
+                </p>
+            </div>
+            <div class="posicionamento-actions">
+                <button type="button" class="btn-secondary" @onclick="() => showEditModal = true">
+                    ✏️ Editar Manualmente
+                </button>
+                <button type="button" class="btn-outline-purple" @onclick="() => showRegenerateModal = true">
+                    ✨ Regerar com IA
+                </button>
+                <button type="button" class="btn-primary" @onclick="CopiarPosicionamento">
+                    📋 Copiar Posicionamento
+                </button>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                @errorMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem;">
+                @statusMessage
+            </div>
+        }
+
+        <!-- Hero Card: Frase de Posicionamento -->
+        <div class="hero-posicionamento-card">
+            <div class="hero-label">Frase Única de Posicionamento</div>
+            <div class="hero-frase">"@diagnosis.FrasePosicionamento"</div>
+            <div class="hero-sintese">@diagnosis.SintesePerfil</div>
+        </div>
+
+        <!-- Section: Pilares de Conteúdo -->
+        <div class="section-title">
+            📊 Pilares de Conteúdo & Distribuição Estratégica
+        </div>
+        <div class="pilares-grid">
+            @foreach (var pilar in diagnosis.PilaresConteudo)
+            {
+                <div class="pilar-card">
+                    <div>
+                        <div class="pilar-header">
+                            <span class="pilar-nome">@pilar.Nome</span>
+                            <span class="pilar-badge">@pilar.Percentual%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: @(pilar.Percentual)%"></div>
+                        </div>
+                        <div class="pilar-desc">@pilar.Descricao</div>
+                    </div>
+                    @if (pilar.ExemplosTopicos.Any())
+                    {
+                        <div>
+                            <div class="pilar-topicos-title">Tópicos de Exemplo</div>
+                            <ul class="pilar-topicos-list">
+                                @foreach (var topico in pilar.ExemplosTopicos)
+                                {
+                                    <li>@topico</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Section: Identidade & Restrições -->
+        <div class="info-grid">
+            <!-- Identidade da Marca -->
+            <div class="info-card">
+                <div class="section-title" style="font-size: 1.15rem; margin-bottom: 1.25rem;">
+                    🎨 Identidade da Marca
+                </div>
+
+                <div class="info-item">
+                    <div class="info-item-label">Tom de Voz</div>
+                    <div class="info-item-value">@diagnosis.IdentidadeMarca.TomDeVoz</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-item-label">Estilo Visual Sugerido</div>
+                    <div class="info-item-value">@diagnosis.IdentidadeMarca.EstiloVisualSugerido</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-item-label">Arquétipos de Comunicação</div>
+                    <div class="arquetipo-pills">
+                        <span class="arquetipo-pill-main">Principal: @diagnosis.IdentidadeMarca.ArquetipoPrincipal</span>
+                        <span class="arquetipo-pill-sub">Secundário: @diagnosis.IdentidadeMarca.ArquetipoSecundario</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matriz de Restrições -->
+            <div class="info-card">
+                <div class="section-title" style="font-size: 1.15rem; margin-bottom: 1.25rem;">
+                    🛡️ Matriz de Restrições & Diretrizes
+                </div>
+
+                @if (diagnosis.MatrizRestricoes.TemasProibidos.Any())
+                {
+                    <div class="info-item">
+                        <div class="info-item-label">Temas Proibidos</div>
+                        <div class="tags-list">
+                            @foreach (var tema in diagnosis.MatrizRestricoes.TemasProibidos)
+                            {
+                                <span class="tag-red">@tema</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (diagnosis.MatrizRestricoes.PalavrasEvitar.Any())
+                {
+                    <div class="info-item">
+                        <div class="info-item-label">Palavras a Evitar</div>
+                        <div class="tags-list">
+                            @foreach (var palavra in diagnosis.MatrizRestricoes.PalavrasEvitar)
+                            {
+                                <span class="tag-orange">@palavra</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (diagnosis.MatrizRestricoes.DiretrizesInegociaveis.Any())
+                {
+                    <div class="info-item">
+                        <div class="info-item-label">Diretrizes Inegociáveis</div>
+                        <div class="tags-list">
+                            @foreach (var diretriz in diagnosis.MatrizRestricoes.DiretrizesInegociaveis)
+                            {
+                                <span class="tag-blue">@diretriz</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="info-item">
+                    <div class="info-item-label">Limites de Exposição</div>
+                    <div class="info-item-value">@diagnosis.MatrizRestricoes.LimitesExposicao</div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<EditarDiagnosticoModal IsOpen="@showEditModal"
+                         Diagnosis="@diagnosis"
+                         OnClosed="() => showEditModal = false"
+                         OnSaved="HandleSalvarEdicao" />
+
+<RegerarDiagnosticoModal IsOpen="@showRegenerateModal"
+                          IsLoading="@isGenerating"
+                          OnClosed="() => showRegenerateModal = false"
+                          OnConfirmed="HandleRegerar" />
+
+@code {
+    private bool isLoadingData = true;
+    private bool hasCompletedAnamnese = false;
+    private bool isGenerating = false;
+    private bool showEditModal = false;
+    private bool showRegenerateModal = false;
+    private string? statusMessage;
+    private string? errorMessage;
+
+    private PersonaDiagnosisDto? diagnosis;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoadingData = true;
+
+        var statusResult = await GetAnamneseStatusQueryHandler.Handle(new GetAnamneseStatusQuery(), CancellationToken.None);
+        if (statusResult.IsSuccess && statusResult.Value is not null && statusResult.Value.Status == AnamneseStatus.Concluido)
+        {
+            hasCompletedAnamnese = true;
+            var diagResult = await GetDiagnosisQueryHandler.Handle(new GetPersonaDiagnosisQuery(), CancellationToken.None);
+            if (diagResult.IsSuccess)
+            {
+                diagnosis = diagResult.Value;
+            }
+        }
+        else
+        {
+            hasCompletedAnamnese = false;
+        }
+
+        isLoadingData = false;
+    }
+
+    private async Task GerarDiagnosticoInicial()
+    {
+        isGenerating = true;
+        errorMessage = null;
+        statusMessage = null;
+
+        var result = await GenerateDiagnosisCommandHandler.Handle(new GeneratePersonaDiagnosisCommand(), CancellationToken.None);
+        isGenerating = false;
+
+        if (result.IsSuccess)
+        {
+            statusMessage = "Diagnóstico de Posicionamento gerado com sucesso!";
+            await LoadDataAsync();
+        }
+        else
+        {
+            errorMessage = result.Error.Message ?? result.Error.Code;
+        }
+    }
+
+    private async Task HandleSalvarEdicao(UpdatePersonaDiagnosisCommand command)
+    {
+        showEditModal = false;
+        errorMessage = null;
+        statusMessage = null;
+
+        var result = await UpdateDiagnosisCommandHandler.Handle(command, CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            statusMessage = "Diagnóstico atualizado com sucesso!";
+            await LoadDataAsync();
+        }
+        else
+        {
+            errorMessage = result.Error.Message ?? result.Error.Code;
+        }
+    }
+
+    private async Task HandleRegerar(string? feedback)
+    {
+        isGenerating = true;
+        errorMessage = null;
+        statusMessage = null;
+
+        var result = await GenerateDiagnosisCommandHandler.Handle(new GeneratePersonaDiagnosisCommand(feedback), CancellationToken.None);
+        isGenerating = false;
+        showRegenerateModal = false;
+
+        if (result.IsSuccess)
+        {
+            statusMessage = "Diagnóstico regerado com sucesso!";
+            await LoadDataAsync();
+        }
+        else
+        {
+            errorMessage = result.Error.Message ?? result.Error.Code;
+        }
+    }
+
+    private async Task CopiarPosicionamento()
+    {
+        if (diagnosis is null) return;
+
+        var texto = $"FRASE DE POSICIONAMENTO:\n\"{diagnosis.FrasePosicionamento}\"\n\nSÍNTESE DO PERFIL:\n{diagnosis.SintesePerfil}\n\nTOM DE VOZ:\n{diagnosis.IdentidadeMarca.TomDeVoz}";
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", texto);
+            statusMessage = "Posicionamento copiado para a área de transferência!";
+        }
+        catch
+        {
+            statusMessage = "Não foi possível copiar automaticamente.";
+        }
+    }
+}

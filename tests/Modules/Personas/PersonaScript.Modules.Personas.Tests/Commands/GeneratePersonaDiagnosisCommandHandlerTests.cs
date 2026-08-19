@@ -120,7 +120,7 @@ public class GeneratePersonaDiagnosisCommandHandlerTests
             LimitesExposicao = "Não mostrar família"
         };
 
-        _generator.GenerateAsync(completedAnamnese, Arg.Any<CancellationToken>())
+        _generator.GenerateAsync(completedAnamnese, Arg.Any<string?>(), Arg.Any<CancellationToken>())
             .Returns(Result.Success(generatedDto));
 
         _repository.GetByTenantIdAsync(Arg.Any<CancellationToken>())

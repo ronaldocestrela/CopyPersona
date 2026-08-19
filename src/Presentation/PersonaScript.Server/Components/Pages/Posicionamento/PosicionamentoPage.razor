@@ -1,0 +1,11 @@
+@page "/posicionamento"
+@using PersonaScript.Server.Components.Layout
+@inject NavigationManager Navigation
+@layout MainLayout
+
+@code {
+    protected override void OnInitialized()
+    {
+        Navigation.NavigateTo("/posicionamento/diagnostico");
+    }
+}

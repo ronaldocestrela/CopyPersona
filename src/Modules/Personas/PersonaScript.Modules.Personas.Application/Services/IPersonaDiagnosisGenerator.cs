@@ -6,5 +6,5 @@ namespace PersonaScript.Modules.Personas.Application.Services;
 
 public interface IPersonaDiagnosisGenerator
 {
-    Task<Result<PersonaDiagnosisLLMResponseDto>> GenerateAsync(FullAnamneseDto anamnese, CancellationToken cancellationToken = default);
+    Task<Result<PersonaDiagnosisLLMResponseDto>> GenerateAsync(FullAnamneseDto anamnese, string? feedback = null, CancellationToken cancellationToken = default);
 }

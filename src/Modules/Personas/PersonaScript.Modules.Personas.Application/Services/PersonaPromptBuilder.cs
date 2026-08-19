@@ -6,7 +6,7 @@ namespace PersonaScript.Modules.Personas.Application.Services;
 
 public sealed class PersonaPromptBuilder : IPersonaPromptBuilder
 {
-    public LLMRequest BuildPrompt(FullAnamneseDto anamnese)
+    public LLMRequest BuildPrompt(FullAnamneseDto anamnese, string? feedback = null)
     {
         var systemPrompt = @"Você é o Agente 1 (Estrategista de Persona e Posicionamento de Marca) do sistema PersonaScript AI.
 Sua missão é analisar o perfil completo de um profissional (Anamnese em 10 Etapas) e construir o Diagnóstico de Posicionamento de Marca Estratégico.
@@ -39,7 +39,7 @@ REGRAS OBRIGATÓRIAS:
 2. Crie entre 3 e 5 pilares de conteúdo equilibrados (ex: Educação, Prova/Casos, Autoridade, Conexão/Bastidores).
 3. Incorpore com rigor máximo as proibições, termos a evitar e limites de exposição indicados nas Etapas 5, 6 e 8.";
 
-        var userPrompt = BuildUserPrompt(anamnese);
+        var userPrompt = BuildUserPrompt(anamnese, feedback);
 
         return new LLMRequest
         {
@@ -51,7 +51,7 @@ REGRAS OBRIGATÓRIAS:
         };
     }
 
-    private static string BuildUserPrompt(FullAnamneseDto anamnese)
+    private static string BuildUserPrompt(FullAnamneseDto anamnese, string? feedback = null)
     {
         var sb = new StringBuilder();
         sb.AppendLine("# FICHA DE ANAMNESE COMPLETA DO PROFISSIONAL");
@@ -155,6 +155,13 @@ REGRAS OBRIGATÓRIAS:
             sb.AppendLine("## ETAPA 10: OBJETIVOS DE NEGÓCIO");
             sb.AppendLine($"- Meta em 3 Meses: {anamnese.Etapa10.Meta3Meses}");
             sb.AppendLine($"- Meta em 1 Ano: {anamnese.Etapa10.Meta1Ano}");
+            sb.AppendLine();
+        }
+
+        if (!string.IsNullOrWhiteSpace(feedback))
+        {
+            sb.AppendLine("## INSTRUÇÕES E FEEDBACK DE REFINAMENTO DO USUÁRIO:");
+            sb.AppendLine(feedback);
             sb.AppendLine();
         }
 

@@ -18,9 +18,10 @@ public sealed class PersonaDiagnosisGenerator : IPersonaDiagnosisGenerator
 
     public async Task<Result<PersonaDiagnosisLLMResponseDto>> GenerateAsync(
         FullAnamneseDto anamnese,
+        string? feedback = null,
         CancellationToken cancellationToken = default)
     {
-        var request = _promptBuilder.BuildPrompt(anamnese);
+        var request = _promptBuilder.BuildPrompt(anamnese, feedback);
 
         try
         {

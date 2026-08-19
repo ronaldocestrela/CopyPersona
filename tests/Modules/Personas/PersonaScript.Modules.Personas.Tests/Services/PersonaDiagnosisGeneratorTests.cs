@@ -51,7 +51,7 @@ public class PersonaDiagnosisGeneratorTests
         ).Returns(Result.Success(llmResponse));
 
         // Act
-        var result = await _generator.GenerateAsync(anamnese, CancellationToken.None);
+        var result = await _generator.GenerateAsync(anamnese, cancellationToken: CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -71,7 +71,7 @@ public class PersonaDiagnosisGeneratorTests
         ).Returns(Result.Failure<PersonaDiagnosisLLMResponseDto>(new Error("LLM.Unavailable", "Service unavailable")));
 
         // Act
-        var result = await _generator.GenerateAsync(anamnese, CancellationToken.None);
+        var result = await _generator.GenerateAsync(anamnese, cancellationToken: CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

@@ -40,6 +40,8 @@ Endpoints:
 - Health: http://localhost:5000/health
 - Cadastro: http://localhost:5000/cadastro
 - Login: http://localhost:5000/login
+- Anamnese: http://localhost:5000/anamnese
+- Posicionamento: http://localhost:5000/posicionamento/diagnostico
 
 ### 4. Testar cadastro e login
 

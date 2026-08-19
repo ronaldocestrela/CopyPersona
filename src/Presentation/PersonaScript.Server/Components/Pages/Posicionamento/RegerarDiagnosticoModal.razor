@@ -1,0 +1,71 @@
+@if (IsOpen)
+{
+    <div class="modal-backdrop" @onclick="Close">
+        <div class="modal-card" style="max-width: 36rem;" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Regerar Diagnóstico com IA</h2>
+                <button type="button" class="modal-close-btn" @onclick="Close" disabled="@IsLoading">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #475569; font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.5;">
+                    Você pode orientar a Inteligência Artificial com instruções de refinamento para ajustar seu Diagnóstico de Posicionamento.
+                </p>
+
+                <div class="form-group">
+                    <label class="form-label">Instruções / Feedback de Refinamento (Opcional)</label>
+                    <textarea class="form-control" rows="4" 
+                              placeholder="Ex: Gostaria de dar mais ênfase a atendimentos humanizados e ajustar o pilar de autoridade para focar em casos de rejuvenescimento facial..." 
+                              @bind="feedbackText"
+                              disabled="@IsLoading"></textarea>
+                </div>
+
+                @if (IsLoading)
+                {
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; padding: 1.5rem 0; color: #4f46e5; font-weight: 600;">
+                        <span class="spinner" style="border: 3px solid #e0e7ff; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite;"></span>
+                        Gerando seu Diagnóstico Estratégico... (pode levar alguns segundos)
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" @onclick="Close" disabled="@IsLoading">Cancelar</button>
+                <button type="button" class="btn-primary" @onclick="Confirm" disabled="@IsLoading">
+                    @if (IsLoading)
+                    {
+                        <span>Regerando...</span>
+                    }
+                    else
+                    {
+                        <span>Confirmar e Regerar</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public EventCallback OnClosed { get; set; }
+    [Parameter] public EventCallback<string?> OnConfirmed { get; set; }
+
+    private string feedbackText = "";
+
+    private async Task Confirm()
+    {
+        await OnConfirmed.InvokeAsync(string.IsNullOrWhiteSpace(feedbackText) ? null : feedbackText);
+    }
+
+    private async Task Close()
+    {
+        await OnClosed.InvokeAsync();
+    }
+}

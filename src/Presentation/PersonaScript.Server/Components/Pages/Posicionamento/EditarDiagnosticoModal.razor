@@ -1,0 +1,214 @@
+@using PersonaScript.Modules.Personas.Application.DTOs
+@using PersonaScript.Modules.Personas.Application.Commands.UpdatePersonaDiagnosis
+
+@if (IsOpen)
+{
+    <div class="modal-backdrop" @onclick="Close">
+        <div class="modal-card" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Editar Diagnóstico de Posicionamento</h2>
+                <button type="button" class="modal-close-btn" @onclick="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <div class="alert-error">
+                        @ErrorMessage
+                    </div>
+                }
+
+                <div class="form-group">
+                    <label class="form-label">Frase de Posicionamento</label>
+                    <textarea class="form-control" rows="2" @bind="frasePosicionamento"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Síntese do Perfil</label>
+                    <textarea class="form-control" rows="3" @bind="sintesePerfil"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tom de Voz</label>
+                    <input type="text" class="form-control" @bind="tomDeVoz" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Estilo Visual Sugerido</label>
+                    <input type="text" class="form-control" @bind="estiloVisual" />
+                </div>
+
+                <div class="form-group" style="display: flex; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <label class="form-label">Arquétipo Principal</label>
+                        <input type="text" class="form-control" @bind="arquetipoPrincipal" />
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="form-label">Arquétipo Secundário</label>
+                        <input type="text" class="form-control" @bind="arquetipoSecundario" />
+                    </div>
+                </div>
+
+                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e2e8f0;" />
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">
+                    Pilares de Conteúdo (Soma total dos % deve ser 100%)
+                    <span style="font-size: 0.9rem; font-weight: 600; color: @(SomaPercentual == 100 ? "#16a34a" : "#dc2626"); margin-left: 0.5rem;">
+                        Atual: @SomaPercentual%
+                    </span>
+                </h3>
+
+                @for (int i = 0; i < pilares.Count; i++)
+                {
+                    var index = i;
+                    var pilar = pilares[index];
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid #e2e8f0;">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
+                            <div style="flex: 2;">
+                                <label class="form-label">Nome do Pilar</label>
+                                <input type="text" class="form-control" @bind="pilar.Nome" />
+                            </div>
+                            <div style="flex: 1;">
+                                <label class="form-label">Percentual (%)</label>
+                                <input type="number" min="1" max="100" class="form-control" @bind="pilar.Percentual" />
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <label class="form-label">Descrição</label>
+                            <input type="text" class="form-control" @bind="pilar.Descricao" />
+                        </div>
+                        <div>
+                            <label class="form-label">Exemplos de Tópicos (separados por vírgula)</label>
+                            <input type="text" class="form-control" @bind="pilar.TopicosTexto" />
+                        </div>
+                    </div>
+                }
+
+                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e2e8f0;" />
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Matriz de Restrições</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Temas Proibidos (separados por vírgula)</label>
+                    <input type="text" class="form-control" @bind="temasProibidosTexto" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Palavras a Evitar (separadas por vírgula)</label>
+                    <input type="text" class="form-control" @bind="palavrasEvitarTexto" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Diretrizes Inegociáveis (separadas por vírgula)</label>
+                    <input type="text" class="form-control" @bind="diretrizesInegociaveisTexto" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Limites de Exposição</label>
+                    <textarea class="form-control" rows="2" @bind="limitesExposicao"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" @onclick="Close">Cancelar</button>
+                <button type="button" class="btn-primary" @onclick="Salvar">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public PersonaDiagnosisDto? Diagnosis { get; set; }
+    [Parameter] public EventCallback OnClosed { get; set; }
+    [Parameter] public EventCallback<UpdatePersonaDiagnosisCommand> OnSaved { get; set; }
+
+    private string frasePosicionamento = "";
+    private string sintesePerfil = "";
+    private string tomDeVoz = "";
+    private string estiloVisual = "";
+    private string arquetipoPrincipal = "";
+    private string arquetipoSecundario = "";
+    private string temasProibidosTexto = "";
+    private string palavrasEvitarTexto = "";
+    private string diretrizesInegociaveisTexto = "";
+    private string limitesExposicao = "";
+    private string? ErrorMessage;
+
+    private List<PilarEditModel> pilares = new();
+
+    private int SomaPercentual => pilares.Sum(p => p.Percentual);
+
+    protected override void OnParametersSet()
+    {
+        if (Diagnosis is not null && IsOpen)
+        {
+            ErrorMessage = null;
+            frasePosicionamento = Diagnosis.FrasePosicionamento;
+            sintesePerfil = Diagnosis.SintesePerfil;
+            tomDeVoz = Diagnosis.IdentidadeMarca.TomDeVoz;
+            estiloVisual = Diagnosis.IdentidadeMarca.EstiloVisualSugerido;
+            arquetipoPrincipal = Diagnosis.IdentidadeMarca.ArquetipoPrincipal;
+            arquetipoSecundario = Diagnosis.IdentidadeMarca.ArquetipoSecundario;
+
+            pilares = Diagnosis.PilaresConteudo.Select(p => new PilarEditModel
+            {
+                Nome = p.Nome,
+                Percentual = p.Percentual,
+                Descricao = p.Descricao,
+                TopicosTexto = string.Join(", ", p.ExemplosTopicos)
+            }).ToList();
+
+            temasProibidosTexto = string.Join(", ", Diagnosis.MatrizRestricoes.TemasProibidos);
+            palavrasEvitarTexto = string.Join(", ", Diagnosis.MatrizRestricoes.PalavrasEvitar);
+            diretrizesInegociaveisTexto = string.Join(", ", Diagnosis.MatrizRestricoes.DiretrizesInegociaveis);
+            limitesExposicao = Diagnosis.MatrizRestricoes.LimitesExposicao;
+        }
+    }
+
+    private async Task Salvar()
+    {
+        if (SomaPercentual != 100)
+        {
+            ErrorMessage = "A soma dos percentuais dos pilares de conteúdo deve ser exatamente 100%.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(frasePosicionamento))
+        {
+            ErrorMessage = "A Frase de Posicionamento é obrigatória.";
+            return;
+        }
+
+        var pilaresDto = pilares.Select(p => new PilarConteudoDto(
+            p.Nome,
+            p.Percentual,
+            p.Descricao,
+            p.TopicosTexto.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
+        )).ToList();
+
+        var command = new UpdatePersonaDiagnosisCommand(
+            frasePosicionamento,
+            sintesePerfil,
+            new IdentidadeMarcaDto(tomDeVoz, estiloVisual, arquetipoPrincipal, arquetipoSecundario),
+            pilaresDto,
+            new MatrizRestricoesDto(
+                temasProibidosTexto.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList(),
+                palavrasEvitarTexto.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList(),
+                diretrizesInegociaveisTexto.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList(),
+                limitesExposicao
+            )
+        );
+
+        await OnSaved.InvokeAsync(command);
+    }
+
+    private async Task Close()
+    {
+        await OnClosed.InvokeAsync();
+    }
+
+    public class PilarEditModel
+    {
+        public string Nome { get; set; } = "";
+        public int Percentual { get; set; }
+        public string Descricao { get; set; } = "";
+        public string TopicosTexto { get; set; } = "";
+    }
+}

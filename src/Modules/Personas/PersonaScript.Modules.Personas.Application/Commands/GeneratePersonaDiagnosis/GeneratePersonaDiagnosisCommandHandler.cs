@@ -49,7 +49,7 @@ public sealed class GeneratePersonaDiagnosisCommandHandler : ICommandHandler<Gen
             return Result.Failure<Guid>(PersonaScript.Modules.Personas.Domain.DomainErrors.Personas.AnamneseNaoConcluida);
         }
 
-        var generatorResult = await _generator.GenerateAsync(anamnese, cancellationToken);
+        var generatorResult = await _generator.GenerateAsync(anamnese, command.Feedback, cancellationToken);
         if (generatorResult.IsFailure || generatorResult.Value is null)
         {
             return Result.Failure<Guid>(PersonaScript.Modules.Personas.Domain.DomainErrors.Personas.FalhaGeracaoLLM);
