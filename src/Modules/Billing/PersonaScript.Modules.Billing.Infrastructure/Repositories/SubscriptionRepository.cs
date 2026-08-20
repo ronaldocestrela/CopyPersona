@@ -20,7 +20,16 @@ public sealed class SubscriptionRepository(BillingDbContext dbContext) : ISubscr
             .FirstOrDefaultAsync(s => s.StripeSubscriptionId == stripeSubscriptionId, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Subscription>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Subscriptions
+            .IgnoreQueryFilters()
+            .Include(s => s.Plan)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(Subscription subscription, CancellationToken cancellationToken = default)
+
     {
         await dbContext.Subscriptions.AddAsync(subscription, cancellationToken);
     }

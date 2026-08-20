@@ -264,13 +264,14 @@ Motor de monetização SaaS B2C totalmente funcional, integrando Stripe Checkout
 - **Entregáveis da Subfase 6.2:**
   - [x] Gerenciador de usuários/tenants com ferramenta de suporte auditada funcional e 261 testes verdes na solução.
 
-### Subfase 6.3: Gestão Financeira, Controle de Planos e Sobrescrita de Limites
+### Subfase 6.3: Gestão Financeira, Controle de Planos e Sobrescrita de Limites [CONCLUÍDO]
 - **Tarefas:**
-  - Criar página `/admin/financeiro`: visão geral de MRR (Receita Recorrente Mensal), Churn Rate, inadimplência e conversão de trial.
-  - Painel de gerenciamento de planos: ajuste dinâmico de limites por plano (ex: alterar limite do plano Pro de 30 para 50 roteiros/mês).
-  - Sobrescrita de quota por tenant específico (ex: conceder bônus VIP para cliente parceiro).
+  - [x] Criar página `/admin/financeiro`: visão geral de MRR (Receita Recorrente Mensal), ARR, Churn Rate, inadimplência e distribuição de assinantes por plano.
+  - [x] Painel de gerenciamento de planos: ajuste dinâmico de limites por plano (ex: alterar limite do plano Pro de 30 para 50 roteiros/mês, preços e personas) com autorização RBAC e log de auditoria `UPDATE_PLAN_LIMITS`.
+  - [x] Sobrescrita de quota por tenant específico (ex: conceder bônus VIP para cliente parceiro) com justificativa obrigatória e log `OVERRIDE_TENANT_QUOTA`.
 - **Entregáveis da Subfase 6.3:**
-  - Dashboard financeiro e gestão de quotas administrativas ativas.
+  - [x] Dashboard financeiro B2C completo, gestão de franquias e sobrescrita de quotas ativas com testes unitários e bUnit integrados.
+
 
 ### Subfase 6.4: Gestão Dinâmica de Prompts de IA, Versionamento e Engenharia de Contexto
 - **Tarefas:**

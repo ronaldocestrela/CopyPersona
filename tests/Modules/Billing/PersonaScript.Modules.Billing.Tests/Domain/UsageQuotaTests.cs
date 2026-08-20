@@ -129,4 +129,29 @@ public class UsageQuotaTests
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("UsageQuota.ReasonRequired");
     }
+
+    [Fact]
+    public void OverrideLimits_WithValidData_ShouldUpdateLimitsSuccessfully()
+    {
+        var quota = UsageQuota.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddDays(30), 10, 2, 20).Value;
+
+        var result = quota.OverrideLimits(100, 15, 200, "Upgrade VIP Backoffice");
+
+        result.IsSuccess.Should().BeTrue();
+        quota.ScriptsLimit.Should().Be(100);
+        quota.ActivePersonasLimit.Should().Be(15);
+        quota.AiAnalysesLimit.Should().Be(200);
+    }
+
+    [Fact]
+    public void OverrideLimits_WithoutReason_ShouldFail()
+    {
+        var quota = UsageQuota.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddDays(30), 10, 2, 20).Value;
+
+        var result = quota.OverrideLimits(100, 15, 200, "");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("UsageQuota.ReasonRequired");
+    }
 }
+

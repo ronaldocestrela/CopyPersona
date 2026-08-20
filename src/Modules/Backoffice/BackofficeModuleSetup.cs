@@ -41,6 +41,8 @@ public static class BackofficeModuleSetup
         services.AddScoped<IQueryHandler<GetTenantsQuery, GetTenantsResult>, GetTenantsQueryHandler>();
         services.AddScoped<IQueryHandler<GetTenantDetailsQuery, TenantDetailsDto>, GetTenantDetailsQueryHandler>();
         services.AddScoped<IQueryHandler<GetAuditLogsQuery, IReadOnlyList<AuditLogDto>>, GetAuditLogsQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.GetFinancialMetrics.GetFinancialMetricsQuery, FinancialMetricsDto>, PersonaScript.Modules.Backoffice.Application.Queries.GetFinancialMetrics.GetFinancialMetricsQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.GetAllPlans.GetAllPlansQuery, IReadOnlyList<PlanDto>>, PersonaScript.Modules.Backoffice.Application.Queries.GetAllPlans.GetAllPlansQueryHandler>();
 
         services.AddScoped<ICommandHandler<StartImpersonationCommand, Guid>, StartImpersonationCommandHandler>();
         services.AddScoped<ICommandHandler<StopImpersonationCommand>, StopImpersonationCommandHandler>();
@@ -48,7 +50,10 @@ public static class BackofficeModuleSetup
         services.AddScoped<ICommandHandler<UnfreezeTenantAccountCommand>, UnfreezeTenantAccountCommandHandler>();
         services.AddScoped<ICommandHandler<AdminResetUserPasswordCommand>, AdminResetUserPasswordCommandHandler>();
         services.AddScoped<ICommandHandler<GrantTenantExtraCreditsCommand>, GrantTenantExtraCreditsCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.UpdatePlanLimits.UpdatePlanLimitsCommand>, PersonaScript.Modules.Backoffice.Application.Commands.UpdatePlanLimits.UpdatePlanLimitsCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.OverrideTenantQuota.OverrideTenantQuotaCommand>, PersonaScript.Modules.Backoffice.Application.Commands.OverrideTenantQuota.OverrideTenantQuotaCommandHandler>();
 
         return services;
     }
 }
+

@@ -1,31 +1,622 @@
 @page "/admin/financeiro"
 @layout PersonaScript.Server.Components.Layout.Admin.AdminLayout
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Backoffice.Application.DTOs
+@using PersonaScript.Modules.Backoffice.Application.Queries.GetFinancialMetrics
+@using PersonaScript.Modules.Backoffice.Application.Queries.GetAllPlans
+@using PersonaScript.Modules.Backoffice.Application.Queries.GetTenants
+@using PersonaScript.Modules.Backoffice.Application.Commands.UpdatePlanLimits
+@using PersonaScript.Modules.Backoffice.Application.Commands.OverrideTenantQuota
+@inject IQueryHandler<GetFinancialMetricsQuery, FinancialMetricsDto> GetFinancialMetricsHandler
+@inject IQueryHandler<GetAllPlansQuery, IReadOnlyList<PlanDto>> GetAllPlansHandler
+@inject IQueryHandler<GetTenantsQuery, GetTenantsResult> GetTenantsHandler
+@inject ICommandHandler<UpdatePlanLimitsCommand> UpdatePlanLimitsHandler
+@inject ICommandHandler<OverrideTenantQuotaCommand> OverrideTenantQuotaHandler
+@inject AuthenticationStateProvider AuthStateProvider
 @attribute [Authorize(Policy = "RequireFinanceAdmin")]
 
 <PageTitle>Financeiro & Planos — Backoffice PersonaScript AI</PageTitle>
 
 <div class="space-y-6">
-    <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
             <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
-                <span class="material-symbols-outlined text-emerald-400">payments</span>
+                <span class="material-symbols-outlined text-emerald-400 text-3xl">payments</span>
                 Gestão Financeira & Planos
             </h1>
-            <p class="text-slate-400 text-sm mt-1">Métricas de MRR, Churn, controle dinâmico de limites e sobrescrita de quotas</p>
+            <p class="text-slate-400 text-sm mt-1">Métricas de MRR, Churn, controle dinâmico de franquias e sobrescrita de quotas</p>
         </div>
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            Subfase 6.3 — Planejada
-        </span>
+        <div class="flex items-center gap-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2"></span>
+                Finance Admin Policy
+            </span>
+        </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
-        <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl">
-            <span class="material-symbols-outlined">query_stats</span>
+    <!-- Feedback Banners -->
+    @if (!string.IsNullOrEmpty(SuccessMessage))
+    {
+        <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">check_circle</span>
+                <span>@SuccessMessage</span>
+            </div>
+            <button @onclick="() => SuccessMessage = null" class="text-emerald-400 hover:text-emerald-200">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
         </div>
-        <h3 class="text-lg font-bold text-white">Dashboard Financeiro & Sobrescrita de Quotas</h3>
-        <p class="text-slate-400 text-sm max-w-xl mx-auto">
-            Permitirá monitorar MRR, Churn Rate, inadimplência e ajustar dinamicamente as franquias de cada plano ou conceder bônus VIP de geração para assinantes específicos.
-        </p>
+    }
+
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">error</span>
+                <span>@ErrorMessage</span>
+            </div>
+            <button @onclick="() => ErrorMessage = null" class="text-rose-400 hover:text-rose-200">
+                <span class="material-symbols-outlined text-base">close</span>
+            </button>
+        </div>
+    }
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl">
+                <span class="material-symbols-outlined">attach_money</span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">MRR (Mensal)</p>
+                <p class="text-2xl font-black text-white mt-1">R$ @(Metrics?.Mrr.ToString("N2") ?? "0,00")</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl">
+                <span class="material-symbols-outlined">trending_up</span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">ARR (Anual Projetado)</p>
+                <p class="text-2xl font-black text-white mt-1">R$ @(Metrics?.Arr.ToString("N2") ?? "0,00")</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-2xl">
+                <span class="material-symbols-outlined">person_remove</span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Taxa de Churn</p>
+                <p class="text-2xl font-black text-white mt-1">@(Metrics?.ChurnRate.ToString("F1") ?? "0.0")%</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-2xl">
+                <span class="material-symbols-outlined">warning</span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Inadimplência (Past Due)</p>
+                <p class="text-2xl font-black text-white mt-1">R$ @(Metrics?.TotalPastDueAmount.ToString("N2") ?? "0,00")</p>
+                <p class="text-[11px] text-slate-400">@(Metrics?.PastDueSubscriptions ?? 0) assinatura(s)</p>
+            </div>
+        </div>
     </div>
+
+    <!-- Navegação de Abas -->
+    <div class="border-b border-slate-800 flex gap-6 text-sm font-semibold">
+        <button @onclick='() => ActiveTab = "overview"' class="pb-3 flex items-center gap-2 transition border-b-2 @(ActiveTab == "overview" ? "border-emerald-400 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200")">
+            <span class="material-symbols-outlined text-lg">pie_chart</span>
+            Visão Geral & Métricas
+        </button>
+        <button @onclick='() => ActiveTab = "plans"' class="pb-3 flex items-center gap-2 transition border-b-2 @(ActiveTab == "plans" ? "border-emerald-400 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200")">
+            <span class="material-symbols-outlined text-lg">tune</span>
+            Gestão de Planos & Franquias
+        </button>
+        <button @onclick='() => ActiveTab = "override"' class="pb-3 flex items-center gap-2 transition border-b-2 @(ActiveTab == "override" ? "border-emerald-400 text-emerald-400" : "border-transparent text-slate-400 hover:text-slate-200")">
+            <span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+            Sobrescrita de Quotas (Tenant)
+        </button>
+    </div>
+
+    <!-- ABA 1: Visão Geral -->
+    @if (ActiveTab == "overview")
+    {
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-400">table_chart</span>
+                    Distribuição de Assinantes por Plano
+                </h3>
+            </div>
+
+            @if (IsLoading)
+            {
+                <div class="p-8 text-center text-slate-400">
+                    <span class="material-symbols-outlined text-3xl animate-spin text-emerald-400">progress_activity</span>
+                    <p class="text-sm mt-2">Carregando métricas financeiras...</p>
+                </div>
+            }
+            else if (Metrics is null || !Metrics.PlanBreakdown.Any())
+            {
+                <div class="p-8 text-center text-slate-500">
+                    <p class="text-sm">Nenhum dado financeiro encontrado.</p>
+                </div>
+            }
+            else
+            {
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="bg-slate-950/50 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="px-6 py-4">Plano</th>
+                                <th class="px-6 py-4">Tipo</th>
+                                <th class="px-6 py-4">Preço Mensal</th>
+                                <th class="px-6 py-4">Assinantes Ativos</th>
+                                <th class="px-6 py-4">Receita Mensal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 font-mono text-xs">
+                            @foreach (var plan in Metrics.PlanBreakdown)
+                            {
+                                <tr class="hover:bg-slate-800/30 transition">
+                                    <td class="px-6 py-4 font-bold text-white">@plan.Name</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                                            @plan.PlanType
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-emerald-400">R$ @plan.MonthlyPrice.ToString("N2")</td>
+                                    <td class="px-6 py-4 text-white">@plan.ActiveSubscribersCount</td>
+                                    <td class="px-6 py-4 font-bold text-emerald-400">R$ @plan.MonthlyRevenue.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 border-t border-slate-800 pt-6 text-xs text-slate-400">
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                        <p class="font-bold text-white uppercase text-[10px] tracking-wider mb-1">Total Assinaturas</p>
+                        <p class="text-xl font-extrabold text-white">@Metrics.TotalSubscriptions</p>
+                    </div>
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                        <p class="font-bold text-emerald-400 uppercase text-[10px] tracking-wider mb-1">Ativas</p>
+                        <p class="text-xl font-extrabold text-white">@Metrics.ActiveSubscriptions</p>
+                    </div>
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                        <p class="font-bold text-indigo-400 uppercase text-[10px] tracking-wider mb-1">Período de Teste (Trial)</p>
+                        <p class="text-xl font-extrabold text-white">@Metrics.TrialingSubscriptions</p>
+                    </div>
+                    <div class="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                        <p class="font-bold text-rose-400 uppercase text-[10px] tracking-wider mb-1">Canceladas</p>
+                        <p class="text-xl font-extrabold text-white">@Metrics.CanceledSubscriptions</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- ABA 2: Gestão de Planos & Franquias -->
+    @if (ActiveTab == "plans")
+    {
+        <div class="space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Catálogo de Planos SaaS</h3>
+                    <p class="text-xs text-slate-400">Altere dinamicamente os limites de roteiros, personas e análises por plano</p>
+                </div>
+            </div>
+
+            @if (IsLoading)
+            {
+                <div class="p-8 text-center text-slate-400">
+                    <span class="material-symbols-outlined text-3xl animate-spin text-emerald-400">progress_activity</span>
+                    <p class="text-sm mt-2">Carregando planos...</p>
+                </div>
+            }
+            else
+            {
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @foreach (var plan in Plans)
+                    {
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition">
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                        @plan.PlanType
+                                    </span>
+                                    <span class="text-xs text-slate-500 font-mono">@(plan.IsActive ? "Ativo" : "Inativo")</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-extrabold text-white">@plan.Name</h4>
+                                    <p class="text-xs text-slate-400 mt-1 min-h-[36px]">@plan.Description</p>
+                                </div>
+                                <div class="border-t border-b border-slate-800/80 py-3 space-y-1">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400">Preço Mensal:</span>
+                                        <span class="font-bold text-emerald-400">R$ @plan.MonthlyPrice.ToString("N2")</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400">Preço Anual:</span>
+                                        <span class="font-bold text-slate-200">R$ @plan.YearlyPrice.ToString("N2")</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-2 text-xs">
+                                    <div class="flex items-center justify-between text-slate-300">
+                                        <span class="flex items-center gap-1.5 text-slate-400">
+                                            <span class="material-symbols-outlined text-sm text-indigo-400">description</span> Roteiros / Mês:
+                                        </span>
+                                        <span class="font-bold text-white">@plan.MaxScriptsPerMonth</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-slate-300">
+                                        <span class="flex items-center gap-1.5 text-slate-400">
+                                            <span class="material-symbols-outlined text-sm text-purple-400">groups</span> Personas Ativas:
+                                        </span>
+                                        <span class="font-bold text-white">@plan.MaxActivePersonas</span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-slate-300">
+                                        <span class="flex items-center gap-1.5 text-slate-400">
+                                            <span class="material-symbols-outlined text-sm text-amber-400">psychology</span> Análises IA / Mês:
+                                        </span>
+                                        <span class="font-bold text-white">@plan.MaxAiAnalysesPerMonth</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button @onclick="() => OpenEditPlanModal(plan)" class="mt-6 w-full py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-2 transition">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                                Editar Limites & Preços
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    <!-- ABA 3: Sobrescrita de Quotas -->
+    @if (ActiveTab == "override")
+    {
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+            <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-amber-400">admin_panel_settings</span>
+                    Sobrescrita de Limites Customizados (Quota Override)
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">Conceda bônus VIP ou defina limites específicos para assinantes parceiros</p>
+            </div>
+
+            <!-- Busca de Tenant -->
+            <div class="space-y-4 border-b border-slate-800 pb-6">
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Buscar Assinante / Tenant</label>
+                <div class="flex gap-3 max-w-xl">
+                    <div class="relative flex-1">
+                        <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-500 text-lg">search</span>
+                        <input type="text" @bind="SearchQuery" @bind:event="oninput" placeholder="Digite o e-mail do assinante..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500" />
+                    </div>
+                </div>
+
+                @if (FilteredTenants.Any())
+                {
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl divide-y divide-slate-800 max-w-xl max-h-48 overflow-y-auto">
+                        @foreach (var tenant in FilteredTenants)
+                        {
+                            <button @onclick="() => SelectTenant(tenant)" class="w-full text-left p-3 hover:bg-slate-800/50 flex items-center justify-between transition text-xs">
+                                <div>
+                                    <p class="font-bold text-white">@tenant.FullName</p>
+                                    <p class="text-slate-400 font-mono text-[11px]">@tenant.Email</p>
+                                </div>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">
+                                    @tenant.PlanName
+                                </span>
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Form de Sobrescrita -->
+            @if (SelectedTenant != null)
+            {
+                <div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-6 space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">Tenant Selecionado: @SelectedTenant.FullName</h4>
+                            <p class="text-xs text-slate-400">E-mail: @SelectedTenant.Email | Plano: @SelectedTenant.PlanName</p>
+                        </div>
+
+                        <span class="text-xs font-mono text-emerald-400">ID: @SelectedTenant.TenantId</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                        <div class="space-y-1">
+                            <label class="font-semibold text-slate-300">Novo Limite de Roteiros / Mês</label>
+                            <input type="number" @bind="OverrideScriptsLimit" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                        </div>
+                        <div class="space-y-1">
+                            <label class="font-semibold text-slate-300">Novo Limite de Personas Ativas</label>
+                            <input type="number" @bind="OverridePersonasLimit" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                        </div>
+                        <div class="space-y-1">
+                            <label class="font-semibold text-slate-300">Novo Limite de Análises IA / Mês</label>
+                            <input type="number" @bind="OverrideAiAnalysesLimit" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                        </div>
+                    </div>
+
+                    <div class="space-y-1 text-xs">
+                        <label class="font-semibold text-slate-300">Motivo / Justificativa da Sobrescrita (Obrigatório para Auditoria)</label>
+                        <input type="text" @bind="OverrideReason" placeholder="Ex: Bônus Parceria VIP 2026..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500" />
+                    </div>
+
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button @onclick="ApplyQuotaOverride" disabled="@IsSubmitting" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-2 transition">
+                            @if (IsSubmitting)
+                            {
+                                <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                            }
+                            else
+                            {
+                                <span class="material-symbols-outlined text-sm">save</span>
+                            }
+                            Salvar Sobrescrita de Quota
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
+
+<!-- Modal Edição de Plano -->
+@if (IsEditPlanModalOpen && EditingPlan != null)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-400">tune</span>
+                    Editar Plano: @EditingPlan.Name
+                </h3>
+                <button @onclick="CloseEditPlanModal" class="text-slate-400 hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div class="space-y-1">
+                    <label class="font-semibold text-slate-300">Nome do Plano</label>
+                    <input type="text" @bind="EditPlanName" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                </div>
+                <div class="space-y-1">
+                    <label class="font-semibold text-slate-300">Descrição</label>
+                    <textarea @bind="EditPlanDescription" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="font-semibold text-slate-300">Preço Mensal (R$)</label>
+                        <input type="number" step="0.01" @bind="EditMonthlyPrice" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-semibold text-slate-300">Preço Anual (R$)</label>
+                        <input type="number" step="0.01" @bind="EditYearlyPrice" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="space-y-1">
+                        <label class="font-semibold text-slate-300">Personas Ativas</label>
+                        <input type="number" @bind="EditMaxPersonas" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-semibold text-slate-300">Roteiros / Mês</label>
+                        <input type="number" @bind="EditMaxScripts" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="font-semibold text-slate-300">Análises IA / Mês</label>
+                        <input type="number" @bind="EditMaxAiAnalyses" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-emerald-500" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 border-t border-slate-800 pt-4">
+                <button @onclick="CloseEditPlanModal" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">
+                    Cancelar
+                </button>
+                <button @onclick="SavePlanLimits" disabled="@IsSubmitting" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-2 transition">
+                    @if (IsSubmitting)
+                    {
+                        <span class="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                    }
+                    else
+                    {
+                        <span class="material-symbols-outlined text-sm">save</span>
+                    }
+                    Salvar Alterações
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string ActiveTab { get; set; } = "overview";
+    private bool IsLoading { get; set; } = true;
+    private bool IsSubmitting { get; set; } = false;
+
+    private FinancialMetricsDto? Metrics { get; set; }
+    private List<PlanDto> Plans { get; set; } = new();
+    private List<TenantSummaryDto> Tenants { get; set; } = new();
+
+    private string? SuccessMessage { get; set; }
+    private string? ErrorMessage { get; set; }
+
+    // Modal Edit Plan
+    private bool IsEditPlanModalOpen { get; set; } = false;
+    private PlanDto? EditingPlan { get; set; }
+    private string EditPlanName { get; set; } = string.Empty;
+    private string EditPlanDescription { get; set; } = string.Empty;
+    private decimal EditMonthlyPrice { get; set; }
+    private decimal EditYearlyPrice { get; set; }
+    private int EditMaxPersonas { get; set; }
+    private int EditMaxScripts { get; set; }
+    private int EditMaxAiAnalyses { get; set; }
+
+    // Quota Override
+    private string SearchQuery { get; set; } = string.Empty;
+    private TenantSummaryDto? SelectedTenant { get; set; }
+    private int OverrideScriptsLimit { get; set; } = 30;
+    private int OverridePersonasLimit { get; set; } = 5;
+    private int OverrideAiAnalysesLimit { get; set; } = 50;
+    private string OverrideReason { get; set; } = string.Empty;
+
+    private IEnumerable<TenantSummaryDto> FilteredTenants =>
+        string.IsNullOrWhiteSpace(SearchQuery)
+            ? Enumerable.Empty<TenantSummaryDto>()
+            : Tenants.Where(t => t.Email.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) || t.FullName.Contains(SearchQuery, StringComparison.OrdinalIgnoreCase)).Take(5);
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        IsLoading = true;
+        var metricsResult = await GetFinancialMetricsHandler.Handle(new GetFinancialMetricsQuery(), CancellationToken.None);
+        if (metricsResult.IsSuccess)
+        {
+            Metrics = metricsResult.Value;
+        }
+
+        var plansResult = await GetAllPlansHandler.Handle(new GetAllPlansQuery(), CancellationToken.None);
+        if (plansResult.IsSuccess)
+        {
+            Plans = plansResult.Value.ToList();
+        }
+
+        var tenantsResult = await GetTenantsHandler.Handle(new GetTenantsQuery(null, null, null, 1, 100), CancellationToken.None);
+        if (tenantsResult.IsSuccess)
+        {
+            Tenants = tenantsResult.Value.Items.ToList();
+        }
+
+        IsLoading = false;
+    }
+
+
+    private void OpenEditPlanModal(PlanDto plan)
+    {
+        EditingPlan = plan;
+        EditPlanName = plan.Name;
+        EditPlanDescription = plan.Description;
+        EditMonthlyPrice = plan.MonthlyPrice;
+        EditYearlyPrice = plan.YearlyPrice;
+        EditMaxPersonas = plan.MaxActivePersonas;
+        EditMaxScripts = plan.MaxScriptsPerMonth;
+        EditMaxAiAnalyses = plan.MaxAiAnalysesPerMonth;
+        IsEditPlanModalOpen = true;
+    }
+
+    private void CloseEditPlanModal()
+    {
+        IsEditPlanModalOpen = false;
+        EditingPlan = null;
+    }
+
+    private async Task SavePlanLimits()
+    {
+        if (EditingPlan is null) return;
+
+        IsSubmitting = true;
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var adminEmail = authState.User.Identity?.Name ?? "admin@personascript.ai";
+        var adminUserIdClaim = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var adminUserId = Guid.TryParse(adminUserIdClaim, out var parsedId) ? parsedId : Guid.NewGuid();
+
+        var command = new UpdatePlanLimitsCommand(
+            adminUserId,
+            adminEmail,
+            EditingPlan.Id,
+            EditPlanName,
+            EditPlanDescription,
+            EditMonthlyPrice,
+            EditYearlyPrice,
+            EditMaxPersonas,
+            EditMaxScripts,
+            EditMaxAiAnalyses);
+
+        var result = await UpdatePlanLimitsHandler.Handle(command, CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            SuccessMessage = $"Limites do plano '{EditPlanName}' atualizados com sucesso!";
+            CloseEditPlanModal();
+            await LoadDataAsync();
+        }
+        else
+        {
+            ErrorMessage = result.Error.Message;
+        }
+
+        IsSubmitting = false;
+    }
+
+    private void SelectTenant(TenantSummaryDto tenant)
+    {
+        SelectedTenant = tenant;
+        SearchQuery = string.Empty;
+    }
+
+    private async Task ApplyQuotaOverride()
+    {
+        if (SelectedTenant is null) return;
+
+        if (string.IsNullOrWhiteSpace(OverrideReason))
+        {
+            ErrorMessage = "A justificativa/motivo da sobrescrita é obrigatória.";
+            return;
+        }
+
+        IsSubmitting = true;
+        ErrorMessage = null;
+        SuccessMessage = null;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var adminEmail = authState.User.Identity?.Name ?? "admin@personascript.ai";
+        var adminUserIdClaim = authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var adminUserId = Guid.TryParse(adminUserIdClaim, out var parsedId) ? parsedId : Guid.NewGuid();
+
+        var command = new OverrideTenantQuotaCommand(
+            adminUserId,
+            adminEmail,
+            SelectedTenant.TenantId,
+            OverrideScriptsLimit,
+            OverridePersonasLimit,
+            OverrideAiAnalysesLimit,
+            OverrideReason);
+
+        var result = await OverrideTenantQuotaHandler.Handle(command, CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            SuccessMessage = $"Quota do tenant '{SelectedTenant.FullName}' sobrescrita com sucesso!";
+            SelectedTenant = null;
+            OverrideReason = string.Empty;
+            await LoadDataAsync();
+        }
+
+        else
+        {
+            ErrorMessage = result.Error.Message;
+        }
+
+        IsSubmitting = false;
+    }
+}

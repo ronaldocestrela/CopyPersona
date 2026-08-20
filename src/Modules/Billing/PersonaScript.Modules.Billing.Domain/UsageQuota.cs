@@ -158,4 +158,25 @@ public class UsageQuota : BaseEntity, IMustHaveTenant
 
         return Result.Success();
     }
+
+    public Result OverrideLimits(int scriptsLimit, int personasLimit, int aiAnalysesLimit, string reason)
+    {
+        if (scriptsLimit < 0 || personasLimit < 0 || aiAnalysesLimit < 0)
+        {
+            return Result.Failure(Error.Validation("UsageQuota.InvalidLimits", "Os limites da quota não podem ser negativos."));
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Result.Failure(Error.Validation("UsageQuota.ReasonRequired", "O motivo da alteração de quota é obrigatório."));
+        }
+
+        ScriptsLimit = scriptsLimit;
+        ActivePersonasLimit = personasLimit;
+        AiAnalysesLimit = aiAnalysesLimit;
+        LastResetAt = DateTime.UtcNow;
+
+        return Result.Success();
+    }
 }
+

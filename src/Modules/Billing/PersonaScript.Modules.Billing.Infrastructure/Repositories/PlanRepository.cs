@@ -21,6 +21,12 @@ public sealed class PlanRepository(BillingDbContext dbContext) : IPlanRepository
         return await dbContext.Plans.Where(p => p.IsActive).ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Plan>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Plans.ToListAsync(cancellationToken);
+    }
+
+
     public async Task AddAsync(Plan plan, CancellationToken cancellationToken = default)
     {
         await dbContext.Plans.AddAsync(plan, cancellationToken);

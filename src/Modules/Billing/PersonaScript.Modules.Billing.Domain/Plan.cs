@@ -55,6 +55,37 @@ public class Plan : BaseEntity
         return Result.Success(plan);
     }
 
+    public Result UpdateLimits(
+        string name,
+        string description,
+        decimal monthlyPrice,
+        decimal yearlyPrice,
+        int maxActivePersonas,
+        int maxScriptsPerMonth,
+        int maxAiAnalysesPerMonth)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return Result.Failure(DomainErrors.Plan.InvalidName);
+        }
+
+        if (monthlyPrice < 0 || yearlyPrice < 0 || maxActivePersonas < 0 || maxScriptsPerMonth < 0 || maxAiAnalysesPerMonth < 0)
+        {
+            return Result.Failure(Error.Validation("Plan.InvalidValues", "Os preços e limites não podem ser negativos."));
+        }
+
+        Name = name.Trim();
+        Description = description?.Trim() ?? string.Empty;
+        MonthlyPrice = monthlyPrice;
+        YearlyPrice = yearlyPrice;
+        MaxActivePersonas = maxActivePersonas;
+        MaxScriptsPerMonth = maxScriptsPerMonth;
+        MaxAiAnalysesPerMonth = maxAiAnalysesPerMonth;
+        UpdatedAt = DateTime.UtcNow;
+
+        return Result.Success();
+    }
+
     public void SetStripePriceId(string stripePriceId)
     {
         StripePriceId = stripePriceId?.Trim();
@@ -67,3 +98,4 @@ public class Plan : BaseEntity
         UpdatedAt = DateTime.UtcNow;
     }
 }
+

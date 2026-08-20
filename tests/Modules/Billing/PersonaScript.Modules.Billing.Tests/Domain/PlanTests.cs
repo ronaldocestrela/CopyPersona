@@ -50,4 +50,38 @@ public class PlanTests
         planResult.IsFailure.Should().BeTrue();
         planResult.Error.Should().Be(DomainErrors.Plan.InvalidName);
     }
+
+    [Fact]
+    public void UpdateLimits_WithValidData_ShouldUpdatePlanSuccessfully()
+    {
+        // Arrange
+        var plan = Plan.Create(PlanType.Pro, "Pro", "Desc", 97m, 970m, 5, 30, 50).Value;
+
+        // Act
+        var result = plan.UpdateLimits("Pro Plus", "Nova Desc", 120m, 1200m, 10, 50, 100);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        plan.Name.Should().Be("Pro Plus");
+        plan.MonthlyPrice.Should().Be(120m);
+        plan.MaxScriptsPerMonth.Should().Be(50);
+        plan.MaxActivePersonas.Should().Be(10);
+        plan.MaxAiAnalysesPerMonth.Should().Be(100);
+        plan.UpdatedAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void UpdateLimits_WithInvalidNegativeValues_ShouldReturnFailure()
+    {
+        // Arrange
+        var plan = Plan.Create(PlanType.Pro, "Pro", "Desc", 97m, 970m, 5, 30, 50).Value;
+
+        // Act
+        var result = plan.UpdateLimits("Pro Plus", "Nova Desc", -10m, 1200m, 10, 50, 100);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Plan.InvalidValues");
+    }
 }
+
