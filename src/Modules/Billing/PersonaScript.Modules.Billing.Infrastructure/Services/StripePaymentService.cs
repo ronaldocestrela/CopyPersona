@@ -127,7 +127,50 @@ public class StripePaymentService : IStripePaymentService
         }
     }
 
+    public async Task<Result<List<InvoiceDto>>> GetCustomerInvoicesAsync(
+        string stripeCustomerId,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(stripeCustomerId))
+            {
+                return Result.Success(new List<InvoiceDto>());
+            }
+
+            if (string.IsNullOrWhiteSpace(_options.ApiKey))
+            {
+                return Result.Success(new List<InvoiceDto>());
+            }
+
+            var options = new InvoiceListOptions
+            {
+                Customer = stripeCustomerId,
+                Limit = 20
+            };
+
+            var service = new InvoiceService();
+            StripeList<Stripe.Invoice> invoices = await service.ListAsync(options, cancellationToken: cancellationToken);
+
+            var dtos = invoices.Data.Select(i => new InvoiceDto(
+                InvoiceId: i.Id,
+                AmountPaid: i.AmountPaid / 100m,
+                Currency: i.Currency?.ToUpperInvariant() ?? "BRL",
+                Status: i.Status,
+                InvoicePdfUrl: i.InvoicePdf,
+                CreatedAt: i.Created
+            )).ToList();
+
+            return Result.Success(dtos);
+        }
+        catch (StripeException ex)
+        {
+            return Result.Failure<List<InvoiceDto>>(Error.Failure("Stripe.InvoicesError", ex.Message));
+        }
+    }
+
     public Result<ProcessStripeWebhookCommand> ParseWebhookEvent(string jsonPayload, string signatureHeader)
+
     {
         try
         {

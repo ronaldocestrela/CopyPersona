@@ -43,8 +43,13 @@ public static class ModuleSetup
         services.AddScoped<Application.Commands.CreateCheckoutSession.CreateCheckoutSessionCommandHandler>();
         services.AddScoped<Application.Commands.CreateCustomerPortalSession.CreateCustomerPortalSessionCommandHandler>();
         services.AddScoped<Application.Commands.ProcessStripeWebhook.ProcessStripeWebhookCommandHandler>();
+        services.AddScoped<Application.Commands.InitializeTenantSubscription.InitializeTenantSubscriptionCommandHandler>();
+        services.AddScoped<Application.Queries.GetTenantQuotaUsage.GetTenantQuotaUsageQueryHandler>();
+        services.AddScoped<Application.Queries.GetSubscriptionDetails.GetSubscriptionDetailsQueryHandler>();
+        services.AddScoped<Application.Queries.GetBillingInvoices.GetBillingInvoicesQueryHandler>();
 
         services.AddHostedService<BackgroundServices.MonthlyQuotaResetBackgroundService>();
+
 
         return services;
     }

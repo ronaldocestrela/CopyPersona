@@ -44,6 +44,25 @@ public static class StripeEndpoints
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         }).RequireAuthorization();
 
+        group.MapGet("/subscription", async (
+            [FromServices] PersonaScript.Modules.Billing.Application.Queries.GetSubscriptionDetails.GetSubscriptionDetailsQueryHandler handler,
+            CancellationToken cancellationToken) =>
+        {
+            var query = new PersonaScript.Modules.Billing.Application.Queries.GetSubscriptionDetails.GetSubscriptionDetailsQuery();
+            var result = await handler.Handle(query, cancellationToken);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+        }).RequireAuthorization();
+
+        group.MapGet("/invoices", async (
+            [FromServices] PersonaScript.Modules.Billing.Application.Queries.GetBillingInvoices.GetBillingInvoicesQueryHandler handler,
+            CancellationToken cancellationToken) =>
+        {
+            var query = new PersonaScript.Modules.Billing.Application.Queries.GetBillingInvoices.GetBillingInvoicesQuery();
+            var result = await handler.Handle(query, cancellationToken);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+        }).RequireAuthorization();
+
+
         endpoints.MapPost("/webhooks/stripe", async (
             HttpContext httpContext,
             [FromServices] IStripePaymentService stripePaymentService,

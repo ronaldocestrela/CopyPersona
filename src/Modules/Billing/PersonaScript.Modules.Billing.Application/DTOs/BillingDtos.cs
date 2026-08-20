@@ -46,3 +46,33 @@ public record CheckoutSessionDto(
 public record CustomerPortalDto(
     string PortalUrl);
 
+public record SubscriptionDetailsDto(
+    Guid SubscriptionId,
+    Guid PlanId,
+    PlanType PlanType,
+    string PlanName,
+    decimal MonthlyPrice,
+    SubscriptionStatus Status,
+    DateTime CurrentPeriodStart,
+    DateTime CurrentPeriodEnd,
+    bool CancelAtPeriodEnd,
+    string? StripeCustomerId,
+    string? StripeSubscriptionId,
+    int ScriptsGeneratedCount,
+    int ScriptsLimit,
+    int ActivePersonasCount,
+    int ActivePersonasLimit,
+    int AiAnalysesCount,
+    int AiAnalysesLimit,
+    DateTime LastQuotaResetAt,
+    List<PlanDto> AvailablePlans);
+
+public record InvoiceDto(
+    string InvoiceId,
+    decimal AmountPaid,
+    string Currency,
+    string Status,
+    string? InvoicePdfUrl,
+    DateTime CreatedAt);
+
+

@@ -18,9 +18,10 @@ public class CreateCheckoutSessionCommandHandler(
     IStripePaymentService stripePaymentService,
     ITenantContext tenantContext) : ICommandHandler<CreateCheckoutSessionCommand, CheckoutSessionDto>
 {
-    public async Task<Result<CheckoutSessionDto>> Handle(
+    public virtual async Task<Result<CheckoutSessionDto>> Handle(
         CreateCheckoutSessionCommand command,
         CancellationToken cancellationToken)
+
     {
         if (tenantContext.TenantId.Value == Guid.Empty)
         {

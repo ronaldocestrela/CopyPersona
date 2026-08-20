@@ -15,9 +15,10 @@ public class CreateCustomerPortalSessionCommandHandler(
     IStripePaymentService stripePaymentService,
     ITenantContext tenantContext) : ICommandHandler<CreateCustomerPortalSessionCommand, CustomerPortalDto>
 {
-    public async Task<Result<CustomerPortalDto>> Handle(
+    public virtual async Task<Result<CustomerPortalDto>> Handle(
         CreateCustomerPortalSessionCommand command,
         CancellationToken cancellationToken)
+
     {
         if (tenantContext.TenantId.Value == Guid.Empty)
         {

@@ -229,12 +229,15 @@ Sistema completo de geração de cópias e roteiros de vídeo, plano de stories 
   - [x] Sistema de controle estrito de quotas de consumo operante com bloqueio gracioso no frontend e reset mensal via HostedService operando com 239 testes verdes.
 
 
-### Subfase 5.4: Portal do Assinante e Gestão de Assinatura
+### Subfase 5.4: Portal do Assinante e Gestão de Assinatura [CONCLUÍDO]
 - **Tarefas:**
-  - Criar tela Blazor `/minha-conta/assinatura` com informações do plano atual, uso da franquia mensal, histórico de faturas e botão para gerenciar assinatura no Stripe.
-  - Fluxo self-service de upgrade, downgrade e cancelamento sem fricção.
+  - [x] Criar tela Blazor `/minha-conta/assinatura` com informações do plano atual, uso da franquia mensal, histórico de faturas e botão para gerenciar assinatura no Stripe (`AssinaturaPage.razor`).
+  - [x] Implementar queries `GetSubscriptionDetailsQuery` e `GetBillingInvoicesQuery` com garantia de isolamento de tenant via `ITenantContext`.
+  - [x] Fluxo self-service de upgrade, downgrade e cancelamento sem fricção integrado ao Stripe Customer Portal e Stripe Checkout.
+  - [x] Escrever testes unitários de backend e de componentes Blazor bUnit (246 testes verdes na solução).
 - **Entregáveis da Subfase 5.4:**
-  - Painel de assinatura self-service funcional no app cliente.
+  - [x] Painel de assinatura self-service funcional no app cliente operando com 246 testes verdes na solução.
+
 
 #### Resultado Esperado da FASE 5:
 Motor de monetização SaaS B2C totalmente funcional, integrando Stripe Checkout, controle rígido de limites por plano e portal de autoatendimento financeiro.

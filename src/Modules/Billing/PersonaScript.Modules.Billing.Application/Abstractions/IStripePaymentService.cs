@@ -20,5 +20,10 @@ public interface IStripePaymentService
         string? customReturnUrl = null,
         CancellationToken cancellationToken = default);
 
+    Task<Result<List<InvoiceDto>>> GetCustomerInvoicesAsync(
+        string stripeCustomerId,
+        CancellationToken cancellationToken = default);
+
     Result<ProcessStripeWebhookCommand> ParseWebhookEvent(string jsonPayload, string signatureHeader);
 }
+
