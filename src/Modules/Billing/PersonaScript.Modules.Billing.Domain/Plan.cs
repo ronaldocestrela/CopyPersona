@@ -14,6 +14,7 @@ public class Plan : BaseEntity
     public int MaxScriptsPerMonth { get; private set; }
     public int MaxAiAnalysesPerMonth { get; private set; }
     public bool IsActive { get; private set; }
+    public string? StripePriceId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
@@ -27,7 +28,8 @@ public class Plan : BaseEntity
         decimal yearlyPrice,
         int maxActivePersonas,
         int maxScriptsPerMonth,
-        int maxAiAnalysesPerMonth)
+        int maxAiAnalysesPerMonth,
+        string? stripePriceId = null)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -45,11 +47,18 @@ public class Plan : BaseEntity
             MaxActivePersonas = maxActivePersonas,
             MaxScriptsPerMonth = maxScriptsPerMonth,
             MaxAiAnalysesPerMonth = maxAiAnalysesPerMonth,
+            StripePriceId = stripePriceId?.Trim(),
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
 
         return Result.Success(plan);
+    }
+
+    public void SetStripePriceId(string stripePriceId)
+    {
+        StripePriceId = stripePriceId?.Trim();
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Deactivate()

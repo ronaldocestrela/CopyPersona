@@ -48,4 +48,23 @@ public static class DomainErrors
             "Billing.UsageQuota.NotFound",
             "Cota de consumo não encontrada para a assinatura.");
     }
+
+    public static class Stripe
+    {
+        public static readonly Error NoCustomer = Error.Validation(
+            "Billing.Stripe.NoCustomer",
+            "A assinatura do tenant não possui um ID de cliente Stripe associado.");
+
+        public static readonly Error InvalidSignature = Error.Validation(
+            "Billing.Stripe.InvalidSignature",
+            "Assinatura inválida ou malformada no webhook do Stripe.");
+
+        public static readonly Error ServiceError = Error.Failure(
+            "Billing.Stripe.ServiceError",
+            "Ocorreu uma falha na comunicação com o serviço do Stripe.");
+
+        public static readonly Error MissingPriceId = Error.Validation(
+            "Billing.Stripe.MissingPriceId",
+            "O plano selecionado não possui um Price ID do Stripe configurado.");
+    }
 }

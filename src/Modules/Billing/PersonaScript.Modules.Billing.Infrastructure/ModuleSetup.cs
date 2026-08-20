@@ -32,10 +32,17 @@ public static class ModuleSetup
             options.AddInterceptors(interceptor);
         });
 
+        services.Configure<Application.Options.StripeOptions>(configuration.GetSection(Application.Options.StripeOptions.SectionName));
+
         services.AddScoped<IPlanRepository, PlanRepository>();
         services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         services.AddScoped<IUsageQuotaRepository, UsageQuotaRepository>();
         services.AddScoped<IQuotaTransactionRepository, QuotaTransactionRepository>();
+        services.AddScoped<IProcessedStripeEventRepository, ProcessedStripeEventRepository>();
+        services.AddScoped<Application.Abstractions.IStripePaymentService, Services.StripePaymentService>();
+        services.AddScoped<Application.Commands.CreateCheckoutSession.CreateCheckoutSessionCommandHandler>();
+        services.AddScoped<Application.Commands.CreateCustomerPortalSession.CreateCustomerPortalSessionCommandHandler>();
+        services.AddScoped<Application.Commands.ProcessStripeWebhook.ProcessStripeWebhookCommandHandler>();
 
         return services;
     }

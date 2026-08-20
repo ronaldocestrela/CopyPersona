@@ -123,6 +123,7 @@ app.MapRazorComponents<App>()
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 app.MapAccountEndpoints();
 app.MapBackofficeEndpoints();
+app.MapStripeEndpoints();
 app.MapGet("/logout", async (HttpContext context) =>
 {
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

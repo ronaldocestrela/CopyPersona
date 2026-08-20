@@ -38,3 +38,11 @@ public record TenantQuotaUsageDto(
     int AiAnalysesCount,
     int AiAnalysesLimit,
     DateTime LastResetAt);
+
+public record CheckoutSessionDto(
+    string SessionId,
+    string CheckoutUrl);
+
+public record CustomerPortalDto(
+    string PortalUrl);
+

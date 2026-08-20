@@ -211,13 +211,13 @@ Sistema completo de geração de cópias e roteiros de vídeo, plano de stories 
 - **Entregáveis da Subfase 5.1:**
   - [x] Entidades de Billing com isolamento de tenant, padrão Result e testes unitários de lógica de quotas operando com 210 testes verdes.
 
-### Subfase 5.2: Integração com Gateway de Pagamento (Stripe Checkout & Webhooks)
+### Subfase 5.2: Integração com Gateway de Pagamento (Stripe Checkout & Webhooks) [CONCLUÍDO]
 - **Tarefas:**
-  - Implementar `IStripePaymentService` para criação de sessões de Stripe Checkout e Stripe Customer Portal.
-  - Criar endpoint HTTP seguro `POST /webhooks/stripe` para processamento idempotente de eventos (`customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_succeeded`, `invoice.payment_failed`).
-  - Testes de integração simulando eventos de Webhook do Stripe via CLI.
+  - [x] Implementar `IStripePaymentService` para criação de sessões de Stripe Checkout e Stripe Customer Portal.
+  - [x] Criar endpoint HTTP seguro `POST /webhooks/stripe` para processamento idempotente de eventos (`customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_succeeded`, `invoice.payment_failed`).
+  - [x] Testes de integração simulando eventos de Webhook do Stripe via CLI e endpoints (228 testes verdes na solução).
 - **Entregáveis da Subfase 5.2:**
-  - Integração de pagamentos Stripe completa e testada com tratamento idempotente de webhooks.
+  - [x] Integração de pagamentos Stripe completa e testada com tratamento idempotente de webhooks operando com 228 testes verdes.
 
 ### Subfase 5.3: Validação de Quotas e Interceptadores de Limite de Uso
 - **Tarefas:**

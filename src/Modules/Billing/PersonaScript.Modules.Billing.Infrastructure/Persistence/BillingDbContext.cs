@@ -13,6 +13,7 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options,
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<UsageQuota> UsageQuotas => Set<UsageQuota>();
     public DbSet<QuotaTransaction> QuotaTransactions => Set<QuotaTransaction>();
+    public DbSet<ProcessedStripeEvent> ProcessedStripeEvents => Set<ProcessedStripeEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +33,7 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options,
             entity.Property(p => p.MaxScriptsPerMonth).IsRequired();
             entity.Property(p => p.MaxAiAnalysesPerMonth).IsRequired();
             entity.Property(p => p.IsActive).IsRequired();
+            entity.Property(p => p.StripePriceId).HasMaxLength(100);
             entity.Property(p => p.CreatedAt).IsRequired();
         });
 
@@ -93,6 +95,16 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options,
             entity.Property(t => t.TransactionDate).IsRequired();
             entity.Property(t => t.Description).HasMaxLength(250).IsRequired();
             entity.Property(t => t.SourceCommand).HasMaxLength(150);
+        });
+
+        modelBuilder.Entity<ProcessedStripeEvent>(entity =>
+        {
+            entity.ToTable("ProcessedStripeEvents");
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id).HasMaxLength(150);
+            entity.Property(e => e.EventType).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.ProcessedAt).IsRequired();
         });
 
         modelBuilder.ApplyTenantQueryFilters(this);
