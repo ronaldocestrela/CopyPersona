@@ -45,6 +45,9 @@
   <Folder Name="/tests/Modules/Anamnese/">
     <Project Path="tests/Modules/Anamnese/PersonaScript.Modules.Anamnese.UnitTests/PersonaScript.Modules.Anamnese.UnitTests.csproj" />
   </Folder>
+  <Folder Name="/tests/Modules/Billing/">
+    <Project Path="tests/Modules/Billing/PersonaScript.Modules.Billing.Tests/PersonaScript.Modules.Billing.Tests.csproj" />
+  </Folder>
   <Folder Name="/tests/Modules/Identity/">
     <Project Path="tests/Modules/Identity/PersonaScript.Modules.Identity.UnitTests/PersonaScript.Modules.Identity.UnitTests.csproj" />
   </Folder>

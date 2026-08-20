@@ -83,7 +83,7 @@ builder.Services.AddTenancy();
 builder.Services.AddAIBuildingBlock(builder.Configuration);
 builder.Services.AddIdentityModule(builder.Configuration, builder.Environment);
 builder.Services.AddAnamneseModule(builder.Configuration);
-builder.Services.AddBillingModule();
+builder.Services.AddBillingModule(builder.Configuration);
 builder.Services.AddPersonasModule(builder.Configuration);
 builder.Services.AddScriptsModule(builder.Configuration);
 
@@ -99,6 +99,7 @@ if (applyMigrations)
 {
     await app.Services.ApplyIdentityMigrationsAsync();
     await app.Services.ApplyAnamneseMigrationsAsync();
+    await app.Services.ApplyBillingMigrationsAsync();
     await app.Services.ApplyPersonasMigrationsAsync();
     await app.Services.ApplyScriptsMigrationsAsync();
 }

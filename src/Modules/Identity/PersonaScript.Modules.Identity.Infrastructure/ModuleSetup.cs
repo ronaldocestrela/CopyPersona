@@ -67,6 +67,13 @@ public static class ModuleSetup
     {
         await using var scope = services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        await dbContext.Database.MigrateAsync(cancellationToken);
+        if (dbContext.Database.IsRelational())
+        {
+            await dbContext.Database.MigrateAsync(cancellationToken);
+        }
+        else
+        {
+            await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+        }
     }
 }

@@ -12,6 +12,9 @@ public sealed class PersonaScriptWebApplicationFactory : WebApplicationFactory<P
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
+        builder.UseSetting("APPLY_MIGRATIONS", "false");
+        builder.UseSetting("ApplyMigrationsOnStartup", "false");
+        builder.UseSetting("ConnectionStrings:DefaultConnection", string.Empty);
     }
 
     protected override IHost CreateHost(IHostBuilder builder)

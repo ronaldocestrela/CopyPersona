@@ -202,13 +202,14 @@ Sistema completo de geração de cópias e roteiros de vídeo, plano de stories 
 
 ## FASE 5: Módulo de Billing, Planos Recorrentes e Quotas (B2C Self-Service)
 
-### Subfase 5.1: Modelagem do Módulo Billing e Assinaturas
+### Subfase 5.1: Modelagem do Módulo Billing e Assinaturas [CONCLUÍDO]
 - **Tarefas:**
-  - Criar o módulo `PersonaScript.Modules.Billing`.
-  - Criar entidades: `Plan` (Básico, Pro, Reference), `Subscription` (Status: `Trialing`, `Active`, `PastDue`, `Canceled`), `UsageQuota` (Limites mensais: roteiros/mês, personas ativas, análises de IA).
-  - Criar tabela de auditoria de consumo `QuotaTransaction`.
+  - [x] Criar o módulo `PersonaScript.Modules.Billing`.
+  - [x] Criar entidades: `Plan` (Básico, Pro, Reference), `Subscription` (Status: `Trialing`, `Active`, `PastDue`, `Canceled`), `UsageQuota` (Limites mensais: roteiros/mês, personas ativas, análises de IA).
+  - [x] Criar tabela de auditoria de consumo `QuotaTransaction`.
+  - [x] Escrever testes unitários e de integração de isolamento de tenant para o módulo Billing (210 testes verdes na solução).
 - **Entregáveis da Subfase 5.1:**
-  - Entidades de Billing com isolamento de tenant e testes unitários de lógica de quotas.
+  - [x] Entidades de Billing com isolamento de tenant, padrão Result e testes unitários de lógica de quotas operando com 210 testes verdes.
 
 ### Subfase 5.2: Integração com Gateway de Pagamento (Stripe Checkout & Webhooks)
 - **Tarefas:**
