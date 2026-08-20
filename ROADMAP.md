@@ -273,14 +273,14 @@ Motor de monetização SaaS B2C totalmente funcional, integrando Stripe Checkout
   - [x] Dashboard financeiro B2C completo, gestão de franquias e sobrescrita de quotas ativas com testes unitários e bUnit integrados.
 
 
-### Subfase 6.4: Gestão Dinâmica de Prompts de IA, Versionamento e Engenharia de Contexto
+### Subfase 6.4: Gestão Dinâmica de Prompts de IA, Versionamento e Engenharia de Contexto [CONCLUÍDO]
 - **Tarefas:**
-  - Criar página `/admin/prompts`: catálogo centralizado de todos os prompts do sistema (Agente 1 - Diagnóstico, Agente 2 - Roteiro Vídeo, Agente 2 - Stories, Agente 2 - Clarificação Anamnese).
-  - Versionamento de Prompts: criar tabela `PromptTemplate` com colunas (`AgentName`, `Version`, `SystemPrompt`, `UserPromptTemplate`, `IsActive`, `ParametersJson`).
-  - Permissão para testar alterações de prompt em tempo real no Backoffice (Playground de Teste) antes de publicar a versão para produção.
-  - Rollback de versão de prompt com 1 clique.
+  - [x] Criar página `/admin/prompts`: catálogo centralizado de todos os prompts do sistema (Agente 1 - Diagnóstico, Agente 2 - Roteiro Vídeo, Agente 2 - Stories, Agente 2 - Clarificação Anamnese).
+  - [x] Versionamento de Prompts: criar tabela `PromptTemplate` com colunas (`AgentName`, `Version`, `SystemPrompt`, `UserPromptTemplate`, `IsActive`, `ParametersJson`).
+  - [x] Permissão para testar alterações de prompt em tempo real no Backoffice (Playground de Teste) antes de publicar a versão para produção.
+  - [x] Rollback de versão de prompt com 1 clique.
 - **Entregáveis da Subfase 6.4:**
-  - Editor dinâmico de prompts de IA com versionamento, ambiente de teste (playground) e rollback instantâneo.
+  - [x] Editor dinâmico de prompts de IA com versionamento, ambiente de teste (playground), rollback instantâneo e 281 testes verdes na solução.
 
 ### Subfase 6.5: Telemetria de Tokens, Custos de LLM, Latência e Observabilidade dos Agentes
 - **Tarefas:**

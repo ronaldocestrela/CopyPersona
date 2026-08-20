@@ -1,31 +1,469 @@
 @page "/admin/prompts"
 @layout PersonaScript.Server.Components.Layout.Admin.AdminLayout
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Backoffice.Application.Commands.Prompts
+@using PersonaScript.Modules.Backoffice.Application.DTOs
+@using PersonaScript.Modules.Backoffice.Application.Queries.Prompts
 @attribute [Authorize(Policy = "RequireSystemAdmin")]
+
+@inject IQueryHandler<GetPromptTemplatesQuery, IReadOnlyList<PromptTemplateDto>> GetPromptTemplatesHandler
+@inject IQueryHandler<GetPromptHistoryQuery, IReadOnlyList<PromptTemplateDto>> GetPromptHistoryHandler
+@inject ICommandHandler<CreatePromptVersionCommand, Guid> CreatePromptVersionHandler
+@inject ICommandHandler<RollbackPromptVersionCommand> RollbackPromptVersionHandler
+@inject ICommandHandler<TestPromptPlaygroundCommand, TestPromptResultDto> TestPromptPlaygroundHandler
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Prompts de IA & Engenharia — Backoffice PersonaScript AI</PageTitle>
 
 <div class="space-y-6">
-    <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-5 gap-4">
         <div>
             <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
-                <span class="material-symbols-outlined text-purple-400">psychology</span>
+                <span class="material-symbols-outlined text-purple-400 text-3xl">psychology</span>
                 Gestão Dinâmica de Prompts de IA
             </h1>
             <p class="text-slate-400 text-sm mt-1">Catálogo centralizado, versionamento, playground de testes e rollback instantâneo</p>
         </div>
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-            Subfase 6.4 — Planejada
-        </span>
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Prompts em Produção Ativos
+            </span>
+        </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
-        <div class="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mx-auto text-2xl">
-            <span class="material-symbols-outlined">terminal</span>
+    <!-- Feedback Banners -->
+    @if (!string.IsNullOrEmpty(_successMessage))
+    {
+        <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-emerald-400">check_circle</span>
+                <span>@_successMessage</span>
+            </div>
+            <button @onclick="() => _successMessage = null" class="text-emerald-400 hover:text-white">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
         </div>
-        <h3 class="text-lg font-bold text-white">Catálogo Dinâmico & Playground de Prompts</h3>
-        <p class="text-slate-400 text-sm max-w-xl mx-auto">
-            Esta seção abrigará a edição de `SystemPrompt` e `UserPromptTemplate` para os Agentes 1 e 2, permitindo testar em tempo real e publicar novas versões sem necessidade de re-deploy da aplicação.
-        </p>
+    }
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-rose-400">error</span>
+                <span>@_errorMessage</span>
+            </div>
+            <button @onclick="() => _errorMessage = null" class="text-rose-400 hover:text-white">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+    }
+
+    <!-- Agent Tabs Selector -->
+    <div class="flex border-b border-slate-800 space-x-2 overflow-x-auto pb-1">
+        @foreach (var agent in _agentTabs)
+        {
+            var isActive = _selectedAgentName == agent.Key;
+            <button @onclick="() => SelectAgent(agent.Key)"
+                    class="px-4 py-3 rounded-t-xl text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap @(isActive ? "bg-slate-800 text-purple-300 border-b-2 border-purple-500" : "text-slate-400 hover:text-slate-200 hover:bg-slate-900")">
+                <span class="material-symbols-outlined text-lg">@agent.Value.Icon</span>
+                <span>@agent.Value.Label</span>
+                @if (GetActiveVersionForAgent(agent.Key) is var ver && ver > 0)
+                {
+                    <span class="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">v@ver</span>
+                }
+            </button>
+        }
     </div>
+
+    <!-- Active Agent Details & Editor -->
+    @if (_isLoading)
+    {
+        <div class="p-12 text-center text-slate-400">
+            <div class="inline-block animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mb-3"></div>
+            <p>Carregando catálogo de prompts e histórico de versões...</p>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Coluna Principal (2/3): Editor de Prompt & Configurações -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Banner da Versão Ativa -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs uppercase tracking-wider font-semibold text-purple-400">Agente Selecionado</span>
+                            <h2 class="text-xl font-bold text-white mt-0.5">@_agentTabs[_selectedAgentName].Label</h2>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                Versão em Produção: v@(_activeTemplate?.Version ?? 1)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Placeholders Disponíveis -->
+                    <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs space-y-1">
+                        <span class="font-semibold text-slate-300 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm text-purple-400">code</span>
+                            Variáveis/Placeholders Disponíveis para este Agente:
+                        </span>
+                        <div class="flex flex-wrap gap-1.5 mt-1">
+                            @foreach (var variable in _agentTabs[_selectedAgentName].Variables)
+                            {
+                                <span class="px-2 py-0.5 rounded bg-slate-800 text-purple-300 font-mono border border-slate-700">@variable</span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Form de Edição / Publicação de Nova Versão -->
+                    <div class="space-y-4 pt-2">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">System Prompt (Instrução de Comportamento do Agente)</label>
+                            <textarea @bind="_editSystemPrompt" rows="6"
+                                      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">User Prompt Template (Estrutura de Entrada do Usuário / Contexto)</label>
+                            <textarea @bind="_editUserPromptTemplate" rows="6"
+                                      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-y"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Meta-Parâmetros LLM (JSON)</label>
+                                <textarea @bind="_editParametersJson" rows="2"
+                                          class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs font-mono text-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">Motivo da Alteração / Changelog <span class="text-rose-400">*</span></label>
+                                <textarea @bind="_editDescription" rows="2" placeholder="Ex: Refinada regra de tom de voz e clareza nos pilares"
+                                          class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 flex justify-end">
+                            <button @onclick="PublishNewVersion" disabled="@_isSaving"
+                                    class="px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all flex items-center gap-2 shadow-lg shadow-purple-900/30 disabled:opacity-50">
+                                @if (_isSaving)
+                                {
+                                    <span class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
+                                    <span>Publicando...</span>
+                                }
+                                else
+                                {
+                                    <span class="material-symbols-outlined text-lg">publish</span>
+                                    <span>Publicar Nova Versão (v@((_activeTemplate?.Version ?? 0) + 1))</span>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Playground de Teste em Tempo Real -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-purple-400">terminal</span>
+                            Playground de Teste em Tempo Real
+                        </h3>
+                        <span class="text-xs text-slate-400">Execução isolada de simulação LLM</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Variáveis de Teste (JSON com amostra de dados)</label>
+                            <textarea @bind="_testVariablesJson" rows="4"
+                                      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs font-mono text-purple-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent"></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button @onclick="RunPlaygroundTest" disabled="@_isTesting"
+                                    class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-semibold transition-all flex items-center gap-2 border border-slate-700">
+                                @if (_isTesting)
+                                {
+                                    <span class="animate-spin w-3.5 h-3.5 border-2 border-purple-400 border-t-transparent rounded-full"></span>
+                                    <span>Executando LLM...</span>
+                                }
+                                else
+                                {
+                                    <span class="material-symbols-outlined text-base text-purple-400">play_arrow</span>
+                                    <span>Executar Teste no Playground</span>
+                                }
+                            </button>
+                        </div>
+
+                        <!-- Resultado do Teste -->
+                        @if (_testResult != null)
+                        {
+                            <div class="mt-4 p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+                                <div class="flex items-center justify-between text-xs border-b border-slate-800 pb-2">
+                                    <span class="font-semibold text-emerald-400 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                                        Resposta Gerada com Sucesso
+                                    </span>
+                                    <div class="flex items-center gap-3 text-slate-400 font-mono">
+                                        <span>Latência: <strong>@_testResult.LatencyMs ms</strong></span>
+                                        <span>Tokens: <strong>@_testResult.PromptTokens (Prompt) + @_testResult.CompletionTokens (Saída)</strong></span>
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(_testResult.ErrorMessage))
+                                {
+                                    <p class="text-xs text-rose-400 font-mono">@_testResult.ErrorMessage</p>
+                                }
+                                else
+                                {
+                                    <pre class="text-xs font-mono text-slate-300 whitespace-pre-wrap max-h-64 overflow-y-auto p-2 bg-slate-900 rounded-lg border border-slate-800">@_testResult.ResponseContent</pre>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Lateral (1/3): Histórico de Versões & Rollback -->
+            <div class="space-y-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                        <span class="material-symbols-outlined text-purple-400">history</span>
+                        Histórico de Versões
+                    </h3>
+
+                    @if (_promptHistory.Count == 0)
+                    {
+                        <p class="text-xs text-slate-400 py-4 text-center">Nenhuma versão encontrada para este agente.</p>
+                    }
+                    else
+                    {
+                        <div class="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                            @foreach (var versionItem in _promptHistory)
+                            {
+                                <div class="p-3.5 rounded-xl bg-slate-950 border @(versionItem.IsActive ? "border-purple-500/40 bg-purple-500/5" : "border-slate-800") space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-mono text-xs font-bold text-white flex items-center gap-1.5">
+                                            v@versionItem.Version
+                                            @if (versionItem.IsActive)
+                                            {
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Ativa</span>
+                                            }
+                                        </span>
+                                        <span class="text-[10px] text-slate-400">@versionItem.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                                    </div>
+
+                                    <p class="text-xs text-slate-300 italic">"@versionItem.Description"</p>
+                                    <div class="text-[10px] text-slate-400 font-mono">Por: @versionItem.CreatedByAdminEmail</div>
+
+                                    @if (!versionItem.IsActive)
+                                    {
+                                        <div class="pt-1 flex justify-end">
+                                            <button @onclick="() => ExecuteRollback(versionItem.Id)"
+                                                    class="px-2.5 py-1 rounded bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white text-[11px] font-semibold transition-all border border-purple-500/30 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-xs">undo</span>
+                                                <span>Rollback para v@versionItem.Version</span>
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </div>
+
+@code {
+    private string _selectedAgentName = "Agent1_Diagnosis";
+    private bool _isLoading = true;
+    private bool _isSaving = false;
+    private bool _isTesting = false;
+
+    private string? _successMessage;
+    private string? _errorMessage;
+
+    private IReadOnlyList<PromptTemplateDto> _activePrompts = new List<PromptTemplateDto>();
+    private IReadOnlyList<PromptTemplateDto> _promptHistory = new List<PromptTemplateDto>();
+    private PromptTemplateDto? _activeTemplate;
+
+    private string _editSystemPrompt = string.Empty;
+    private string _editUserPromptTemplate = string.Empty;
+    private string _editParametersJson = string.Empty;
+    private string _editDescription = string.Empty;
+
+    private string _testVariablesJson = "{}";
+    private TestPromptResultDto? _testResult;
+
+    private record AgentTabInfo(string Label, string Icon, string[] Variables, string DefaultVariablesJson);
+
+    private readonly Dictionary<string, AgentTabInfo> _agentTabs = new()
+    {
+        ["Agent1_Diagnosis"] = new AgentTabInfo(
+            "Agente 1 — Diagnóstico",
+            "psychology",
+            new[] { "{{AnamneseData}}", "{{Etapa1_NomeCompleto}}", "{{Etapa1_Profissao}}" },
+            "{\n  \"AnamneseData\": \"Profissional: Dr. Lucas Mendes\\nProfissão: Dermatologista\\nAnos de Experiência: 12\"\n}"),
+
+        ["Agent2_VideoScript"] = new AgentTabInfo(
+            "Agente 2 — Roteiro de Vídeo",
+            "movie",
+            new[] { "{{Nome}}", "{{Profissao}}", "{{FrasePosicionamento}}", "{{Tema}}", "{{PilarConteudo}}", "{{Objetivo}}" },
+            "{\n  \"Nome\": \"Dra. Juliana\",\n  \"Profissao\": \"Nutricionista\",\n  \"FrasePosicionamento\": \"Nutrição baseada em evidências sem radicalismos\",\n  \"Tema\": \"Mitos do Jejum Intermitente\",\n  \"PilarConteudo\": \"Educação\",\n  \"Objetivo\": \"Engajamento e Comentários\"\n}"),
+
+        ["Agent2_Stories"] = new AgentTabInfo(
+            "Agente 2 — Stories",
+            "style",
+            new[] { "{{Tema}}", "{{Objetivo}}", "{{TomDeVoz}}" },
+            "{\n  \"Tema\": \"Bastidores do Atendimento\",\n  \"Objetivo\": \"Gerar mensagens no Direct\",\n  \"TomDeVoz\": \"Humano e Acolhedor\"\n}"),
+
+        ["Agent2_AnamneseClarification"] = new AgentTabInfo(
+            "Agente 2 — Clarificação Anamnese",
+            "quiz",
+            new[] { "{{EtapaNome}}", "{{RespostaAtual}}" },
+            "{\n  \"EtapaNome\": \"Etapa 3 - Seu Trabalho\",\n  \"RespostaAtual\": \"Faço de tudo um pouco na clínica\"\n}")
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPromptsAsync();
+    }
+
+    private async Task LoadPromptsAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        var activeResult = await GetPromptTemplatesHandler.Handle(new GetPromptTemplatesQuery(), CancellationToken.None);
+        if (activeResult.IsSuccess)
+        {
+            _activePrompts = activeResult.Value;
+        }
+
+        await SelectAgent(_selectedAgentName);
+        _isLoading = false;
+    }
+
+    private async Task SelectAgent(string agentName)
+    {
+        _selectedAgentName = agentName;
+        _testResult = null;
+        _testVariablesJson = _agentTabs[agentName].DefaultVariablesJson;
+
+        var historyResult = await GetPromptHistoryHandler.Handle(new GetPromptHistoryQuery(agentName), CancellationToken.None);
+        if (historyResult.IsSuccess)
+        {
+            _promptHistory = historyResult.Value;
+            _activeTemplate = _promptHistory.FirstOrDefault(p => p.IsActive) ?? _promptHistory.FirstOrDefault();
+        }
+        else
+        {
+            _promptHistory = new List<PromptTemplateDto>();
+            _activeTemplate = null;
+        }
+
+        if (_activeTemplate != null)
+        {
+            _editSystemPrompt = _activeTemplate.SystemPrompt;
+            _editUserPromptTemplate = _activeTemplate.UserPromptTemplate;
+            _editParametersJson = _activeTemplate.ParametersJson;
+            _editDescription = string.Empty;
+        }
+    }
+
+    private int GetActiveVersionForAgent(string agentName)
+    {
+        return _activePrompts.FirstOrDefault(p => p.AgentName == agentName)?.Version ?? 1;
+    }
+
+    private async Task PublishNewVersion()
+    {
+        if (string.IsNullOrWhiteSpace(_editDescription))
+        {
+            _errorMessage = "Por favor, informe o motivo/changelog da alteração.";
+            return;
+        }
+
+        _isSaving = true;
+        _errorMessage = null;
+        _successMessage = null;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var adminEmail = authState.User.Identity?.Name ?? "admin@personascript.ai";
+
+        var command = new CreatePromptVersionCommand(
+            _selectedAgentName,
+            _editSystemPrompt,
+            _editUserPromptTemplate,
+            _editParametersJson,
+            _editDescription,
+            adminEmail);
+
+        var result = await CreatePromptVersionHandler.Handle(command, CancellationToken.None);
+        _isSaving = false;
+
+        if (result.IsSuccess)
+        {
+            _successMessage = $"Nova versão v@{(_activeTemplate?.Version ?? 0) + 1} publicada com sucesso!";
+            await LoadPromptsAsync();
+        }
+        else
+        {
+            _errorMessage = result.Error.Message;
+        }
+    }
+
+    private async Task RunPlaygroundTest()
+    {
+        _isTesting = true;
+        _testResult = null;
+
+        var command = new TestPromptPlaygroundCommand(
+            _selectedAgentName,
+            _editSystemPrompt,
+            _editUserPromptTemplate,
+            _editParametersJson,
+            _testVariablesJson);
+
+        var result = await TestPromptPlaygroundHandler.Handle(command, CancellationToken.None);
+        _isTesting = false;
+
+        if (result.IsSuccess)
+        {
+            _testResult = result.Value;
+        }
+        else
+        {
+            _errorMessage = result.Error.Message;
+        }
+    }
+
+    private async Task ExecuteRollback(Guid targetPromptId)
+    {
+        _errorMessage = null;
+        _successMessage = null;
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var adminEmail = authState.User.Identity?.Name ?? "admin@personascript.ai";
+
+        var command = new RollbackPromptVersionCommand(
+            targetPromptId,
+            "Rollback efetuado via painel do Backoffice",
+            adminEmail);
+
+        var result = await RollbackPromptVersionHandler.Handle(command, CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            _successMessage = "Rollback executado com sucesso!";
+            await LoadPromptsAsync();
+        }
+        else
+        {
+            _errorMessage = result.Error.Message;
+        }
+    }
+}

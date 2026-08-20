@@ -18,6 +18,7 @@
     <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Tenancy\PersonaScript.BuildingBlocks.Tenancy.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.CQRS\PersonaScript.BuildingBlocks.CQRS.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Results\PersonaScript.BuildingBlocks.Results.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.AI\PersonaScript.BuildingBlocks.AI.csproj" />
     <ProjectReference Include="..\Identity\PersonaScript.Modules.Identity.Domain\PersonaScript.Modules.Identity.Domain.csproj" />
     <ProjectReference Include="..\Identity\PersonaScript.Modules.Identity.Application\PersonaScript.Modules.Identity.Application.csproj" />
     <ProjectReference Include="..\Billing\PersonaScript.Modules.Billing.Domain\PersonaScript.Modules.Billing.Domain.csproj" />

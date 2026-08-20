@@ -190,9 +190,14 @@ Implementado:
 - Subfase 5.2 concluída: Integração com Gateway de Pagamento Stripe Checkout & Webhooks idempotentes (`POST /webhooks/stripe`).
 - Subfase 5.3 concluída: Validação de Quotas e Interceptadores de Limite de Uso com `QuotaValidationCommandHandlerDecorator` para Commands CQRS protegidos, background job automático `MonthlyQuotaResetBackgroundService` para renovação mensal de franquias e modal Blazor Stitch UI `QuotaExceededModal.razor`.
 
+- Subfase 6.1 concluída: Backoffice Operacional Administrativo, autorização RBAC obrigatória (`RequireBackofficeAccess`, `RequireSystemAdmin`), layout base responsivo `AdminLayout.razor` sob a rota `/admin/...`.
+- Subfase 6.2 concluída: Gestão de Tenants/Usuários, Anamnese consolidada, Impersonação auditada de Suporte com justificativa obrigatória e log `AdminImpersonationLog`.
+- Subfase 6.3 concluída: Gestão Financeira B2C, métricas MRR/ARR, ajuste de limites de planos e sobrescrita de quota por tenant com log `OVERRIDE_TENANT_QUOTA`.
+- Subfase 6.4 concluída: Gestão Dinâmica de Prompts de IA, tabela versionada `PromptTemplates`, editor com playground em tempo real para LLM, rollback instantâneo de versão de prompt com 1 clique e logs de auditoria `CREATE_PROMPT_VERSION` e `ROLLBACK_PROMPT_VERSION`.
+
 Próxima entrega:
 
-- Subfase 5.4: Portal do Assinante e Gestão de Assinatura (`/minha-conta/assinatura`).
+- Subfase 6.5: Telemetria de Tokens, Custos de LLM, Latência e Observabilidade dos Agentes.
 
 ## Referências
 

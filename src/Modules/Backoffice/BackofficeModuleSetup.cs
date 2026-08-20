@@ -36,6 +36,8 @@ public static class BackofficeModuleSetup
 
         services.AddScoped<IAdminImpersonationLogRepository, AdminImpersonationLogRepository>();
         services.AddScoped<IAdminAuditLogRepository, AdminAuditLogRepository>();
+        services.AddScoped<IPromptTemplateRepository, PromptTemplateRepository>();
+        services.AddScoped<PersonaScript.Modules.Backoffice.Application.Services.IDynamicPromptEngine, PersonaScript.Modules.Backoffice.Application.Services.DynamicPromptEngine>();
 
         // Handlers CQRS
         services.AddScoped<IQueryHandler<GetTenantsQuery, GetTenantsResult>, GetTenantsQueryHandler>();
@@ -43,6 +45,8 @@ public static class BackofficeModuleSetup
         services.AddScoped<IQueryHandler<GetAuditLogsQuery, IReadOnlyList<AuditLogDto>>, GetAuditLogsQueryHandler>();
         services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.GetFinancialMetrics.GetFinancialMetricsQuery, FinancialMetricsDto>, PersonaScript.Modules.Backoffice.Application.Queries.GetFinancialMetrics.GetFinancialMetricsQueryHandler>();
         services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.GetAllPlans.GetAllPlansQuery, IReadOnlyList<PlanDto>>, PersonaScript.Modules.Backoffice.Application.Queries.GetAllPlans.GetAllPlansQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Prompts.GetPromptTemplatesQuery, IReadOnlyList<PromptTemplateDto>>, PersonaScript.Modules.Backoffice.Application.Queries.Prompts.GetPromptTemplatesQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Prompts.GetPromptHistoryQuery, IReadOnlyList<PromptTemplateDto>>, PersonaScript.Modules.Backoffice.Application.Queries.Prompts.GetPromptHistoryQueryHandler>();
 
         services.AddScoped<ICommandHandler<StartImpersonationCommand, Guid>, StartImpersonationCommandHandler>();
         services.AddScoped<ICommandHandler<StopImpersonationCommand>, StopImpersonationCommandHandler>();
@@ -52,6 +56,9 @@ public static class BackofficeModuleSetup
         services.AddScoped<ICommandHandler<GrantTenantExtraCreditsCommand>, GrantTenantExtraCreditsCommandHandler>();
         services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.UpdatePlanLimits.UpdatePlanLimitsCommand>, PersonaScript.Modules.Backoffice.Application.Commands.UpdatePlanLimits.UpdatePlanLimitsCommandHandler>();
         services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.OverrideTenantQuota.OverrideTenantQuotaCommand>, PersonaScript.Modules.Backoffice.Application.Commands.OverrideTenantQuota.OverrideTenantQuotaCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Prompts.CreatePromptVersionCommand, Guid>, PersonaScript.Modules.Backoffice.Application.Commands.Prompts.CreatePromptVersionCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Prompts.RollbackPromptVersionCommand>, PersonaScript.Modules.Backoffice.Application.Commands.Prompts.RollbackPromptVersionCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Prompts.TestPromptPlaygroundCommand, TestPromptResultDto>, PersonaScript.Modules.Backoffice.Application.Commands.Prompts.TestPromptPlaygroundCommandHandler>();
 
         return services;
     }
