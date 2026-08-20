@@ -282,13 +282,13 @@ Motor de monetização SaaS B2C totalmente funcional, integrando Stripe Checkout
 - **Entregáveis da Subfase 6.4:**
   - [x] Editor dinâmico de prompts de IA com versionamento, ambiente de teste (playground), rollback instantâneo e 281 testes verdes na solução.
 
-### Subfase 6.5: Telemetria de Tokens, Custos de LLM, Latência e Observabilidade dos Agentes
+### Subfase 6.5: Telemetria de Tokens, Custos de LLM, Latência e Observabilidade dos Agentes [CONCLUÍDO]
 - **Tarefas:**
-  - Criar serviço de rastreamento `ILLMTelemetryService` que grava cada execução dos Agentes na tabela `AgentExecutionLog` (`TenantId`, `AgentName`, `ModelUsed`, `PromptTokens`, `CompletionTokens`, `EstimatedCostUSD`, `LatencyMs`, `Status`, `ErrorMessage`).
-  - Criar página `/admin/telemetria`: gráficos de consumo de tokens por dia/mês, custo total de API de LLM versus receita de assinaturas, tempo médio de resposta por agente, taxa de erro por modelo.
-  - Alerta de anomalia (ex: notificar se o custo de LLM de um único tenant exceder o limite aceitável no mês).
+  - [x] Criar serviço de rastreamento `ILLMTelemetryService` que grava cada execução dos Agentes na tabela `AgentExecutionLog` (`TenantId`, `AgentName`, `ModelUsed`, `PromptTokens`, `CompletionTokens`, `EstimatedCostUSD`, `LatencyMs`, `Status`, `ErrorMessage`).
+  - [x] Criar página `/admin/telemetria`: gráficos/cards de consumo de tokens por dia/mês, custo total de API de LLM versus receita de assinaturas, tempo médio de resposta por agente, taxa de erro por modelo.
+  - [x] Alerta de anomalia (ex: notificar se o custo de LLM de um único tenant exceder o limite aceitável no mês ou se houver surto de erros no modelo).
 - **Entregáveis da Subfase 6.5:**
-  - Painel de observabilidade de custos, desempenho e erros de LLM em tempo real.
+  - [x] Painel de observabilidade de custos, desempenho e erros de LLM em tempo real operando com 290 testes verdes na solução.
 
 ### Subfase 6.6: Moderador de Qualidade, Regras dos Conselhos (CRO/CFM/CRBM) e Dicionário Global
 - **Tarefas:**

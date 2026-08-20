@@ -4,7 +4,9 @@ using PersonaScript.BuildingBlocks.AI.Abstractions;
 using PersonaScript.BuildingBlocks.AI.Models;
 using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Results;
+using PersonaScript.Modules.Backoffice.Application.Abstractions;
 using PersonaScript.Modules.Backoffice.Application.DTOs;
+using PersonaScript.Modules.Backoffice.Domain.Enums;
 
 namespace PersonaScript.Modules.Backoffice.Application.Commands.Prompts;
 
@@ -18,10 +20,12 @@ public record TestPromptPlaygroundCommand(
 public sealed class TestPromptPlaygroundCommandHandler : ICommandHandler<TestPromptPlaygroundCommand, TestPromptResultDto>
 {
     private readonly ILLMProvider _llmProvider;
+    private readonly ILLMTelemetryService? _telemetryService;
 
-    public TestPromptPlaygroundCommandHandler(ILLMProvider llmProvider)
+    public TestPromptPlaygroundCommandHandler(ILLMProvider llmProvider, ILLMTelemetryService? telemetryService = null)
     {
         _llmProvider = llmProvider;
+        _telemetryService = telemetryService;
     }
 
     public async Task<Result<TestPromptResultDto>> Handle(TestPromptPlaygroundCommand command, CancellationToken cancellationToken)
@@ -80,6 +84,20 @@ public sealed class TestPromptPlaygroundCommandHandler : ICommandHandler<TestPro
 
             if (responseResult.IsFailure)
             {
+                if (_telemetryService != null)
+                {
+                    await _telemetryService.RecordExecutionAsync(
+                        Guid.Empty,
+                        command.AgentName ?? "PlaygroundTest",
+                        request.Model,
+                        "Playground",
+                        0, 0,
+                        stopwatch.ElapsedMilliseconds,
+                        AgentExecutionStatus.Failure,
+                        responseResult.Error.Message,
+                        cancellationToken);
+                }
+
                 var failureResult = new TestPromptResultDto(
                     Success: false,
                     ResponseContent: string.Empty,
@@ -92,6 +110,21 @@ public sealed class TestPromptPlaygroundCommandHandler : ICommandHandler<TestPro
             }
 
             var response = responseResult.Value;
+            if (_telemetryService != null)
+            {
+                await _telemetryService.RecordExecutionAsync(
+                    Guid.Empty,
+                    command.AgentName ?? "PlaygroundTest",
+                    response.ModelUsed,
+                    response.ProviderType.ToString(),
+                    response.PromptTokens,
+                    response.CompletionTokens,
+                    stopwatch.ElapsedMilliseconds > 0 ? stopwatch.ElapsedMilliseconds : response.LatencyMs,
+                    AgentExecutionStatus.Success,
+                    null,
+                    cancellationToken);
+            }
+
             var result = new TestPromptResultDto(
                 Success: true,
                 ResponseContent: response.Content,

@@ -12,6 +12,7 @@ public sealed class BackofficeDbContext : DbContext
     public DbSet<AdminImpersonationLog> ImpersonationLogs => Set<AdminImpersonationLog>();
     public DbSet<AdminAuditLog> AuditLogs => Set<AdminAuditLog>();
     public DbSet<PromptTemplate> PromptTemplates => Set<PromptTemplate>();
+    public DbSet<AgentExecutionLog> AgentExecutionLogs => Set<AgentExecutionLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,6 +48,20 @@ public sealed class BackofficeDbContext : DbContext
             builder.Property(x => x.CreatedByAdminEmail).HasMaxLength(256).IsRequired();
             builder.HasIndex(x => new { x.AgentName, x.Version }).IsUnique();
             builder.HasIndex(x => new { x.AgentName, x.IsActive });
+        });
+
+        modelBuilder.Entity<AgentExecutionLog>(builder =>
+        {
+            builder.ToTable("AgentExecutionLogs");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.AgentName).HasMaxLength(100).IsRequired();
+            builder.Property(x => x.ModelUsed).HasMaxLength(100).IsRequired();
+            builder.Property(x => x.ProviderType).HasMaxLength(50).IsRequired();
+            builder.Property(x => x.EstimatedCostUSD).HasColumnType("decimal(18,6)");
+            builder.Property(x => x.ErrorMessage).HasMaxLength(2000);
+            builder.HasIndex(x => x.ExecutedAtUtc);
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.AgentName, x.Status });
         });
 
         base.OnModelCreating(modelBuilder);

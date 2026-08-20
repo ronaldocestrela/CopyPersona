@@ -37,6 +37,9 @@ public static class BackofficeModuleSetup
         services.AddScoped<IAdminImpersonationLogRepository, AdminImpersonationLogRepository>();
         services.AddScoped<IAdminAuditLogRepository, AdminAuditLogRepository>();
         services.AddScoped<IPromptTemplateRepository, PromptTemplateRepository>();
+        services.AddScoped<IAgentExecutionLogRepository, AgentExecutionLogRepository>();
+        services.AddSingleton<PersonaScript.Modules.Backoffice.Application.Services.ILLMCostCalculator, PersonaScript.Modules.Backoffice.Application.Services.LLMCostCalculator>();
+        services.AddSingleton<PersonaScript.Modules.Backoffice.Application.Abstractions.ILLMTelemetryService, PersonaScript.Modules.Backoffice.Application.Services.LLMTelemetryService>();
         services.AddScoped<PersonaScript.Modules.Backoffice.Application.Services.IDynamicPromptEngine, PersonaScript.Modules.Backoffice.Application.Services.DynamicPromptEngine>();
 
         // Handlers CQRS
@@ -47,6 +50,9 @@ public static class BackofficeModuleSetup
         services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.GetAllPlans.GetAllPlansQuery, IReadOnlyList<PlanDto>>, PersonaScript.Modules.Backoffice.Application.Queries.GetAllPlans.GetAllPlansQueryHandler>();
         services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Prompts.GetPromptTemplatesQuery, IReadOnlyList<PromptTemplateDto>>, PersonaScript.Modules.Backoffice.Application.Queries.Prompts.GetPromptTemplatesQueryHandler>();
         services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Prompts.GetPromptHistoryQuery, IReadOnlyList<PromptTemplateDto>>, PersonaScript.Modules.Backoffice.Application.Queries.Prompts.GetPromptHistoryQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetTelemetrySummaryQuery, TelemetrySummaryDto>, PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetTelemetrySummaryQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAgentExecutionLogsQuery, PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAgentExecutionLogsResult>, PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAgentExecutionLogsQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAnomalyAlertsQuery, IReadOnlyList<AnomalyAlertDto>>, PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAnomalyAlertsQueryHandler>();
 
         services.AddScoped<ICommandHandler<StartImpersonationCommand, Guid>, StartImpersonationCommandHandler>();
         services.AddScoped<ICommandHandler<StopImpersonationCommand>, StopImpersonationCommandHandler>();

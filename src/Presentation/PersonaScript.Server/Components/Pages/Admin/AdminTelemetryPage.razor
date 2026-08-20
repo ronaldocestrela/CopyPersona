@@ -1,31 +1,402 @@
 @page "/admin/telemetria"
 @layout PersonaScript.Server.Components.Layout.Admin.AdminLayout
 @using Microsoft.AspNetCore.Authorization
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Backoffice.Application.DTOs
+@using PersonaScript.Modules.Backoffice.Application.Queries.Telemetry
+@using PersonaScript.Modules.Backoffice.Domain.Enums
+@inject IQueryHandler<GetTelemetrySummaryQuery, TelemetrySummaryDto> GetTelemetrySummaryHandler
+@inject IQueryHandler<GetAgentExecutionLogsQuery, GetAgentExecutionLogsResult> GetAgentExecutionLogsHandler
+@inject IQueryHandler<GetAnomalyAlertsQuery, IReadOnlyList<AnomalyAlertDto>> GetAnomalyAlertsHandler
 @attribute [Authorize(Policy = "RequireBackofficeAccess")]
 
 <PageTitle>Telemetria & Custos de IA — Backoffice PersonaScript AI</PageTitle>
 
 <div class="space-y-6">
-    <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
             <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
-                <span class="material-symbols-outlined text-indigo-400">monitoring</span>
+                <span class="material-symbols-outlined text-indigo-400 text-3xl">monitoring</span>
                 Telemetria & Observabilidade de IA
             </h1>
-            <p class="text-slate-400 text-sm mt-1">Rastreamento de consumo de tokens, latência, custos de LLM e taxas de erro</p>
+            <p class="text-slate-400 text-sm mt-1">Rastreamento de consumo de tokens, latência, custos de LLM, margem financeira e alertas de anomalia</p>
         </div>
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            Subfase 6.5 — Planejada
-        </span>
+        <div class="flex items-center gap-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2"></span>
+                Subfase 6.5 — Operacional
+            </span>
+            <button @onclick="RefreshDataAsync" class="px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+                Atualizar
+            </button>
+        </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
-        <div class="w-12 h-12 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto text-2xl">
-            <span class="material-symbols-outlined">insights</span>
+    @if (IsLoading)
+    {
+        <div class="flex flex-col items-center justify-center py-16 space-y-4">
+            <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-slate-400 text-sm">Carregando dados de telemetria de LLM...</p>
         </div>
-        <h3 class="text-lg font-bold text-white">Painel de Observabilidade & Custos de LLM</h3>
-        <p class="text-slate-400 text-sm max-w-xl mx-auto">
-            Exibirá gráficos de consumo diário/mensal de tokens, custos estimados em USD da API de LLM versus receita de assinaturas, tempo de resposta por agente e alertas de anomalia.
-        </p>
-    </div>
+    }
+    else
+    {
+        <!-- Alertas de Anomalia -->
+        @if (Alerts != null && Alerts.Count > 0)
+        {
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">warning</span>
+                    Alertas de Anomalia & Limites Excedidos (@Alerts.Count)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach (var alert in Alerts)
+                    {
+                        <div class="p-4 rounded-xl border @(alert.Severity == "Critical" ? "bg-rose-500/10 border-rose-500/30 text-rose-300" : "bg-amber-500/10 border-amber-500/30 text-amber-300") flex items-start gap-3">
+                            <span class="material-symbols-outlined text-xl mt-0.5">@(alert.Severity == "Critical" ? "error" : "warning")</span>
+                            <div>
+                                <h4 class="font-bold text-sm text-white">@alert.Title</h4>
+                                <p class="text-xs mt-1 text-slate-300">@alert.Description</p>
+                                <span class="text-[10px] text-slate-400 mt-2 block">Detectado em: @alert.DetectedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Cards de KPI -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <!-- Custo Total -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Custo Total LLM</span>
+                    <span class="material-symbols-outlined text-emerald-400 text-xl">attach_money</span>
+                </div>
+                <div class="text-2xl font-extrabold text-white">US$ @Summary.TotalCostUSD.ToString("F4")</div>
+                <p class="text-[11px] text-slate-400">Total estimado em chamadas</p>
+            </div>
+
+            <!-- Margem de Custo LLM -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Margem LLM s/ Receita</span>
+                    <span class="material-symbols-outlined text-indigo-400 text-xl">pie_chart</span>
+                </div>
+                <div class="text-2xl font-extrabold text-white">@Summary.LLMCostMarginPercent.ToString("F2")%</div>
+                <p class="text-[11px] text-slate-400">Custo LLM vs MRR (US$ @Summary.TotalSubscriptionRevenueUSD.ToString("N0"))</p>
+            </div>
+
+            <!-- Total de Tokens -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Total de Tokens</span>
+                    <span class="material-symbols-outlined text-sky-400 text-xl">token</span>
+                </div>
+                <div class="text-2xl font-extrabold text-white">@Summary.TotalTokens.ToString("N0")</div>
+                <p class="text-[11px] text-slate-400">In: @Summary.TotalPromptTokens.ToString("N0") | Out: @Summary.TotalCompletionTokens.ToString("N0")</p>
+            </div>
+
+            <!-- Latência Média -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Latência Média</span>
+                    <span class="material-symbols-outlined text-amber-400 text-xl">timer</span>
+                </div>
+                <div class="text-2xl font-extrabold text-white">@Summary.AverageLatencyMs.ToString("N0") ms</div>
+                <p class="text-[11px] text-slate-400">Tempo médio de resposta</p>
+            </div>
+
+            <!-- Taxa de Sucesso -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                    <span class="text-xs font-medium">Taxa de Sucesso</span>
+                    <span class="material-symbols-outlined text-emerald-400 text-xl">check_circle</span>
+                </div>
+                <div class="text-2xl font-extrabold text-white">@Summary.SuccessRatePercent.ToString("F1")%</div>
+                <p class="text-[11px] text-slate-400">@Summary.SuccessfulExecutions ok / @Summary.FailedExecutions falhas (@Summary.TotalExecutions total)</p>
+            </div>
+        </div>
+
+        <!-- Seção de Distribuição por Agente e por Modelo -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Consumo por Agente -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-indigo-400">smart_toy</span>
+                    Consumo & Custos por Agente
+                </h3>
+                @if (Summary.AgentSummaries.Count == 0)
+                {
+                    <p class="text-slate-500 text-xs py-4 text-center">Nenhum log registrado para os agentes no período.</p>
+                }
+                else
+                {
+                    <div class="space-y-4">
+                        @foreach (var agent in Summary.AgentSummaries)
+                        {
+                            var tokenPercent = Summary.TotalTokens > 0 ? (double)agent.TotalTokens / Summary.TotalTokens * 100 : 0;
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between text-xs">
+                                    <span class="font-semibold text-slate-200">@agent.AgentName</span>
+                                    <span class="text-slate-400">US$ @agent.CostUSD.ToString("F4") (@agent.ExecutionCount execs)</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-indigo-500 h-full rounded-full" style="width: @(Math.Min(100, Math.Max(5, tokenPercent)))%"></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] text-slate-500">
+                                    <span>Tokens: @agent.TotalTokens.ToString("N0") (@tokenPercent.ToString("F1")%)</span>
+                                    <span>Latência: @agent.AverageLatencyMs.ToString("N0") ms | Sucesso: @agent.SuccessRatePercent.ToString("F0")%</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Consumo por Modelo -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-purple-400">memory</span>
+                    Uso & Custos por Modelo LLM
+                </h3>
+                @if (Summary.ModelSummaries.Count == 0)
+                {
+                    <p class="text-slate-500 text-xs py-4 text-center">Nenhum modelo registrado no período.</p>
+                }
+                else
+                {
+                    <div class="space-y-4">
+                        @foreach (var model in Summary.ModelSummaries)
+                        {
+                            var modelPercent = Summary.TotalExecutions > 0 ? (double)model.ExecutionCount / Summary.TotalExecutions * 100 : 0;
+                            <div class="space-y-1.5">
+                                <div class="flex justify-between text-xs">
+                                    <span class="font-semibold text-slate-200">@model.ModelUsed</span>
+                                    <span class="text-slate-400">US$ @model.CostUSD.ToString("F4")</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-purple-500 h-full rounded-full" style="width: @(Math.Min(100, Math.Max(5, modelPercent)))%"></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] text-slate-500">
+                                    <span>Chamadas: @model.ExecutionCount (@modelPercent.ToString("F1")%)</span>
+                                    <span>Tokens: @model.TotalTokens.ToString("N0") | Erros: @model.ErrorRatePercent.ToString("F1")%</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Tabela de Logs de Auditoria -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sky-400">list_alt</span>
+                        Histórico de Auditoria de Agentes
+                    </h3>
+                    <p class="text-slate-400 text-xs mt-0.5">Registros individuais de chamadas de IA com tokens, latência e status</p>
+                </div>
+
+                <!-- Filtros -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="text" @bind="AgentFilter" placeholder="Filtrar Agente..." class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500" />
+                    <input type="text" @bind="ModelFilter" placeholder="Filtrar Modelo..." class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500" />
+                    <select @bind="StatusFilter" class="bg-slate-800 border border-slate-700 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-indigo-500">
+                        <option value="">Todos Status</option>
+                        <option value="Success">Sucesso</option>
+                        <option value="Failure">Falha</option>
+                        <option value="Fallback">Fallback</option>
+                    </select>
+                    <button @onclick="ApplyFiltersAsync" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition">
+                        Filtrar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabela -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-slate-400 text-xs font-semibold">
+                            <th class="py-3 px-4">Data/Hora (UTC)</th>
+                            <th class="py-3 px-4">Agente</th>
+                            <th class="py-3 px-4">Modelo</th>
+                            <th class="py-3 px-4">Tokens (In/Out)</th>
+                            <th class="py-3 px-4">Custo USD</th>
+                            <th class="py-3 px-4">Latência</th>
+                            <th class="py-3 px-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800 text-xs">
+                        @if (LogsResult == null || LogsResult.Logs.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="7" class="py-8 text-center text-slate-500">
+                                    Nenhum log de execução encontrado com os filtros selecionados.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var log in LogsResult.Logs)
+                            {
+                                <tr class="hover:bg-slate-800/50 transition">
+                                    <td class="py-3 px-4 text-slate-300 font-mono text-[11px]">
+                                        @log.ExecutedAtUtc.ToString("dd/MM/yyyy HH:mm:ss")
+                                    </td>
+                                    <td class="py-3 px-4 font-semibold text-white">
+                                        @log.AgentName
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-300">
+                                        <span class="px-2 py-0.5 rounded text-[11px] bg-slate-800 border border-slate-700">@log.ModelUsed</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-300">
+                                        @log.TotalTokens.ToString("N0") <span class="text-slate-500 text-[10px]">(@log.PromptTokens / @log.CompletionTokens)</span>
+                                    </td>
+                                    <td class="py-3 px-4 text-emerald-400 font-mono">
+                                        US$ @log.EstimatedCostUSD.ToString("F4")
+                                    </td>
+                                    <td class="py-3 px-4 text-slate-300">
+                                        @log.LatencyMs ms
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        @if (log.Status == "Success")
+                                        {
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                                Sucesso
+                                            </span>
+                                        }
+                                        else if (log.Status == "Fallback")
+                                        {
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                                Fallback
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20" title="@log.ErrorMessage">
+                                                Falha
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            @if (LogsResult != null && LogsResult.TotalCount > PageSize)
+            {
+                var totalPages = (int)Math.Ceiling((double)LogsResult.TotalCount / PageSize);
+                <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs">
+                    <span class="text-slate-400">Mostrando página @CurrentPage de @totalPages (@LogsResult.TotalCount registros)</span>
+                    <div class="flex items-center gap-2">
+                        <button @onclick="PreviousPageAsync" disabled="@(CurrentPage <= 1)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white rounded border border-slate-700">
+                            Anterior
+                        </button>
+                        <button @onclick="NextPageAsync" disabled="@(CurrentPage >= totalPages)" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white rounded border border-slate-700">
+                            Próxima
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>
+
+@code {
+    private bool IsLoading = true;
+    private TelemetrySummaryDto Summary = new();
+    private GetAgentExecutionLogsResult? LogsResult;
+    private IReadOnlyList<AnomalyAlertDto> Alerts = Array.Empty<AnomalyAlertDto>();
+
+    private int CurrentPage = 1;
+    private int PageSize = 15;
+
+    private string? AgentFilter;
+    private string? ModelFilter;
+    private string? StatusFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshDataAsync();
+    }
+
+    private async Task RefreshDataAsync()
+    {
+        IsLoading = true;
+        try
+        {
+            var now = DateTime.UtcNow;
+            var startDate = now.AddDays(-30);
+
+            var summaryRes = await GetTelemetrySummaryHandler.Handle(new GetTelemetrySummaryQuery(startDate, now), CancellationToken.None);
+            if (summaryRes.IsSuccess && summaryRes.Value != null)
+            {
+                Summary = summaryRes.Value;
+            }
+
+            var alertsRes = await GetAnomalyAlertsHandler.Handle(new GetAnomalyAlertsQuery(10.00m), CancellationToken.None);
+            if (alertsRes.IsSuccess && alertsRes.Value != null)
+            {
+                Alerts = alertsRes.Value;
+            }
+
+            await LoadLogsAsync();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task ApplyFiltersAsync()
+    {
+        CurrentPage = 1;
+        await LoadLogsAsync();
+    }
+
+    private async Task LoadLogsAsync()
+    {
+        AgentExecutionStatus? parsedStatus = null;
+        if (!string.IsNullOrWhiteSpace(StatusFilter) && Enum.TryParse<AgentExecutionStatus>(StatusFilter, out var st))
+        {
+            parsedStatus = st;
+        }
+
+        var query = new GetAgentExecutionLogsQuery(
+            Page: CurrentPage,
+            PageSize: PageSize,
+            AgentFilter: string.IsNullOrWhiteSpace(AgentFilter) ? null : AgentFilter,
+            ModelFilter: string.IsNullOrWhiteSpace(ModelFilter) ? null : ModelFilter,
+            StatusFilter: parsedStatus);
+
+        var res = await GetAgentExecutionLogsHandler.Handle(query, CancellationToken.None);
+        if (res.IsSuccess && res.Value != null)
+        {
+            LogsResult = res.Value;
+        }
+    }
+
+    private async Task PreviousPageAsync()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage--;
+            await LoadLogsAsync();
+        }
+    }
+
+    private async Task NextPageAsync()
+    {
+        CurrentPage++;
+        await LoadLogsAsync();
+    }
+}
