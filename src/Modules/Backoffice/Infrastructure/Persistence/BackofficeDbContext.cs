@@ -13,6 +13,8 @@ public sealed class BackofficeDbContext : DbContext
     public DbSet<AdminAuditLog> AuditLogs => Set<AdminAuditLog>();
     public DbSet<PromptTemplate> PromptTemplates => Set<PromptTemplate>();
     public DbSet<AgentExecutionLog> AgentExecutionLogs => Set<AgentExecutionLog>();
+    public DbSet<CouncilRule> CouncilRules => Set<CouncilRule>();
+    public DbSet<ForbiddenTerm> ForbiddenTerms => Set<ForbiddenTerm>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -62,6 +64,31 @@ public sealed class BackofficeDbContext : DbContext
             builder.HasIndex(x => x.ExecutedAtUtc);
             builder.HasIndex(x => x.TenantId);
             builder.HasIndex(x => new { x.AgentName, x.Status });
+        });
+
+        modelBuilder.Entity<CouncilRule>(builder =>
+        {
+            builder.ToTable("CouncilRules");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.CouncilAcronym).HasMaxLength(20).IsRequired();
+            builder.Property(x => x.CouncilName).HasMaxLength(200).IsRequired();
+            builder.Property(x => x.ResolutionNumber).HasMaxLength(100).IsRequired();
+            builder.Property(x => x.GuidelinesText).IsRequired();
+            builder.Property(x => x.Category).HasMaxLength(100).IsRequired();
+            builder.HasIndex(x => x.CouncilAcronym);
+            builder.HasIndex(x => new { x.CouncilAcronym, x.IsActive });
+        });
+
+        modelBuilder.Entity<ForbiddenTerm>(builder =>
+        {
+            builder.ToTable("ForbiddenTerms");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Term).HasMaxLength(200).IsRequired();
+            builder.Property(x => x.Category).HasMaxLength(100).IsRequired();
+            builder.Property(x => x.ReplacementSuggestion).HasMaxLength(200);
+            builder.Property(x => x.Reasoning).HasMaxLength(1000);
+            builder.HasIndex(x => x.Term);
+            builder.HasIndex(x => x.IsActive);
         });
 
         base.OnModelCreating(modelBuilder);

@@ -7,10 +7,14 @@ namespace PersonaScript.Modules.Backoffice.Application.Services;
 public sealed class DynamicPromptEngine : IDynamicPromptEngine
 {
     private readonly IPromptTemplateRepository _promptRepository;
+    private readonly ICouncilRuleRepository? _councilRuleRepository;
 
-    public DynamicPromptEngine(IPromptTemplateRepository promptRepository)
+    public DynamicPromptEngine(
+        IPromptTemplateRepository promptRepository,
+        ICouncilRuleRepository? councilRuleRepository = null)
     {
         _promptRepository = promptRepository;
+        _councilRuleRepository = councilRuleRepository;
     }
 
     public async Task<LLMRequest> RenderPromptAsync(
@@ -22,14 +26,36 @@ public sealed class DynamicPromptEngine : IDynamicPromptEngine
         var activeTemplate = await _promptRepository.GetActiveByAgentNameAsync(agentName, cancellationToken);
         if (activeTemplate == null)
         {
-            // Se nenhum prompt estiver cadastrado no banco, utiliza o fallback nativo de código
             return defaultFallbackRequest;
         }
 
         var systemPrompt = activeTemplate.SystemPrompt;
         var userPrompt = activeTemplate.UserPromptTemplate;
 
-        // Substituição de variáveis no User Prompt
+        // Se variáveis contiverem 'conselho' e não houver 'regras_conselho' preenchido, tenta buscar no repositório de regras
+        if (_councilRuleRepository != null && !variables.ContainsKey("regras_conselho"))
+        {
+            string? councilAcronym = null;
+            if (variables.TryGetValue("conselho", out var acronym) && !string.IsNullOrWhiteSpace(acronym))
+            {
+                councilAcronym = acronym;
+            }
+            else if (variables.TryGetValue("profissao", out var prof) && !string.IsNullOrWhiteSpace(prof))
+            {
+                councilAcronym = InferCouncilFromProfessao(prof);
+            }
+
+            if (!string.IsNullOrWhiteSpace(councilAcronym))
+            {
+                var rule = await _councilRuleRepository.GetByAcronymAsync(councilAcronym, cancellationToken);
+                if (rule != null)
+                {
+                    variables["regras_conselho"] = $"[REGULAMENTAÇÃO {rule.CouncilAcronym} - {rule.ResolutionNumber}]: {rule.GuidelinesText}";
+                }
+            }
+        }
+
+        // Substituição de variáveis no User Prompt e System Prompt
         foreach (var (key, value) in variables)
         {
             var placeholder = "{{" + key + "}}";
@@ -69,5 +95,18 @@ public sealed class DynamicPromptEngine : IDynamicPromptEngine
             MaxTokens = maxTokens,
             ResponseFormatJson = responseFormatJson
         };
+    }
+
+    private static string? InferCouncilFromProfessao(string profissao)
+    {
+        var p = profissao.ToLowerInvariant();
+        if (p.Contains("médic") || p.Contains("medic") || p.Contains("dermatolog") || p.Contains("cirurgiã") || p.Contains("pediatra"))
+            return "CFM";
+        if (p.Contains("dentis") || p.Contains("odont"))
+            return "CRO";
+        if (p.Contains("biomédic") || p.Contains("biomedic"))
+            return "CRBM";
+
+        return null;
     }
 }

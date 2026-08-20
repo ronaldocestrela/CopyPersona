@@ -290,13 +290,13 @@ Motor de monetização SaaS B2C totalmente funcional, integrando Stripe Checkout
 - **Entregáveis da Subfase 6.5:**
   - [x] Painel de observabilidade de custos, desempenho e erros de LLM em tempo real operando com 290 testes verdes na solução.
 
-### Subfase 6.6: Moderador de Qualidade, Regras dos Conselhos (CRO/CFM/CRBM) e Dicionário Global
+### Subfase 6.6: Moderador de Qualidade, Regras dos Conselhos (CRO/CFM/CRBM) e Dicionário Global [CONCLUÍDO]
 - **Tarefas:**
-  - Criar página `/admin/conselhos-eticos`: cadastro e edição das diretrizes regulatórias por conselho profissional (ex: Regras atualizadas de publicidade do CFM 2.336/2023, Resoluções do CRO, CRBM).
-  - Injeção automática das regras atualizadas do conselho selecionado na Anamnese do profissional durante a chamada dos Agentes.
-  - Banco de termos proibidos (Blacklist de palavras proibidas pela legislação ou diretrizes de anúncio).
+  - [x] Criar página `/admin/conselhos-eticos`: cadastro e edição das diretrizes regulatórias por conselho profissional (ex: Regras atualizadas de publicidade do CFM 2.336/2023, Resoluções do CRO, CRBM).
+  - [x] Injeção automática das regras atualizadas do conselho selecionado na Anamnese do profissional durante a chamada dos Agentes.
+  - [x] Banco de termos proibidos (Blacklist de palavras proibidas pela legislação ou diretrizes de anúncio).
 - **Entregáveis da Subfase 6.6:**
-  - Central de governança ética e compliance regulatório de saúde atualizável no Backoffice.
+  - [x] Central de governança ética e compliance regulatório de saúde atualizável no Backoffice operando com 301 testes verdes na solução.
 
 #### Resultado Esperado da FASE 6:
 Módulo de Backoffice completo e seguro, permitindo ao time de operações gerenciar assinantes, prestar suporte via impersonação auditada, gerenciar finanças e quotas, editar e versionar prompts de IA sem re-deploy, monitorar custos de API em tempo real e garantir compliance regulatório com conselhos de saúde.

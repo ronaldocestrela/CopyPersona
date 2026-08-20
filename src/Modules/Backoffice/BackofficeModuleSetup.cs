@@ -38,9 +38,12 @@ public static class BackofficeModuleSetup
         services.AddScoped<IAdminAuditLogRepository, AdminAuditLogRepository>();
         services.AddScoped<IPromptTemplateRepository, PromptTemplateRepository>();
         services.AddScoped<IAgentExecutionLogRepository, AgentExecutionLogRepository>();
+        services.AddScoped<ICouncilRuleRepository, CouncilRuleRepository>();
+        services.AddScoped<IForbiddenTermRepository, ForbiddenTermRepository>();
         services.AddSingleton<PersonaScript.Modules.Backoffice.Application.Services.ILLMCostCalculator, PersonaScript.Modules.Backoffice.Application.Services.LLMCostCalculator>();
         services.AddSingleton<PersonaScript.Modules.Backoffice.Application.Abstractions.ILLMTelemetryService, PersonaScript.Modules.Backoffice.Application.Services.LLMTelemetryService>();
         services.AddScoped<PersonaScript.Modules.Backoffice.Application.Services.IDynamicPromptEngine, PersonaScript.Modules.Backoffice.Application.Services.DynamicPromptEngine>();
+        services.AddScoped<PersonaScript.Modules.Backoffice.Application.Services.IQualityModeratorService, PersonaScript.Modules.Backoffice.Application.Services.QualityModeratorService>();
 
         // Handlers CQRS
         services.AddScoped<IQueryHandler<GetTenantsQuery, GetTenantsResult>, GetTenantsQueryHandler>();
@@ -53,6 +56,8 @@ public static class BackofficeModuleSetup
         services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetTelemetrySummaryQuery, TelemetrySummaryDto>, PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetTelemetrySummaryQueryHandler>();
         services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAgentExecutionLogsQuery, PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAgentExecutionLogsResult>, PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAgentExecutionLogsQueryHandler>();
         services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAnomalyAlertsQuery, IReadOnlyList<AnomalyAlertDto>>, PersonaScript.Modules.Backoffice.Application.Queries.Telemetry.GetAnomalyAlertsQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Compliance.GetCouncilRulesQuery, IReadOnlyList<CouncilRuleDto>>, PersonaScript.Modules.Backoffice.Application.Queries.Compliance.GetCouncilRulesQueryHandler>();
+        services.AddScoped<IQueryHandler<PersonaScript.Modules.Backoffice.Application.Queries.Compliance.GetForbiddenTermsQuery, IReadOnlyList<ForbiddenTermDto>>, PersonaScript.Modules.Backoffice.Application.Queries.Compliance.GetForbiddenTermsQueryHandler>();
 
         services.AddScoped<ICommandHandler<StartImpersonationCommand, Guid>, StartImpersonationCommandHandler>();
         services.AddScoped<ICommandHandler<StopImpersonationCommand>, StopImpersonationCommandHandler>();
@@ -65,8 +70,34 @@ public static class BackofficeModuleSetup
         services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Prompts.CreatePromptVersionCommand, Guid>, PersonaScript.Modules.Backoffice.Application.Commands.Prompts.CreatePromptVersionCommandHandler>();
         services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Prompts.RollbackPromptVersionCommand>, PersonaScript.Modules.Backoffice.Application.Commands.Prompts.RollbackPromptVersionCommandHandler>();
         services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Prompts.TestPromptPlaygroundCommand, TestPromptResultDto>, PersonaScript.Modules.Backoffice.Application.Commands.Prompts.TestPromptPlaygroundCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Compliance.CreateCouncilRuleCommand, Guid>, PersonaScript.Modules.Backoffice.Application.Commands.Compliance.CreateCouncilRuleCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Compliance.UpdateCouncilRuleCommand>, PersonaScript.Modules.Backoffice.Application.Commands.Compliance.UpdateCouncilRuleCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Compliance.ToggleCouncilRuleStatusCommand>, PersonaScript.Modules.Backoffice.Application.Commands.Compliance.ToggleCouncilRuleStatusCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Compliance.CreateForbiddenTermCommand, Guid>, PersonaScript.Modules.Backoffice.Application.Commands.Compliance.CreateForbiddenTermCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Compliance.UpdateForbiddenTermCommand>, PersonaScript.Modules.Backoffice.Application.Commands.Compliance.UpdateForbiddenTermCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Compliance.ToggleForbiddenTermStatusCommand>, PersonaScript.Modules.Backoffice.Application.Commands.Compliance.ToggleForbiddenTermStatusCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Compliance.DeleteForbiddenTermCommand>, PersonaScript.Modules.Backoffice.Application.Commands.Compliance.DeleteForbiddenTermCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Compliance.ModerateContentCommand, QualityModerationResultDto>, PersonaScript.Modules.Backoffice.Application.Commands.Compliance.ModerateContentCommandHandler>();
 
         return services;
+    }
+
+    public static async Task ApplyBackofficeMigrationsAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
+    {
+        using var scope = services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<BackofficeDbContext>();
+
+        if (dbContext.Database.IsRelational())
+        {
+            await dbContext.Database.MigrateAsync(cancellationToken);
+        }
+        else
+        {
+            await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+        }
+
+        await PromptTemplateSeeder.SeedDefaultPromptsAsync(dbContext, cancellationToken);
+        await EthicalGovernanceSeeder.SeedAsync(dbContext, cancellationToken);
     }
 }
 

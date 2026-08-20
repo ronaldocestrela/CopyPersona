@@ -1,31 +1,639 @@
 @page "/admin/conselhos-eticos"
 @layout PersonaScript.Server.Components.Layout.Admin.AdminLayout
 @using Microsoft.AspNetCore.Authorization
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Backoffice.Application.Commands.Compliance
+@using PersonaScript.Modules.Backoffice.Application.DTOs
+@using PersonaScript.Modules.Backoffice.Application.Queries.Compliance
+@using PersonaScript.Modules.Backoffice.Domain.Enums
 @attribute [Authorize(Policy = "RequireSystemAdmin")]
 
-<PageTitle>Conselhos Éticos & Compliance — Backoffice PersonaScript AI</PageTitle>
+@inject IQueryHandler<GetCouncilRulesQuery, IReadOnlyList<CouncilRuleDto>> GetCouncilRulesHandler
+@inject IQueryHandler<GetForbiddenTermsQuery, IReadOnlyList<ForbiddenTermDto>> GetForbiddenTermsHandler
+@inject ICommandHandler<CreateCouncilRuleCommand, Guid> CreateCouncilRuleHandler
+@inject ICommandHandler<UpdateCouncilRuleCommand> UpdateCouncilRuleHandler
+@inject ICommandHandler<ToggleCouncilRuleStatusCommand> ToggleCouncilRuleStatusHandler
+@inject ICommandHandler<CreateForbiddenTermCommand, Guid> CreateForbiddenTermHandler
+@inject ICommandHandler<UpdateForbiddenTermCommand> UpdateForbiddenTermHandler
+@inject ICommandHandler<ToggleForbiddenTermStatusCommand> ToggleForbiddenTermStatusHandler
+@inject ICommandHandler<DeleteForbiddenTermCommand> DeleteForbiddenTermHandler
+@inject ICommandHandler<ModerateContentCommand, QualityModerationResultDto> ModerateContentHandler
+
+<PageTitle>Governança Ética & Moderador — Backoffice PersonaScript AI</PageTitle>
 
 <div class="space-y-6">
-    <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-5 gap-4">
         <div>
             <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
-                <span class="material-symbols-outlined text-amber-400">gavel</span>
-                Dicionário de Conselhos Éticos & Regras
+                <span class="material-symbols-outlined text-amber-400 text-3xl">gavel</span>
+                Central de Governança Ética & Moderador de Qualidade
             </h1>
-            <p class="text-slate-400 text-sm mt-1">Diretrizes regulatórias por conselho (CFM, CRO, CRBM), termos proibidos e compliance</p>
+            <p class="text-slate-400 text-sm mt-1">
+                Diretrizes dos conselhos de saúde (CFM, CRO, CRBM), Dicionário Global de termos proibidos e auditoria de compliance.
+            </p>
         </div>
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            Subfase 6.6 — Planejada
-        </span>
+        <div class="flex items-center gap-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                Subfase 6.6 — Ativo
+            </span>
+        </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
-        <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-2xl">
-            <span class="material-symbols-outlined">policy</span>
+    @if (!string.IsNullOrEmpty(_feedbackMessage))
+    {
+        <div class="p-4 rounded-xl border text-sm flex items-center justify-between @(_isFeedbackError ? "bg-red-500/10 border-red-500/20 text-red-400" : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400")">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">@(_isFeedbackError ? "error" : "check_circle")</span>
+                <span>@_feedbackMessage</span>
+            </div>
+            <button @onclick="() => _feedbackMessage = string.Empty" class="text-xs hover:underline">Fechar</button>
         </div>
-        <h3 class="text-lg font-bold text-white">Central de Governança Ética & Compliance</h3>
-        <p class="text-slate-400 text-sm max-w-xl mx-auto">
-            Cadastro e edição das diretrizes regulatórias para injeção automática no contexto dos Agentes, além de gerenciamento de termos proibidos (blacklist).
-        </p>
+    }
+
+    <!-- Tabs Header -->
+    <div class="flex border-b border-slate-800 space-x-6 text-sm font-semibold">
+        <button @onclick='() => _activeTab = "conselhos"'
+                class="pb-3 flex items-center gap-2 border-b-2 transition-colors @(_activeTab == "conselhos" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200")">
+            <span class="material-symbols-outlined text-lg">medical_services</span>
+            Conselhos Regulatórios (@(_councilRules?.Count ?? 0))
+        </button>
+        <button @onclick='() => _activeTab = "blacklist"'
+                class="pb-3 flex items-center gap-2 border-b-2 transition-colors @(_activeTab == "blacklist" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200")">
+            <span class="material-symbols-outlined text-lg">block</span>
+            Dicionário Global / Blacklist (@(_forbiddenTerms?.Count ?? 0))
+        </button>
+        <button @onclick='() => _activeTab = "moderador"'
+                class="pb-3 flex items-center gap-2 border-b-2 transition-colors @(_activeTab == "moderador" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200")">
+            <span class="material-symbols-outlined text-lg">policy</span>
+            Bancada de Testes do Moderador
+        </button>
     </div>
+
+    <!-- TAB 1: CONSELHOS REGULATÓRIOS -->
+    @if (_activeTab == "conselhos")
+    {
+        <div class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white">Diretrizes Regulatórias por Conselho</h2>
+                <button @onclick="OpenCreateCouncilModal" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-xl text-sm transition flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Nova Regra de Conselho
+                </button>
+            </div>
+
+            @if (_isLoading)
+            {
+                <div class="p-8 text-center text-slate-400">Carregando regras dos conselhos...</div>
+            }
+            else if (_councilRules == null || _councilRules.Count == 0)
+            {
+                <div class="p-8 text-center bg-slate-900 border border-slate-800 rounded-xl text-slate-400">Nenhuma regra de conselho cadastrada.</div>
+            }
+            else
+            {
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    @foreach (var rule in _councilRules)
+                    {
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 flex flex-col justify-between hover:border-slate-700 transition">
+                            <div>
+                                <div class="flex items-center justify-between">
+                                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                        @rule.CouncilAcronym
+                                    </span>
+                                    <button @onclick="() => ToggleCouncilStatus(rule.Id)"
+                                            class="px-2 py-0.5 rounded-full text-xs font-medium border transition @(rule.IsActive ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-800 text-slate-400 border-slate-700")">
+                                        @(rule.IsActive ? "Ativo" : "Inativo")
+                                    </button>
+                                </div>
+                                <h3 class="text-base font-bold text-white mt-3">@rule.CouncilName</h3>
+                                <p class="text-xs text-amber-300 font-mono mt-1">@rule.ResolutionNumber</p>
+                                <p class="text-slate-300 text-xs mt-3 leading-relaxed bg-slate-950/50 p-3 rounded-xl border border-slate-800/80">
+                                    @rule.GuidelinesText
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+                                <span>Categoria: <strong class="text-slate-200">@rule.Category</strong></span>
+                                <button @onclick="() => OpenEditCouncilModal(rule)" class="text-amber-400 hover:underline">Editar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    <!-- TAB 2: BLACKLIST DE TERMOS PROIBIDOS -->
+    @if (_activeTab == "blacklist")
+    {
+        <div class="space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <input type="text" @bind="_searchTerm" @bind:event="oninput" placeholder="Buscar termo..."
+                           class="w-full sm:w-64 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" />
+                </div>
+                <button @onclick="OpenCreateTermModal" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-semibold rounded-xl text-sm transition flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Adicionar Termo Proibido
+                </button>
+            </div>
+
+            @if (_forbiddenTerms == null || _forbiddenTerms.Count == 0)
+            {
+                <div class="p-8 text-center bg-slate-900 border border-slate-800 rounded-xl text-slate-400">Nenhum termo proibido cadastrado.</div>
+            }
+            else
+            {
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="bg-slate-950/60 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="px-5 py-3.5">Termo Proibido</th>
+                                <th class="px-5 py-3.5">Categoria</th>
+                                <th class="px-5 py-3.5">Severidade</th>
+                                <th class="px-5 py-3.5">Sugestão de Substituição</th>
+                                <th class="px-5 py-3.5">Status</th>
+                                <th class="px-5 py-3.5 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60">
+                            @foreach (var termItem in FilteredTerms)
+                            {
+                                <tr class="hover:bg-slate-800/30 transition">
+                                    <td class="px-5 py-4 font-bold text-white">@termItem.Term</td>
+                                    <td class="px-5 py-4 text-xs font-medium text-slate-300">@termItem.Category</td>
+                                    <td class="px-5 py-4">
+                                        @if (termItem.Severity == ForbiddenTermSeverity.Prohibited)
+                                        {
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">Proibido</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Alerta</span>
+                                        }
+                                    </td>
+                                    <td class="px-5 py-4 text-emerald-400 text-xs italic">
+                                        @(string.IsNullOrWhiteSpace(termItem.ReplacementSuggestion) ? "-" : termItem.ReplacementSuggestion)
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <button @onclick="() => ToggleTermStatus(termItem.Id)"
+                                                class="px-2 py-0.5 rounded-full text-xs font-medium border transition @(termItem.IsActive ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-slate-800 text-slate-400 border-slate-700")">
+                                            @(termItem.IsActive ? "Ativo" : "Inativo")
+                                        </button>
+                                    </td>
+                                    <td class="px-5 py-4 text-right space-x-2">
+                                        <button @onclick="() => OpenEditTermModal(termItem)" class="text-xs text-amber-400 hover:underline">Editar</button>
+                                        <button @onclick="() => DeleteTerm(termItem.Id)" class="text-xs text-red-400 hover:underline">Excluir</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- TAB 3: BANCADA DE TESTES DO MODERADOR -->
+    @if (_activeTab == "moderador")
+    {
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-400">verified</span>
+                Auditoria e Simulador de Moderador de Qualidade
+            </h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Conselho Regulatório para Contexto</label>
+                        <select @bind="_selectedCouncilForTest" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500">
+                            <option value="">Nenhum / Apenas Dicionário Global</option>
+                            <option value="CFM">CFM — Conselho Federal de Medicina</option>
+                            <option value="CRO">CRO — Conselho Regional de Odontologia</option>
+                            <option value="CRBM">CRBM — Conselho Regional de Biomedicina</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Texto / Roteiro para Moderação</label>
+                        <textarea @bind="_testContent" rows="8" placeholder="Cole aqui a cópia do roteiro ou postagem para testar violações regulatórias..."
+                                  class="w-full p-4 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono"></textarea>
+                    </div>
+
+                    <button @onclick="RunModerationTest" disabled="@_isModerating"
+                            class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-sm transition flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-lg">search_check</span>
+                        @(_isModerating ? "Auditando conteúdo..." : "Executar Auditoria de Compliance")
+                    </button>
+                </div>
+
+                <div>
+                    @if (_moderationResult != null)
+                    {
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Score de Compliance</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-extrabold @(_moderationResult.IsCompliant ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20")">
+                                    @_moderationResult.Score / 100
+                                </span>
+                            </div>
+
+                            @if (_moderationResult.CouncilRuleApplied != null)
+                            {
+                                <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg text-xs space-y-1">
+                                    <div class="text-amber-400 font-bold">@_moderationResult.CouncilRuleApplied.CouncilAcronym (@_moderationResult.CouncilRuleApplied.ResolutionNumber)</div>
+                                    <div class="text-slate-400 text-xs">@_moderationResult.CouncilRuleApplied.GuidelinesText</div>
+                                </div>
+                            }
+
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Violações Encontradas (@_moderationResult.Violations.Count)</h4>
+                                @if (_moderationResult.Violations.Count == 0)
+                                {
+                                    <p class="text-xs text-emerald-400 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-base">check_circle</span>
+                                        Nenhuma infração regulatória detectada.
+                                    </p>
+                                }
+                                else
+                                {
+                                    <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                                        @foreach (var v in _moderationResult.Violations)
+                                        {
+                                            <div class="p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-xs space-y-1">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="font-bold text-red-400">@v.Term</span>
+                                                    <span class="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded @(v.Severity == ForbiddenTermSeverity.Prohibited ? "bg-red-500/20 text-red-300" : "bg-amber-500/20 text-amber-300")">
+                                                        @v.Severity
+                                                    </span>
+                                                </div>
+                                                <div class="text-slate-400">@v.Reasoning</div>
+                                                @if (!string.IsNullOrEmpty(v.ReplacementSuggestion))
+                                                {
+                                                    <div class="text-emerald-400 text-[11px]">Sugestão: <strong>@v.ReplacementSuggestion</strong></div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(_moderationResult.SanitizedContent) && _moderationResult.Violations.Count > 0)
+                            {
+                                <div class="pt-3 border-t border-slate-800">
+                                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Texto Sanitizado Sugerido</h4>
+                                    <div class="p-3 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-300 font-mono leading-relaxed">
+                                        @_moderationResult.SanitizedContent
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="h-full border border-dashed border-slate-800 rounded-xl p-8 text-center flex flex-col items-center justify-center text-slate-500">
+                            <span class="material-symbols-outlined text-4xl mb-2 text-slate-600">find_in_page</span>
+                            <p class="text-xs">Insira um texto e execute o teste para visualizar o relatório detalhado de compliance.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
 </div>
+
+<!-- MODAL MANUTENÇÃO REGRA DE CONSELHO -->
+@if (_showCouncilModal)
+{
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white">@(_isEditingCouncil ? "Editar Regra de Conselho" : "Nova Regra de Conselho")</h3>
+
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Sigla do Conselho (ex: CFM, CRO)</label>
+                    <input type="text" @bind="_councilFormAcronym" disabled="@_isEditingCouncil"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Nome Completo do Conselho</label>
+                    <input type="text" @bind="_councilFormName"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Número / Identificação da Resolução</label>
+                    <input type="text" @bind="_councilFormResolution"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Categoria</label>
+                    <input type="text" @bind="_councilFormCategory"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Diretrizes Éticas / Texto do Prompt</label>
+                    <textarea @bind="_councilFormGuidelines" rows="4"
+                              class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500 text-xs font-mono"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                <button @onclick="() => _showCouncilModal = false" class="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold">Cancelar</button>
+                <button @onclick="SaveCouncilRule" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-sm">Salvar</button>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL MANUTENÇÃO TERMO PROIBIDO -->
+@if (_showTermModal)
+{
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-lg font-bold text-white">@(_isEditingTerm ? "Editar Termo Proibido" : "Novo Termo Proibido")</h3>
+
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Termo / Expressão Proibida</label>
+                    <input type="text" @bind="_termFormTerm"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Categoria</label>
+                    <input type="text" @bind="_termFormCategory"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Severidade</label>
+                    <select @bind="_termFormSeverity" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500">
+                        <option value="@ForbiddenTermSeverity.Prohibited">Proibido (Infração Gravíssima)</option>
+                        <option value="@ForbiddenTermSeverity.Warning">Alerta (Atenção Regulatória)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Sugestão de Substituição</label>
+                    <input type="text" @bind="_termFormReplacement"
+                           class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Motivo / Fundamentação Regulatória</label>
+                    <textarea @bind="_termFormReasoning" rows="3"
+                              class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-500 text-xs font-mono"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                <button @onclick="() => _showTermModal = false" class="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold">Cancelar</button>
+                <button @onclick="SaveForbiddenTerm" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl text-sm">Salvar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string _activeTab = "conselhos";
+    private bool _isLoading = true;
+    private string _feedbackMessage = string.Empty;
+    private bool _isFeedbackError = false;
+
+    private IReadOnlyList<CouncilRuleDto>? _councilRules;
+    private IReadOnlyList<ForbiddenTermDto>? _forbiddenTerms;
+    private string _searchTerm = string.Empty;
+
+    // Test Bench Moderador
+    private string _selectedCouncilForTest = "CFM";
+    private string _testContent = "Oferecemos cura garantida em apenas 7 dias com um procedimento 100% seguro e sem riscos para todos os pacientes.";
+    private QualityModerationResultDto? _moderationResult;
+    private bool _isModerating = false;
+
+    // Council Form State
+    private bool _showCouncilModal = false;
+    private bool _isEditingCouncil = false;
+    private Guid _editingCouncilId;
+    private string _councilFormAcronym = string.Empty;
+    private string _councilFormName = string.Empty;
+    private string _councilFormResolution = string.Empty;
+    private string _councilFormGuidelines = string.Empty;
+    private string _councilFormCategory = string.Empty;
+
+    // Term Form State
+    private bool _showTermModal = false;
+    private bool _isEditingTerm = false;
+    private Guid _editingTermId;
+    private string _termFormTerm = string.Empty;
+    private string _termFormCategory = string.Empty;
+    private ForbiddenTermSeverity _termFormSeverity = ForbiddenTermSeverity.Prohibited;
+    private string _termFormReplacement = string.Empty;
+    private string _termFormReasoning = string.Empty;
+
+    private IEnumerable<ForbiddenTermDto> FilteredTerms
+    {
+        get
+        {
+            if (_forbiddenTerms == null) return Enumerable.Empty<ForbiddenTermDto>();
+            if (string.IsNullOrWhiteSpace(_searchTerm)) return _forbiddenTerms;
+            return _forbiddenTerms.Where(t => t.Term.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                              t.Category.Contains(_searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var rulesResult = await GetCouncilRulesHandler.Handle(new GetCouncilRulesQuery(OnlyActive: false), CancellationToken.None);
+            if (rulesResult.IsSuccess)
+                _councilRules = rulesResult.Value;
+
+            var termsResult = await GetForbiddenTermsHandler.Handle(new GetForbiddenTermsQuery(OnlyActive: false), CancellationToken.None);
+            if (termsResult.IsSuccess)
+                _forbiddenTerms = termsResult.Value;
+        }
+        catch (Exception ex)
+        {
+            SetFeedback($"Erro ao carregar dados: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task RunModerationTest()
+    {
+        _isModerating = true;
+        try
+        {
+            var res = await ModerateContentHandler.Handle(new ModerateContentCommand(_testContent, _selectedCouncilForTest), CancellationToken.None);
+            if (res.IsSuccess)
+            {
+                _moderationResult = res.Value;
+            }
+        }
+        catch (Exception ex)
+        {
+            SetFeedback($"Falha no moderador: {ex.Message}", isError: true);
+        }
+        finally
+        {
+            _isModerating = false;
+        }
+    }
+
+    // Council Actions
+    private void OpenCreateCouncilModal()
+    {
+        _isEditingCouncil = false;
+        _councilFormAcronym = string.Empty;
+        _councilFormName = string.Empty;
+        _councilFormResolution = string.Empty;
+        _councilFormGuidelines = string.Empty;
+        _councilFormCategory = "Publicidade";
+        _showCouncilModal = true;
+    }
+
+    private void OpenEditCouncilModal(CouncilRuleDto dto)
+    {
+        _isEditingCouncil = true;
+        _editingCouncilId = dto.Id;
+        _councilFormAcronym = dto.CouncilAcronym;
+        _councilFormName = dto.CouncilName;
+        _councilFormResolution = dto.ResolutionNumber;
+        _councilFormGuidelines = dto.GuidelinesText;
+        _councilFormCategory = dto.Category;
+        _showCouncilModal = true;
+    }
+
+    private async Task SaveCouncilRule()
+    {
+        if (_isEditingCouncil)
+        {
+            var cmd = new UpdateCouncilRuleCommand(_editingCouncilId, _councilFormName, _councilFormResolution, _councilFormGuidelines, _councilFormCategory);
+            var res = await UpdateCouncilRuleHandler.Handle(cmd, CancellationToken.None);
+            if (res.IsSuccess)
+            {
+                SetFeedback("Regra do conselho atualizada com sucesso!");
+                _showCouncilModal = false;
+                await LoadDataAsync();
+            }
+            else
+            {
+                SetFeedback(res.Error.Message, isError: true);
+            }
+        }
+        else
+        {
+            var cmd = new CreateCouncilRuleCommand(_councilFormAcronym, _councilFormName, _councilFormResolution, _councilFormGuidelines, _councilFormCategory, true);
+            var res = await CreateCouncilRuleHandler.Handle(cmd, CancellationToken.None);
+            if (res.IsSuccess)
+            {
+                SetFeedback("Nova regra de conselho criada!");
+                _showCouncilModal = false;
+                await LoadDataAsync();
+            }
+            else
+            {
+                SetFeedback(res.Error.Message, isError: true);
+            }
+        }
+    }
+
+    private async Task ToggleCouncilStatus(Guid id)
+    {
+        var res = await ToggleCouncilRuleStatusHandler.Handle(new ToggleCouncilRuleStatusCommand(id), CancellationToken.None);
+        if (res.IsSuccess)
+        {
+            await LoadDataAsync();
+        }
+    }
+
+    // Term Actions
+    private void OpenCreateTermModal()
+    {
+        _isEditingTerm = false;
+        _termFormTerm = string.Empty;
+        _termFormCategory = "PromessaExcessiva";
+        _termFormSeverity = ForbiddenTermSeverity.Prohibited;
+        _termFormReplacement = string.Empty;
+        _termFormReasoning = string.Empty;
+        _showTermModal = true;
+    }
+
+    private void OpenEditTermModal(ForbiddenTermDto dto)
+    {
+        _isEditingTerm = true;
+        _editingTermId = dto.Id;
+        _termFormTerm = dto.Term;
+        _termFormCategory = dto.Category;
+        _termFormSeverity = dto.Severity;
+        _termFormReplacement = dto.ReplacementSuggestion;
+        _termFormReasoning = dto.Reasoning;
+        _showTermModal = true;
+    }
+
+    private async Task SaveForbiddenTerm()
+    {
+        if (_isEditingTerm)
+        {
+            var cmd = new UpdateForbiddenTermCommand(_editingTermId, _termFormTerm, _termFormCategory, _termFormSeverity, _termFormReplacement, _termFormReasoning);
+            var res = await UpdateForbiddenTermHandler.Handle(cmd, CancellationToken.None);
+            if (res.IsSuccess)
+            {
+                SetFeedback("Termo proibido atualizado com sucesso!");
+                _showTermModal = false;
+                await LoadDataAsync();
+            }
+            else
+            {
+                SetFeedback(res.Error.Message, isError: true);
+            }
+        }
+        else
+        {
+            var cmd = new CreateForbiddenTermCommand(_termFormTerm, _termFormCategory, _termFormSeverity, _termFormReplacement, _termFormReasoning, true);
+            var res = await CreateForbiddenTermHandler.Handle(cmd, CancellationToken.None);
+            if (res.IsSuccess)
+            {
+                SetFeedback("Novo termo proibido adicionado à Blacklist!");
+                _showTermModal = false;
+                await LoadDataAsync();
+            }
+            else
+            {
+                SetFeedback(res.Error.Message, isError: true);
+            }
+        }
+    }
+
+    private async Task ToggleTermStatus(Guid id)
+    {
+        var res = await ToggleForbiddenTermStatusHandler.Handle(new ToggleForbiddenTermStatusCommand(id), CancellationToken.None);
+        if (res.IsSuccess)
+        {
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task DeleteTerm(Guid id)
+    {
+        var res = await DeleteForbiddenTermHandler.Handle(new DeleteForbiddenTermCommand(id), CancellationToken.None);
+        if (res.IsSuccess)
+        {
+            SetFeedback("Termo removido da Blacklist.");
+            await LoadDataAsync();
+        }
+    }
+
+    private void SetFeedback(string msg, bool isError = false)
+    {
+        _feedbackMessage = msg;
+        _isFeedbackError = isError;
+    }
+}

@@ -106,6 +106,7 @@ if (applyMigrations)
     await app.Services.ApplyBillingMigrationsAsync();
     await app.Services.ApplyPersonasMigrationsAsync();
     await app.Services.ApplyScriptsMigrationsAsync();
+    await app.Services.ApplyBackofficeMigrationsAsync();
 }
 
 if (!app.Environment.IsDevelopment())
