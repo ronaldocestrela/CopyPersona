@@ -106,4 +106,27 @@ public class UsageQuotaTests
         quota.PeriodStart.Should().Be(newStart);
         quota.PeriodEnd.Should().Be(newEnd);
     }
+
+    [Fact]
+    public void GrantExtraCredits_ShouldIncreaseLimits_WhenValid()
+    {
+        var quota = UsageQuota.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddDays(30), 10, 2, 20).Value;
+
+        var result = quota.GrantExtraCredits(5, 10, "Bônus Suporte Chamado #123");
+
+        result.IsSuccess.Should().BeTrue();
+        quota.ScriptsLimit.Should().Be(15);
+        quota.AiAnalysesLimit.Should().Be(30);
+    }
+
+    [Fact]
+    public void GrantExtraCredits_ShouldFail_WhenReasonIsMissing()
+    {
+        var quota = UsageQuota.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddDays(30), 10, 2, 20).Value;
+
+        var result = quota.GrantExtraCredits(5, 0, "   ");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("UsageQuota.ReasonRequired");
+    }
 }

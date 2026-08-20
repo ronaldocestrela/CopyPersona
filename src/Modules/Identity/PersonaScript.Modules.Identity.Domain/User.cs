@@ -26,9 +26,45 @@ public sealed class User : BaseEntity, IMustHaveTenant
 
     public UserRole Role { get; private set; } = UserRole.Subscriber;
 
+    public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
+
+    public bool IsFrozen { get; private set; }
+
+    public DateTimeOffset? FrozenAt { get; private set; }
+
+    public string? FreezeReason { get; private set; }
+
     public void AssignRole(UserRole role)
     {
         Role = role;
+    }
+
+    public Result Freeze(string reason)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Result.Failure(DomainErrors.Identity.FreezeReasonRequired);
+        }
+
+        IsFrozen = true;
+        FrozenAt = DateTimeOffset.UtcNow;
+        FreezeReason = reason.Trim();
+
+        return Result.Success();
+    }
+
+    public Result Unfreeze()
+    {
+        IsFrozen = false;
+        FrozenAt = null;
+        FreezeReason = null;
+
+        return Result.Success();
+    }
+
+    public void SetAdminPasswordHash(string newPasswordHash)
+    {
+        PasswordHash = newPasswordHash;
     }
 
     private User()

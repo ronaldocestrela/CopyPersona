@@ -1,31 +1,513 @@
 @page "/admin/tenants"
 @layout PersonaScript.Server.Components.Layout.Admin.AdminLayout
 @using Microsoft.AspNetCore.Authorization
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Backoffice.Application.DTOs
+@using PersonaScript.Modules.Backoffice.Application.Queries.GetTenants
+@using PersonaScript.Modules.Backoffice.Application.Queries.GetTenantDetails
+@inject IQueryHandler<GetTenantsQuery, GetTenantsResult> GetTenantsHandler
+@inject IQueryHandler<GetTenantDetailsQuery, TenantDetailsDto> GetTenantDetailsHandler
 @attribute [Authorize(Policy = "RequireSupportAgent")]
 
 <PageTitle>Tenants & Usuários — Backoffice PersonaScript AI</PageTitle>
 
 <div class="space-y-6">
-    <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
             <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
-                <span class="material-symbols-outlined text-indigo-400">group</span>
+                <span class="material-symbols-outlined text-indigo-400 text-3xl">group</span>
                 Tenants & Usuários
             </h1>
-            <p class="text-slate-400 text-sm mt-1">Gerenciamento de assinantes, diagnósticos e suporte ao cliente</p>
+            <p class="text-slate-400 text-sm mt-1">Gerenciamento de assinantes, diagnósticos, suporte auditado e limites</p>
         </div>
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            Subfase 6.2 — Planejada
-        </span>
+        <div class="flex items-center gap-3">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2"></span>
+                @TotalTenants Count Total
+            </span>
+        </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
-        <div class="w-12 h-12 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto text-2xl">
-            <span class="material-symbols-outlined">person_search</span>
+    <!-- Cards de Métricas -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl">
+                <span class="material-symbols-outlined">person</span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Assinantes</p>
+                <p class="text-2xl font-black text-white mt-1">@TotalTenants</p>
+            </div>
         </div>
-        <h3 class="text-lg font-bold text-white">Módulo de Gestão de Tenants & Impersonation</h3>
-        <p class="text-slate-400 text-sm max-w-xl mx-auto">
-            Esta seção conterá a tabela de busca de assinantes com filtros por e-mail, plano e consumo, além da ferramenta de <strong>Modo Suporte (Impersonate Tenant)</strong> auditada.
-        </p>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl">
+                <span class="material-symbols-outlined">check_circle</span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contas Ativas</p>
+                <p class="text-2xl font-black text-white mt-1">@ActiveCount</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-2xl">
+                <span class="material-symbols-outlined">block</span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contas Congeladas</p>
+                <p class="text-2xl font-black text-white mt-1">@FrozenCount</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-2xl">
+                <span class="material-symbols-outlined">auto_awesome</span>
+            </div>
+            <div>
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Consumo Total IA</p>
+                <p class="text-2xl font-black text-white mt-1">@TotalScriptsGenerated Roteiros</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Filtros & Busca -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="relative w-full sm:w-80">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">search</span>
+            <input type="text"
+                   placeholder="Buscar por e-mail ou nome..."
+                   @bind="SearchTerm"
+                   @bind:event="oninput"
+                   class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition" />
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+            <select @bind="StatusFilter" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                <option value="">Todos os Status</option>
+                <option value="Active">Ativas</option>
+                <option value="Frozen">Congeladas</option>
+            </select>
+
+            <button @onclick="LoadTenantsAsync" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2 rounded-xl text-sm transition flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">filter_list</span>
+                Filtrar
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabela de Tenants -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+        @if (IsLoading)
+        {
+            <div class="p-12 text-center text-slate-400">
+                <span class="material-symbols-outlined text-3xl animate-spin text-indigo-400">progress_activity</span>
+                <p class="text-sm mt-2">Carregando tenants...</p>
+            </div>
+        }
+        else if (!Tenants.Any())
+        {
+            <div class="p-12 text-center text-slate-400 space-y-3">
+                <span class="material-symbols-outlined text-4xl text-slate-600">person_off</span>
+                <p class="text-base font-bold text-white">Nenhum tenant encontrado</p>
+                <p class="text-xs text-slate-500">Tente ajustar seus termos de busca ou filtros.</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-950/50 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+                        <tr>
+                            <th class="px-6 py-4">Assinante / Tenant</th>
+                            <th class="px-6 py-4">Plano & Assinatura</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4">Consumo IA</th>
+                            <th class="px-6 py-4">Cadastro</th>
+                            <th class="px-6 py-4 text-right">Ações de Suporte</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60">
+                        @foreach (var tenant in Tenants)
+                        {
+                            <tr class="hover:bg-slate-800/30 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 text-indigo-400 font-bold flex items-center justify-center text-sm">
+                                            @tenant.FullName.FirstOrDefault()
+                                        </div>
+                                        <div>
+                                            <div class="font-bold text-white flex items-center gap-2">
+                                                @tenant.FullName
+                                                @if (tenant.Role == "SystemAdmin")
+                                                {
+                                                    <span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-1.5 py-0.5 rounded font-mono">ADMIN</span>
+                                                }
+                                            </div>
+                                            <div class="text-xs text-slate-400 font-mono">@tenant.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="font-medium text-slate-200">@tenant.PlanName</div>
+                                    <div class="text-xs text-slate-500">@tenant.SubscriptionStatus</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if (tenant.IsFrozen)
+                                    {
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20" title="@tenant.FreezeReason">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-400 mr-1.5"></span>
+                                            Congelada
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5"></span>
+                                            Ativa
+                                        </span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-xs">
+                                        <span class="font-bold text-white">@tenant.ScriptsGeneratedCount</span> / @tenant.ScriptsLimit roteiros
+                                    </div>
+                                    <div class="w-24 bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden">
+                                        <div class="bg-indigo-500 h-1.5 rounded-full" style="width: @(Math.Min(100, (double)tenant.ScriptsGeneratedCount / Math.Max(1, tenant.ScriptsLimit) * 100))%"></div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-slate-400 text-xs">
+                                    @tenant.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button @onclick="() => OpenDetails(tenant)" title="Ver Detalhes do Tenant" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                                            <span class="material-symbols-outlined text-sm">visibility</span>
+                                        </button>
+                                        
+                                        <button @onclick="() => OpenImpersonateModal(tenant)" title="Impersonar Tenant (Modo Suporte)" class="p-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 transition">
+                                            <span class="material-symbols-outlined text-sm">support_agent</span>
+                                        </button>
+
+                                        <button @onclick="() => OpenFreezeModal(tenant)" title="@(tenant.IsFrozen ? "Descongelar Conta" : "Congelar Conta")" class="p-1.5 rounded-lg @(tenant.IsFrozen ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20") transition">
+                                            <span class="material-symbols-outlined text-sm">@(tenant.IsFrozen ? "lock_open" : "lock")</span>
+                                        </button>
+
+                                        <button @onclick="() => OpenCreditsModal(tenant)" title="Conceder Créditos Extras" class="p-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 transition">
+                                            <span class="material-symbols-outlined text-sm">add_circle</span>
+                                        </button>
+
+                                        <button @onclick="() => OpenResetPasswordModal(tenant)" title="Redefinir Senha Manualmente" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                                            <span class="material-symbols-outlined text-sm">key</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </div>
+
+<!-- Modais -->
+@if (SelectedTenantForDetails != null)
+{
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-6 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center">
+                        @SelectedTenantForDetails.FullName.FirstOrDefault()
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">@SelectedTenantForDetails.FullName</h3>
+                        <p class="text-xs text-slate-400 font-mono">@SelectedTenantForDetails.Email</p>
+                    </div>
+                </div>
+                <button @onclick="() => SelectedTenantForDetails = null" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 text-xs">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <span class="text-slate-500 font-semibold block uppercase tracking-wider mb-1">Status & Plano</span>
+                    <p class="text-sm font-bold text-white">@SelectedTenantForDetails.PlanName (@SelectedTenantForDetails.SubscriptionStatus)</p>
+                    <p class="text-slate-400 mt-1">Conta: @(SelectedTenantForDetails.IsFrozen ? "Congelada" : "Ativa")</p>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <span class="text-slate-500 font-semibold block uppercase tracking-wider mb-1">Consumo IA</span>
+                    <p class="text-sm font-bold text-white">@SelectedTenantForDetails.ScriptsGeneratedCount / @SelectedTenantForDetails.ScriptsLimit Roteiros</p>
+                    <p class="text-slate-400 mt-1">@SelectedTenantForDetails.AiAnalysesCount / @SelectedTenantForDetails.AiAnalysesLimit Análises IA</p>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-slate-400 text-base">history</span>
+                    Histórico de Auditoria do Tenant
+                </h4>
+                @if (TenantDetails?.AuditHistory != null && TenantDetails.AuditHistory.Any())
+                {
+                    <div class="bg-slate-950 rounded-xl border border-slate-800 divide-y divide-slate-800 text-xs">
+                        @foreach (var log in TenantDetails.AuditHistory)
+                        {
+                            <div class="p-3 flex items-center justify-between">
+                                <div>
+                                    <span class="font-mono font-bold text-indigo-400">@log.ActionType</span>
+                                    <span class="text-slate-400 ml-2">por @log.AdminEmail</span>
+                                </div>
+                                <span class="text-slate-500">@log.Timestamp.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-xs text-slate-500 bg-slate-950 p-4 rounded-xl border border-slate-800">Nenhum evento registrado ainda.</p>
+                }
+            </div>
+
+            <div class="flex justify-end border-t border-slate-800 pt-4">
+                <button @onclick="() => SelectedTenantForDetails = null" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (SelectedTenantForImpersonate != null)
+{
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center gap-3 text-amber-400">
+                <span class="material-symbols-outlined text-2xl">support_agent</span>
+                <h3 class="text-lg font-bold text-white">Iniciar Modo Suporte</h3>
+            </div>
+            <p class="text-slate-300 text-xs leading-relaxed">
+                Você assumirá temporariamente o contexto do tenant <strong class="text-white">@SelectedTenantForImpersonate.Email</strong>. Informe o motivo obrigatório para registrar a auditoria.
+            </p>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Motivo / Chamado (mín. 10 caracteres):</label>
+                <textarea @bind="ImpersonateReason" rows="3" placeholder="Ex: Investigação de erro no chamado #1234..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500"></textarea>
+            </div>
+            @if (!string.IsNullOrEmpty(ImpersonateError))
+            {
+                <div class="text-rose-400 text-xs bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
+                    @ImpersonateError
+                </div>
+            }
+            <div class="flex justify-end gap-3 border-t border-slate-800 pt-4">
+                <button @onclick="() => SelectedTenantForImpersonate = null" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-4 py-2 rounded-xl transition">Cancelar</button>
+                <form action="/api/backoffice/impersonate/start" method="post">
+                    <input type="hidden" name="TargetTenantId" value="@SelectedTenantForImpersonate.TenantId" />
+                    <input type="hidden" name="TargetUserEmail" value="@SelectedTenantForImpersonate.Email" />
+                    <input type="hidden" name="Reason" value="@ImpersonateReason" />
+                    <button type="submit" disabled="@(string.IsNullOrWhiteSpace(ImpersonateReason) || ImpersonateReason.Trim().Length < 10)" class="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 font-bold text-xs px-4 py-2 rounded-xl transition flex items-center gap-1">
+                        Iniciar Impersonação
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@if (SelectedTenantForFreeze != null)
+{
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center gap-3 text-rose-400">
+                <span class="material-symbols-outlined text-2xl">@(SelectedTenantForFreeze.IsFrozen ? "lock_open" : "lock")</span>
+                <h3 class="text-lg font-bold text-white">@(SelectedTenantForFreeze.IsFrozen ? "Descongelar Conta" : "Congelar Conta")</h3>
+            </div>
+            <p class="text-slate-300 text-xs leading-relaxed">
+                Tenant: <strong class="text-white">@SelectedTenantForFreeze.Email</strong>
+            </p>
+            @if (!SelectedTenantForFreeze.IsFrozen)
+            {
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">Motivo do Congelamento:</label>
+                    <input type="text" @bind="FreezeReasonText" placeholder="Ex: Violação dos Termos de Uso" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-rose-500" />
+                </div>
+            }
+            <div class="flex justify-end gap-3 border-t border-slate-800 pt-4">
+                <button @onclick="() => SelectedTenantForFreeze = null" class="bg-slate-800 text-slate-300 text-xs font-semibold px-4 py-2 rounded-xl">Cancelar</button>
+                @if (SelectedTenantForFreeze.IsFrozen)
+                {
+                    <form action="/api/backoffice/tenants/unfreeze" method="post">
+                        <input type="hidden" name="TargetTenantId" value="@SelectedTenantForFreeze.TenantId" />
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition">Descongelar Agora</button>
+                    </form>
+                }
+                else
+                {
+                    <form action="/api/backoffice/tenants/freeze" method="post">
+                        <input type="hidden" name="TargetTenantId" value="@SelectedTenantForFreeze.TenantId" />
+                        <input type="hidden" name="Reason" value="@FreezeReasonText" />
+                        <button type="submit" disabled="@string.IsNullOrWhiteSpace(FreezeReasonText)" class="bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white font-bold text-xs px-4 py-2 rounded-xl transition">Congelar Agora</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@if (SelectedTenantForCredits != null)
+{
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center gap-3 text-indigo-400">
+                <span class="material-symbols-outlined text-2xl">add_circle</span>
+                <h3 class="text-lg font-bold text-white">Conceder Créditos Extras</h3>
+            </div>
+            <p class="text-slate-300 text-xs">
+                Tenant: <strong class="text-white">@SelectedTenantForCredits.Email</strong>
+            </p>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Roteiros Adicionais:</label>
+                    <input type="number" min="0" @bind="ExtraScriptsInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Análises de IA Adicionais:</label>
+                    <input type="number" min="0" @bind="ExtraAiAnalysesInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500" />
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Motivo / Justificativa:</label>
+                    <input type="text" @bind="CreditsReasonText" placeholder="Ex: Cortesia por instabilidade no serviço" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-white focus:outline-none focus:border-indigo-500" />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 border-t border-slate-800 pt-4">
+                <button @onclick="() => SelectedTenantForCredits = null" class="bg-slate-800 text-slate-300 text-xs font-semibold px-4 py-2 rounded-xl">Cancelar</button>
+                <form action="/api/backoffice/tenants/grant-credits" method="post">
+                    <input type="hidden" name="TargetTenantId" value="@SelectedTenantForCredits.TenantId" />
+                    <input type="hidden" name="ExtraScripts" value="@ExtraScriptsInput" />
+                    <input type="hidden" name="ExtraAiAnalyses" value="@ExtraAiAnalysesInput" />
+                    <input type="hidden" name="Reason" value="@CreditsReasonText" />
+                    <button type="submit" disabled="@(string.IsNullOrWhiteSpace(CreditsReasonText) || (ExtraScriptsInput <= 0 && ExtraAiAnalysesInput <= 0))" class="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
+                        Conceder Créditos
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@if (SelectedTenantForResetPassword != null)
+{
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center gap-3 text-slate-200">
+                <span class="material-symbols-outlined text-2xl">key</span>
+                <h3 class="text-lg font-bold text-white">Redefinir Senha Manualmente</h3>
+            </div>
+            <p class="text-slate-300 text-xs">
+                Tenant: <strong class="text-white">@SelectedTenantForResetPassword.Email</strong>
+            </p>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Nova Senha Temporária (mín. 8 caracteres):</label>
+                <input type="text" @bind="NewPasswordInput" placeholder="Informe a nova senha..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500 font-mono" />
+            </div>
+
+            <div class="flex justify-end gap-3 border-t border-slate-800 pt-4">
+                <button @onclick="() => SelectedTenantForResetPassword = null" class="bg-slate-800 text-slate-300 text-xs font-semibold px-4 py-2 rounded-xl">Cancelar</button>
+                <form action="/api/backoffice/tenants/reset-password" method="post">
+                    <input type="hidden" name="TargetTenantId" value="@SelectedTenantForResetPassword.TenantId" />
+                    <input type="hidden" name="NewPassword" value="@NewPasswordInput" />
+                    <button type="submit" disabled="@(string.IsNullOrWhiteSpace(NewPasswordInput) || NewPasswordInput.Length < 8)" class="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
+                        Redefinir Senha
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<TenantSummaryDto> Tenants { get; set; } = new();
+    private bool IsLoading { get; set; } = true;
+    private string SearchTerm { get; set; } = string.Empty;
+    private string StatusFilter { get; set; } = string.Empty;
+
+    private int TotalTenants => Tenants.Count;
+    private int ActiveCount => Tenants.Count(t => !t.IsFrozen);
+    private int FrozenCount => Tenants.Count(t => t.IsFrozen);
+    private int TotalScriptsGenerated => Tenants.Sum(t => t.ScriptsGeneratedCount);
+
+    private TenantSummaryDto? SelectedTenantForDetails;
+    private TenantDetailsDto? TenantDetails;
+
+    private TenantSummaryDto? SelectedTenantForImpersonate;
+    private string ImpersonateReason { get; set; } = string.Empty;
+    private string? ImpersonateError;
+
+    private TenantSummaryDto? SelectedTenantForFreeze;
+    private string FreezeReasonText { get; set; } = string.Empty;
+
+    private TenantSummaryDto? SelectedTenantForCredits;
+    private int ExtraScriptsInput { get; set; } = 5;
+    private int ExtraAiAnalysesInput { get; set; } = 0;
+    private string CreditsReasonText { get; set; } = string.Empty;
+
+    private TenantSummaryDto? SelectedTenantForResetPassword;
+    private string NewPasswordInput { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTenantsAsync();
+    }
+
+    private async Task LoadTenantsAsync()
+    {
+        IsLoading = true;
+        var result = await GetTenantsHandler.Handle(new GetTenantsQuery(SearchTerm, StatusFilter), CancellationToken.None);
+        if (result.IsSuccess)
+        {
+            Tenants = result.Value.Items.ToList();
+        }
+        IsLoading = false;
+    }
+
+    private async Task OpenDetails(TenantSummaryDto tenant)
+    {
+        SelectedTenantForDetails = tenant;
+        var detailsResult = await GetTenantDetailsHandler.Handle(new GetTenantDetailsQuery(tenant.TenantId), CancellationToken.None);
+        if (detailsResult.IsSuccess)
+        {
+            TenantDetails = detailsResult.Value;
+        }
+    }
+
+    private void OpenImpersonateModal(TenantSummaryDto tenant)
+    {
+        SelectedTenantForImpersonate = tenant;
+        ImpersonateReason = string.Empty;
+        ImpersonateError = null;
+    }
+
+    private void OpenFreezeModal(TenantSummaryDto tenant)
+    {
+        SelectedTenantForFreeze = tenant;
+        FreezeReasonText = string.Empty;
+    }
+
+    private void OpenCreditsModal(TenantSummaryDto tenant)
+    {
+        SelectedTenantForCredits = tenant;
+        ExtraScriptsInput = 5;
+        ExtraAiAnalysesInput = 0;
+        CreditsReasonText = string.Empty;
+    }
+
+    private void OpenResetPasswordModal(TenantSummaryDto tenant)
+    {
+        SelectedTenantForResetPassword = tenant;
+        NewPasswordInput = string.Empty;
+    }
+}

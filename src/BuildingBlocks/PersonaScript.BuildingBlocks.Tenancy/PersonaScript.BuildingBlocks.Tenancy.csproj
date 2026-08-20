@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PersonaScript.BuildingBlocks.Domain\PersonaScript.BuildingBlocks.Domain.csproj" />
+    <ProjectReference Include="..\PersonaScript.BuildingBlocks.Results\PersonaScript.BuildingBlocks.Results.csproj" />
   </ItemGroup>
 
   <ItemGroup>

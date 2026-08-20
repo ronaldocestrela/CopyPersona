@@ -38,5 +38,11 @@ public static class DomainErrors
 
         public static Error ProviderRequired =>
             Error.Validation("identity.provider_required", "Provedor de autenticação é obrigatório.");
+
+        public static Error AccountFrozen =>
+            Error.Unauthorized("identity.account_frozen", "Sua conta está temporariamente congelada pelo suporte.");
+
+        public static Error FreezeReasonRequired =>
+            Error.Validation("identity.freeze_reason_required", "O motivo do congelamento é obrigatório.");
     }
 }

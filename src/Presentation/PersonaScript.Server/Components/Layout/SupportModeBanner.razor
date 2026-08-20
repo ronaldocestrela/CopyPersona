@@ -1,0 +1,21 @@
+@using PersonaScript.BuildingBlocks.Tenancy
+@inject IImpersonationService ImpersonationService
+
+@if (ImpersonationService.IsImpersonating)
+{
+    <div class="bg-amber-500/10 border-b border-amber-500/30 text-amber-300 px-4 py-2 text-sm flex items-center justify-between shadow-lg sticky top-0 z-50 backdrop-blur-md">
+        <div class="flex items-center gap-2 font-medium">
+            <span class="material-symbols-outlined text-amber-400 text-base animate-pulse">shield_person</span>
+            <span>
+                <strong>Modo Suporte Ativo:</strong> Visualizando o sistema como 
+                <span class="underline font-bold text-amber-200">@(ImpersonationService.TargetUserEmail ?? "Assinante Alvo")</span>. Todas as ações são auditadas.
+            </span>
+        </div>
+        <form action="/api/backoffice/impersonate/stop" method="post" class="inline">
+            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-1 rounded text-xs transition flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">logout</span>
+                Encerrar Modo Suporte
+            </button>
+        </form>
+    </div>
+}

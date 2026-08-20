@@ -140,4 +140,22 @@ public class UsageQuota : BaseEntity, IMustHaveTenant
 
         return Result.Success();
     }
+
+    public Result GrantExtraCredits(int extraScripts, int extraAiAnalyses, string reason)
+    {
+        if (extraScripts < 0 || extraAiAnalyses < 0 || (extraScripts == 0 && extraAiAnalyses == 0))
+        {
+            return Result.Failure(Error.Validation("UsageQuota.InvalidExtraCredits", "Informe um valor positivo para os créditos adicionais."));
+        }
+
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Result.Failure(Error.Validation("UsageQuota.ReasonRequired", "O motivo da concessão de créditos é obrigatório."));
+        }
+
+        ScriptsLimit += extraScripts;
+        AiAnalysesLimit += extraAiAnalyses;
+
+        return Result.Success();
+    }
 }

@@ -19,6 +19,11 @@ public sealed class LoginUserCommandHandler(
             return Result.Failure<LoginResult>(DomainErrors.Identity.InvalidCredentials);
         }
 
+        if (user.IsFrozen)
+        {
+            return Result.Failure<LoginResult>(DomainErrors.Identity.AccountFrozen);
+        }
+
         return Result.Success(new LoginResult(user.Id, user.Email, user.FullName, user.Role.ToString()));
     }
 }

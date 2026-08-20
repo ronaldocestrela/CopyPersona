@@ -17,7 +17,8 @@ public sealed class HttpContextTenantContext(IHttpContextAccessor httpContextAcc
                 return TenantId.From(Guid.Empty);
             }
 
-            var claimValue = user.FindFirst(TenantIdClaimType)?.Value
+            var claimValue = user.FindFirst("impersonated_tenant_id")?.Value
+                ?? user.FindFirst(TenantIdClaimType)?.Value
                 ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? user.FindFirst("sub")?.Value;
 

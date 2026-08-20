@@ -34,4 +34,10 @@ public sealed class UsageQuotaRepository(BillingDbContext dbContext) : IUsageQuo
     {
         dbContext.UsageQuotas.Update(quota);
     }
+
+    public async Task UpdateAsync(UsageQuota quota, CancellationToken cancellationToken = default)
+    {
+        dbContext.UsageQuotas.Update(quota);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

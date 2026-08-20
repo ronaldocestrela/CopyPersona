@@ -89,6 +89,7 @@ builder.Services.AddPersonasModule(builder.Configuration);
 builder.Services.AddScriptsModule(builder.Configuration);
 builder.Services.AddBackofficeModule(builder.Configuration);
 builder.Services.AddScoped<PersonaScript.Server.Services.IQuotaNotifierService, PersonaScript.Server.Services.QuotaNotifierService>();
+builder.Services.AddScoped<IImpersonationService, PersonaScript.Server.Services.CookieImpersonationService>();
 
 builder.Services.AddHealthChecks();
 

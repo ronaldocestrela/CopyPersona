@@ -9,11 +9,22 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.10" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Domain\PersonaScript.BuildingBlocks.Domain.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Tenancy\PersonaScript.BuildingBlocks.Tenancy.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.CQRS\PersonaScript.BuildingBlocks.CQRS.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Results\PersonaScript.BuildingBlocks.Results.csproj" />
+    <ProjectReference Include="..\Identity\PersonaScript.Modules.Identity.Domain\PersonaScript.Modules.Identity.Domain.csproj" />
+    <ProjectReference Include="..\Identity\PersonaScript.Modules.Identity.Application\PersonaScript.Modules.Identity.Application.csproj" />
+    <ProjectReference Include="..\Billing\PersonaScript.Modules.Billing.Domain\PersonaScript.Modules.Billing.Domain.csproj" />
+    <ProjectReference Include="..\Billing\PersonaScript.Modules.Billing.Application\PersonaScript.Modules.Billing.Application.csproj" />
+    <ProjectReference Include="..\Anamnese\PersonaScript.Modules.Anamnese.Domain\PersonaScript.Modules.Anamnese.Domain.csproj" />
+    <ProjectReference Include="..\Personas\PersonaScript.Modules.Personas.Domain\PersonaScript.Modules.Personas.Domain.csproj" />
+    <ProjectReference Include="..\Scripts\PersonaScript.Modules.Scripts.Domain\PersonaScript.Modules.Scripts.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -255,14 +255,14 @@ Motor de monetização SaaS B2C totalmente funcional, integrando Stripe Checkout
 - **Entregáveis da Subfase 6.1:**
   - [x] Layout base do Backoffice responsivo, protegido por autorização RBAC, com navegação estruturada sob `/admin/...` e operando com 251 testes verdes na solução.
 
-### Subfase 6.2: Gestão de Tenants, Usuários e Impermersonação de Suporte (Impersonation)
+### Subfase 6.2: Gestão de Tenants, Usuários e Impersonação de Suporte (Impersonation) [CONCLUÍDO]
 - **Tarefas:**
-  - Criar página `/admin/tenants`: tabela com filtros por e-mail, nome, plano, status de assinatura, data de cadastro e consumo de IA.
-  - Detalhe do tenant: visualização da Anamnese preenchida, diagnósticos gerados, número de roteiros emitidos e log de erros do tenant.
-  - Funcionalidade de **Modo Suporte (Impersonate Tenant)**: permite que um agente de suporte navegue no aplicativo com a visão do usuário para diagnosticar problemas (gerando log de auditoria `AdminImpersonationLog` com motivo obrigatório).
-  - Ações administrativas: redefinir senha manualmente, congelar conta, conceder créditos de geração extras.
+  - [x] Criar página `/admin/tenants`: tabela com filtros por e-mail, nome, plano, status de assinatura, data de cadastro e consumo de IA.
+  - [x] Detalhe do tenant: visualização consolidada da Anamnese preenchida, diagnósticos gerados, número de roteiros emitidos e histórico de auditoria.
+  - [x] Funcionalidade de **Modo Suporte (Impersonate Tenant)**: permite que um agente de suporte navegue no aplicativo com a visão do usuário para diagnosticar problemas (gerando log de auditoria `AdminImpersonationLog` com motivo obrigatório de no mínimo 10 caracteres).
+  - [x] Ações administrativas: redefinir senha manualmente (`AdminResetUserPasswordCommand`), congelar/descongelar conta (`FreezeTenantAccountCommand`/`UnfreezeTenantAccountCommand`), conceder créditos de geração extras (`GrantTenantExtraCreditsCommand`).
 - **Entregáveis da Subfase 6.2:**
-  - Gerenciador de usuários/tenants com ferramenta de suporte auditada funcional.
+  - [x] Gerenciador de usuários/tenants com ferramenta de suporte auditada funcional e 261 testes verdes na solução.
 
 ### Subfase 6.3: Gestão Financeira, Controle de Planos e Sobrescrita de Limites
 - **Tarefas:**

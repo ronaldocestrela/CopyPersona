@@ -7,5 +7,6 @@ public interface IUsageQuotaRepository
     Task<IReadOnlyList<UsageQuota>> GetExpiredQuotasAsync(DateTime beforeDate, CancellationToken cancellationToken = default);
     Task AddAsync(UsageQuota quota, CancellationToken cancellationToken = default);
     void Update(UsageQuota quota);
+    Task UpdateAsync(UsageQuota quota, CancellationToken cancellationToken = default);
 }
 

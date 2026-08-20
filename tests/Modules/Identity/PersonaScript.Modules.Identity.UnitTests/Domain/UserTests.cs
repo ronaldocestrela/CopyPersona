@@ -103,4 +103,42 @@ public class UserTests
         user.PasswordResetToken.Should().BeNull();
         user.PasswordResetTokenExpiresAt.Should().BeNull();
     }
+
+    [Fact]
+    public void Freeze_ShouldSetIsFrozenTrue_AndReason()
+    {
+        var user = User.Register("Maria Silva", "maria@example.com", "old-hash").Value;
+
+        var result = user.Freeze("Violação de termos");
+
+        result.IsSuccess.Should().BeTrue();
+        user.IsFrozen.Should().BeTrue();
+        user.FreezeReason.Should().Be("Violação de termos");
+        user.FrozenAt.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Freeze_ShouldFail_WhenReasonIsEmpty()
+    {
+        var user = User.Register("Maria Silva", "maria@example.com", "old-hash").Value;
+
+        var result = user.Freeze("   ");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("identity.freeze_reason_required");
+    }
+
+    [Fact]
+    public void Unfreeze_ShouldResetIsFrozenFalse()
+    {
+        var user = User.Register("Maria Silva", "maria@example.com", "old-hash").Value;
+        user.Freeze("Suspeita de fraudes");
+
+        var result = user.Unfreeze();
+
+        result.IsSuccess.Should().BeTrue();
+        user.IsFrozen.Should().BeFalse();
+        user.FreezeReason.Should().BeNull();
+        user.FrozenAt.Should().BeNull();
+    }
 }
