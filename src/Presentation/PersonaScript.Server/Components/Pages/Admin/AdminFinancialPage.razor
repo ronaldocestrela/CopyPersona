@@ -1,0 +1,31 @@
+@page "/admin/financeiro"
+@layout PersonaScript.Server.Components.Layout.Admin.AdminLayout
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "RequireFinanceAdmin")]
+
+<PageTitle>Financeiro & Planos — Backoffice PersonaScript AI</PageTitle>
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+        <div>
+            <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                <span class="material-symbols-outlined text-emerald-400">payments</span>
+                Gestão Financeira & Planos
+            </h1>
+            <p class="text-slate-400 text-sm mt-1">Métricas de MRR, Churn, controle dinâmico de limites e sobrescrita de quotas</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            Subfase 6.3 — Planejada
+        </span>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
+        <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl">
+            <span class="material-symbols-outlined">query_stats</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Dashboard Financeiro & Sobrescrita de Quotas</h3>
+        <p class="text-slate-400 text-sm max-w-xl mx-auto">
+            Permitirá monitorar MRR, Churn Rate, inadimplência e ajustar dinamicamente as franquias de cada plano ou conceder bônus VIP de geração para assinantes específicos.
+        </p>
+    </div>
+</div>

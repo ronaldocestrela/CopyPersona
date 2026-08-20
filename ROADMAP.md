@@ -246,13 +246,14 @@ Motor de monetização SaaS B2C totalmente funcional, integrando Stripe Checkout
 
 ## FASE 6: Módulo de Backoffice — Painel de Gestão e Administração do Sistema
 
-### Subfase 6.1: Arquitetura da Área Administrativa e Layout do Backoffice
+### Subfase 6.1: Arquitetura da Área Administrativa e Layout do Backoffice [CONCLUÍDO]
 - **Tarefas:**
-  - Criar o módulo ou área `PersonaScript.Modules.Backoffice` e o conjunto de páginas sob a rota `/admin/...`.
-  - Configurar autorização obrigatória baseada no papel `RequireSystemAdmin` ou `RequireSupportAgent`.
-  - Desenvolver layout administrativo exclusivo com navegação por: Dashboard Geral, Tenants/Usuários, Gestão de Prompts IA, Monitoria de Execução, Financeiro/Planos, Dicionário de Conselhos Éticos e Logs de Auditoria.
+  - [x] Criar o módulo `PersonaScript.Modules.Backoffice` e o conjunto de páginas sob a rota `/admin/...`.
+  - [x] Configurar autorização obrigatória baseada em políticas de papéis (`RequireBackofficeAccess`, `RequireSystemAdmin`, `RequireSupportAgent`, `RequireFinanceAdmin`).
+  - [x] Desenvolver layout administrativo exclusivo (`AdminLayout.razor`) com navegação por: Dashboard Geral (`/admin`), Tenants/Usuários (`/admin/tenants`), Gestão de Prompts IA (`/admin/prompts`), Telemetria (`/admin/telemetria`), Financeiro/Planos (`/admin/financeiro`), Dicionário de Conselhos Éticos (`/admin/conselhos-eticos`) e Logs de Auditoria (`/admin/auditoria`).
+  - [x] Escrever testes unitários e bUnit de componentes (`AdminNavMenuTests`, `AdminLayoutTests`, `BackofficeModuleSetupTests`) com 251 testes verdes na solução.
 - **Entregáveis da Subfase 6.1:**
-  - Layout base do Backoffice responsivo, protegido por autorização RBAC e com menu navegação estruturado.
+  - [x] Layout base do Backoffice responsivo, protegido por autorização RBAC, com navegação estruturada sob `/admin/...` e operando com 251 testes verdes na solução.
 
 ### Subfase 6.2: Gestão de Tenants, Usuários e Impermersonação de Suporte (Impersonation)
 - **Tarefas:**

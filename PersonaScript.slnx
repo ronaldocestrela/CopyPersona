@@ -33,6 +33,9 @@
     <Project Path="src/Modules/Scripts/PersonaScript.Modules.Scripts.Domain/PersonaScript.Modules.Scripts.Domain.csproj" />
     <Project Path="src/Modules/Scripts/PersonaScript.Modules.Scripts.Infrastructure/PersonaScript.Modules.Scripts.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Backoffice/">
+    <Project Path="src/Modules/Backoffice/PersonaScript.Modules.Backoffice.csproj" />
+  </Folder>
   <Folder Name="/src/Presentation/">
     <Project Path="src/Presentation/PersonaScript.Server/PersonaScript.Server.csproj" />
   </Folder>
@@ -44,6 +47,9 @@
   <Folder Name="/tests/Modules/" />
   <Folder Name="/tests/Modules/Anamnese/">
     <Project Path="tests/Modules/Anamnese/PersonaScript.Modules.Anamnese.UnitTests/PersonaScript.Modules.Anamnese.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/Modules/Backoffice/">
+    <Project Path="tests/Modules/Backoffice/PersonaScript.Modules.Backoffice.Tests/PersonaScript.Modules.Backoffice.Tests.csproj" />
   </Folder>
   <Folder Name="/tests/Modules/Billing/">
     <Project Path="tests/Modules/Billing/PersonaScript.Modules.Billing.Tests/PersonaScript.Modules.Billing.Tests.csproj" />

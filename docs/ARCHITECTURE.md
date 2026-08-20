@@ -19,6 +19,7 @@ flowchart TB
     Billing
     Personas
     Scripts
+    Backoffice
   end
   subgraph blocks [BuildingBlocks]
     Domain

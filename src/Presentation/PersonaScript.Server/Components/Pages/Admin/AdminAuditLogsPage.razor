@@ -1,0 +1,31 @@
+@page "/admin/auditoria"
+@layout PersonaScript.Server.Components.Layout.Admin.AdminLayout
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "RequireBackofficeAccess")]
+
+<PageTitle>Logs de Auditoria — Backoffice PersonaScript AI</PageTitle>
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+        <div>
+            <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                <span class="material-symbols-outlined text-slate-400">history</span>
+                Logs de Auditoria
+            </h1>
+            <p class="text-slate-400 text-sm mt-1">Trilha completa de ações administrativas, impersonações e alterações do sistema</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-500/10 text-slate-400 border border-slate-500/20">
+            Audit Trail
+        </span>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
+        <div class="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 text-slate-400 flex items-center justify-center mx-auto text-2xl">
+            <span class="material-symbols-outlined">receipt_long</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Trilha de Auditoria do Sistema</h3>
+        <p class="text-slate-400 text-sm max-w-xl mx-auto">
+            Registro imutável de todas as ações executadas pelos operadores do Backoffice, incluindo login em modo suporte (impersonation), alteração de prompts, reset de senhas e concessão de bônus.
+        </p>
+    </div>
+</div>

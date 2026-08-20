@@ -11,6 +11,7 @@ using PersonaScript.Modules.Identity.Application.Abstractions;
 using PersonaScript.Modules.Identity.Infrastructure;
 using PersonaScript.Modules.Personas.Infrastructure;
 using PersonaScript.Modules.Scripts.Infrastructure;
+using PersonaScript.Modules.Backoffice;
 using PersonaScript.Server.Components;
 using PersonaScript.Server.Endpoints;
 
@@ -86,6 +87,7 @@ builder.Services.AddAnamneseModule(builder.Configuration);
 builder.Services.AddBillingModule(builder.Configuration);
 builder.Services.AddPersonasModule(builder.Configuration);
 builder.Services.AddScriptsModule(builder.Configuration);
+builder.Services.AddBackofficeModule(builder.Configuration);
 builder.Services.AddScoped<PersonaScript.Server.Services.IQuotaNotifierService, PersonaScript.Server.Services.QuotaNotifierService>();
 
 builder.Services.AddHealthChecks();

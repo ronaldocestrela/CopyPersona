@@ -1,0 +1,31 @@
+@page "/admin/conselhos-eticos"
+@layout PersonaScript.Server.Components.Layout.Admin.AdminLayout
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Policy = "RequireSystemAdmin")]
+
+<PageTitle>Conselhos Éticos & Compliance — Backoffice PersonaScript AI</PageTitle>
+
+<div class="space-y-6">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-5">
+        <div>
+            <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                <span class="material-symbols-outlined text-amber-400">gavel</span>
+                Dicionário de Conselhos Éticos & Regras
+            </h1>
+            <p class="text-slate-400 text-sm mt-1">Diretrizes regulatórias por conselho (CFM, CRO, CRBM), termos proibidos e compliance</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            Subfase 6.6 — Planejada
+        </span>
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 text-center space-y-4">
+        <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-2xl">
+            <span class="material-symbols-outlined">policy</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Central de Governança Ética & Compliance</h3>
+        <p class="text-slate-400 text-sm max-w-xl mx-auto">
+            Cadastro e edição das diretrizes regulatórias para injeção automática no contexto dos Agentes, além de gerenciamento de termos proibidos (blacklist).
+        </p>
+    </div>
+</div>
