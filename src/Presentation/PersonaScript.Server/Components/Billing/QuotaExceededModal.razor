@@ -1,0 +1,86 @@
+@using PersonaScript.Server.Services
+@inject IQuotaNotifierService QuotaNotifier
+@inject NavigationManager Navigation
+@implements IDisposable
+
+@if (isVisible)
+{
+    <div class="quota-modal-backdrop" @onclick="CloseModal">
+        <div class="quota-modal-dialog" @onclick:stopPropagation="true">
+            <div class="quota-modal-header">
+                <div class="quota-modal-badge">
+                    <span class="quota-icon">🚀</span>
+                    <span class="quota-badge-text">Limite de Quota</span>
+                </div>
+                <button type="button" class="quota-modal-close" @onclick="CloseModal" aria-label="Fechar">&times;</button>
+            </div>
+
+            <div class="quota-modal-content">
+                <h3 class="quota-modal-title">Limite do Seu Plano Atingido</h3>
+                <p class="quota-modal-body">
+                    <strong>@resourceName:</strong> @message
+                </p>
+
+                <div class="quota-modal-features">
+                    <div class="quota-feature-item">
+                        <span class="check-icon">✓</span>
+                        <span>Desbloqueie até 100 roteiros de vídeo por mês</span>
+                    </div>
+                    <div class="quota-feature-item">
+                        <span class="check-icon">✓</span>
+                        <span>Crie personas ilimitadas e análises de IA profundas</span>
+                    </div>
+                    <div class="quota-feature-item">
+                        <span class="check-icon">✓</span>
+                        <span>Acesso ao Teleprompter e exportação ilimitada em PDF</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quota-modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal">
+                    Entendi / Fechar
+                </button>
+                <button type="button" class="btn btn-primary" @onclick="NavigateToUpgrade">
+                    Fazer Upgrade de Plano ⚡
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool isVisible = false;
+    private string resourceName = string.Empty;
+    private string message = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        QuotaNotifier.OnQuotaExceeded += HandleQuotaExceeded;
+    }
+
+    private void HandleQuotaExceeded(string resName, string msg)
+    {
+        resourceName = resName;
+        message = msg;
+        isVisible = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        isVisible = false;
+        StateHasChanged();
+    }
+
+    private void NavigateToUpgrade()
+    {
+        isVisible = false;
+        Navigation.NavigateTo("/minha-conta/assinatura");
+    }
+
+    public void Dispose()
+    {
+        QuotaNotifier.OnQuotaExceeded -= HandleQuotaExceeded;
+    }
+}

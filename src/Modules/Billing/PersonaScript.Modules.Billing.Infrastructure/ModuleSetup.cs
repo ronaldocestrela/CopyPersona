@@ -44,6 +44,8 @@ public static class ModuleSetup
         services.AddScoped<Application.Commands.CreateCustomerPortalSession.CreateCustomerPortalSessionCommandHandler>();
         services.AddScoped<Application.Commands.ProcessStripeWebhook.ProcessStripeWebhookCommandHandler>();
 
+        services.AddHostedService<BackgroundServices.MonthlyQuotaResetBackgroundService>();
+
         return services;
     }
 

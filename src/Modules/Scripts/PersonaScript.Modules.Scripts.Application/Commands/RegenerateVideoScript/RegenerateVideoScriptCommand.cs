@@ -5,4 +5,8 @@ namespace PersonaScript.Modules.Scripts.Application.Commands.RegenerateVideoScri
 public sealed record RegenerateVideoScriptCommand(
     Guid TargetScriptId,
     string FeedbackNotes
-) : ICommand<Guid>;
+) : ICommand<Guid>, IQuotaProtectedCommand
+{
+    public QuotaResourceType QuotaResource => QuotaResourceType.ScriptGeneration;
+}
+

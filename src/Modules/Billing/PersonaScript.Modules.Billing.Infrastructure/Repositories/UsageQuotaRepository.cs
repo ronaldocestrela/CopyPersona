@@ -16,6 +16,15 @@ public sealed class UsageQuotaRepository(BillingDbContext dbContext) : IUsageQuo
         return await dbContext.UsageQuotas.FirstOrDefaultAsync(q => q.SubscriptionId == subscriptionId, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<UsageQuota>> GetExpiredQuotasAsync(DateTime beforeDate, CancellationToken cancellationToken = default)
+    {
+        return await dbContext.UsageQuotas
+            .IgnoreQueryFilters()
+            .Where(q => q.PeriodEnd <= beforeDate)
+            .ToListAsync(cancellationToken);
+    }
+
+
     public async Task AddAsync(UsageQuota quota, CancellationToken cancellationToken = default)
     {
         await dbContext.UsageQuotas.AddAsync(quota, cancellationToken);

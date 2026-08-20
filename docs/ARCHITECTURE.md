@@ -185,14 +185,17 @@ Implementado:
 - Subfase 2.3 concluída: Interface Blazor Interativa (`AnamneseWizard.razor`), subcomponentes das 10 etapas (`Step1Component.razor` até `Step10Component.razor`), barra de progresso visual, ranker, tooltip didático e testes bUnit.
 - Subfase 2.4 concluída: Motor de Acompanhamento Automático por IA (`IAnamneseClarificationService` / `HeuristicClarificationAnalyzer`), query CQRS `AnalyzeStepClarificationQuery`, modal Blazor Stitch UI `AnamneseAIClarificationModal.razor` e testes automatizados TDD.
 - Subfase 3.1 concluída: Abstração de Integração com Provedores LLM (`PersonaScript.BuildingBlocks.AI`), interface `ILLMProvider`, resiliência e fallback automático de provedores com Polly, parsing e validação de schema JSON (`ILLMJsonParser`) e suíte de testes unitários TDD.
-- Subfase 3.3 concluída: Interface de Exibição e Ajuste do Diagnóstico de Posicionamento (`/posicionamento` e `/posicionamento/diagnostico`), suporte a edições manuais (`UpdatePersonaDiagnosisCommand`), regeneração assistida por IA com feedback do usuário (`GeneratePersonaDiagnosisCommand` com `Feedback`), componentes Blazor (`PosicionamentoDiagnosticoPage.razor`, `EditarDiagnosticoModal.razor`, `RegerarDiagnosticoModal.razor`), estilização Stitch UI (`posicionamento.css`) e testes automatizados TDD/bUnit.
+- Subfase 5.1 concluída: Modelagem do Módulo Billing e Assinaturas (entidades Plan, Subscription, UsageQuota, QuotaTransaction com isolamento de tenant).
+- Subfase 5.2 concluída: Integração com Gateway de Pagamento Stripe Checkout & Webhooks idempotentes (`POST /webhooks/stripe`).
+- Subfase 5.3 concluída: Validação de Quotas e Interceptadores de Limite de Uso com `QuotaValidationCommandHandlerDecorator` para Commands CQRS protegidos, background job automático `MonthlyQuotaResetBackgroundService` para renovação mensal de franquias e modal Blazor Stitch UI `QuotaExceededModal.razor`.
 
 Próxima entrega:
 
-- Subfase 4.1: Engine de Geração de Roteiros de Vídeo (Gancho, Retenção, CTA) do Agente 2 (Copywriter de Vídeo).
+- Subfase 5.4: Portal do Assinante e Gestão de Assinatura (`/minha-conta/assinatura`).
 
 ## Referências
 
 - [AGENTS.md](../AGENTS.md) — diretrizes para desenvolvimento
 - [README.md](../README.md) — como executar localmente
 - [docs/design/stitch/README.md](design/stitch/README.md) — assets Cadastro/Login
+

@@ -8,4 +8,8 @@ public sealed record GenerateVideoScriptCommand(
     string Objetivo,
     string? TomDesejado = null,
     string? InstrucoesAdicionais = null
-) : ICommand<Guid>;
+) : ICommand<Guid>, IQuotaProtectedCommand
+{
+    public QuotaResourceType QuotaResource => QuotaResourceType.ScriptGeneration;
+}
+

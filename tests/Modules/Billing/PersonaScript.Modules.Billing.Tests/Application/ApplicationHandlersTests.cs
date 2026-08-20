@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
+using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Tenancy;
 using PersonaScript.Modules.Billing.Application.Commands.ConsumeQuota;
 using PersonaScript.Modules.Billing.Application.Commands.InitializeTenantSubscription;

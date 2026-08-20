@@ -86,6 +86,7 @@ builder.Services.AddAnamneseModule(builder.Configuration);
 builder.Services.AddBillingModule(builder.Configuration);
 builder.Services.AddPersonasModule(builder.Configuration);
 builder.Services.AddScriptsModule(builder.Configuration);
+builder.Services.AddScoped<PersonaScript.Server.Services.IQuotaNotifierService, PersonaScript.Server.Services.QuotaNotifierService>();
 
 builder.Services.AddHealthChecks();
 

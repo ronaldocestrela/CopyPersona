@@ -1,3 +1,5 @@
+using PersonaScript.BuildingBlocks.CQRS;
+
 namespace PersonaScript.Modules.Billing.Domain;
 
 public enum PlanType
@@ -15,9 +17,3 @@ public enum SubscriptionStatus
     Canceled = 4
 }
 
-public enum QuotaResourceType
-{
-    ScriptGeneration = 1,
-    PersonaCreation = 2,
-    AiAnalysis = 3
-}

@@ -219,13 +219,15 @@ Sistema completo de geração de cópias e roteiros de vídeo, plano de stories 
 - **Entregáveis da Subfase 5.2:**
   - [x] Integração de pagamentos Stripe completa e testada com tratamento idempotente de webhooks operando com 228 testes verdes.
 
-### Subfase 5.3: Validação de Quotas e Interceptadores de Limite de Uso
+### Subfase 5.3: Validação de Quotas e Interceptadores de Limite de Uso [CONCLUÍDO]
 - **Tarefas:**
-  - Criar Decorator/Pipeline Behavior `QuotaValidationBehavior` para bloquear a execução de Commands de geração de IA se a quota do tenant estiver esgotada.
-  - Exibir modal no Blazor orientando o upgrade de plano ao atingir o limite.
-  - Implementar reset mensal automático de quotas via background job (Quartz.NET ou Hangfire/HostedService).
+  - [x] Criar Decorator/Pipeline Behavior `QuotaValidationCommandHandlerDecorator` para bloquear a execução de Commands de geração de IA se a quota do tenant estiver esgotada.
+  - [x] Exibir modal no Blazor orientando o upgrade de plano ao atingir o limite (`QuotaExceededModal.razor`).
+  - [x] Implementar reset mensal automático de quotas via background job (`MonthlyQuotaResetBackgroundService`).
+  - [x] Escrever testes unitários e de componentes bUnit para validação de quotas, reset automático e modal Blazor (239 testes verdes na solução).
 - **Entregáveis da Subfase 5.3:**
-  - Sistema de controle estrito de quotas de consumo operante com bloqueio gracioso no frontend.
+  - [x] Sistema de controle estrito de quotas de consumo operante com bloqueio gracioso no frontend e reset mensal via HostedService operando com 239 testes verdes.
+
 
 ### Subfase 5.4: Portal do Assinante e Gestão de Assinatura
 - **Tarefas:**

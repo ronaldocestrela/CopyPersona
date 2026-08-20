@@ -1,6 +1,8 @@
+using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Domain;
 
 namespace PersonaScript.Modules.Billing.Domain;
+
 
 public class QuotaTransaction : BaseEntity, IMustHaveTenant
 {

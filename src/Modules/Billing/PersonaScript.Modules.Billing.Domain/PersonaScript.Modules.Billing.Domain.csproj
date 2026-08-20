@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.CQRS\PersonaScript.BuildingBlocks.CQRS.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Domain\PersonaScript.BuildingBlocks.Domain.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Results\PersonaScript.BuildingBlocks.Results.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\PersonaScript.BuildingBlocks.Tenancy\PersonaScript.BuildingBlocks.Tenancy.csproj" />

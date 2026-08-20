@@ -1,7 +1,9 @@
+using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Domain;
 using PersonaScript.BuildingBlocks.Results;
 
 namespace PersonaScript.Modules.Billing.Domain;
+
 
 public class UsageQuota : BaseEntity, IMustHaveTenant
 {

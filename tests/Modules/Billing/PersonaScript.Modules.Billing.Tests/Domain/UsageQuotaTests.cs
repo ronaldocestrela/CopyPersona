@@ -1,7 +1,9 @@
 using FluentAssertions;
+using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.Modules.Billing.Domain;
 
 namespace PersonaScript.Modules.Billing.Tests.Domain;
+
 
 public class UsageQuotaTests
 {
