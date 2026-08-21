@@ -117,7 +117,7 @@ public sealed class VideoScript : BaseEntity, IMustHaveTenant
             chamadaParaAcao.Trim(),
             legendaSugerida?.Trim() ?? string.Empty,
             dicasGravacao?.Trim() ?? string.Empty,
-            tomVozAplicado?.Trim() ?? string.Empty);
+            SanitizeTomVoz(tomVozAplicado));
 
         return Result.Success(script);
     }
@@ -166,9 +166,15 @@ public sealed class VideoScript : BaseEntity, IMustHaveTenant
         ChamadaParaAcao = chamadaParaAcao.Trim();
         LegendaSugerida = legendaSugerida?.Trim() ?? string.Empty;
         DicasGravacao = dicasGravacao?.Trim() ?? string.Empty;
-        TomVozAplicado = tomVozAplicado?.Trim() ?? string.Empty;
+        TomVozAplicado = SanitizeTomVoz(tomVozAplicado);
         AtualizadoEm = DateTimeOffset.UtcNow;
 
         return Result.Success();
+    }
+
+    private static string SanitizeTomVoz(string? input)
+    {
+        var trimmed = input?.Trim() ?? string.Empty;
+        return trimmed.Length > 1000 ? trimmed[..1000] : trimmed;
     }
 }

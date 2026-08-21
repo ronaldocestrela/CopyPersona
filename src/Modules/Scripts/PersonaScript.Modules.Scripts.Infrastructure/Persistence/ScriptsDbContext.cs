@@ -37,7 +37,7 @@ public sealed class ScriptsDbContext(DbContextOptions<ScriptsDbContext> options,
 
             entity.Property(s => s.LegendaSugerida);
             entity.Property(s => s.DicasGravacao);
-            entity.Property(s => s.TomVozAplicado).HasMaxLength(200);
+            entity.Property(s => s.TomVozAplicado).HasMaxLength(1000);
 
             entity.Property(s => s.Status).IsRequired().HasConversion<int>();
             entity.Property(s => s.FeedbackRating).HasConversion<int>();

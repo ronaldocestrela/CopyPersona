@@ -1,0 +1,170 @@
+@using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Scripts.Application.Commands.GenerateVideoScript
+@inject ICommandHandler<GenerateVideoScriptCommand, Guid> GenerateCommandHandler
+
+@if (IsVisible)
+{
+    <div class="modal-backdrop fade show" style="display: block; background: rgba(0, 0, 0, 0.7); z-index: 1050;"></div>
+    <div class="modal fade show" style="display: block; z-index: 1055;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="background-color: var(--ps-card-bg); border: 1px solid var(--ps-border); color: var(--ps-text); border-radius: 1rem;">
+                <div class="modal-header" style="border-bottom: 1px solid var(--ps-border);">
+                    <h5 class="modal-title font-weight-bold" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="material-symbols-outlined" style="color: var(--ps-primary);">auto_awesome</span>
+                        Gerar Novo Roteiro com IA
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Close" disabled="@IsSubmitting"></button>
+                </div>
+
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <p style="color: var(--ps-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                        Preencha as diretrizes do vídeo para que o Agente 2 (Copywriter) crie um roteiro personalizado com gancho de alta retenção, estrutura persuasiva e CTA estratégica.
+                    </p>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label font-weight-bold" style="font-size: 0.9rem;">Tema do Vídeo <span style="color: #ef4444;">*</span></label>
+                            <input type="text" name="tema" class="form-control"
+                                   placeholder="Ex: Como evitar ansiedade antes de reuniões importantes"
+                                   @bind="Tema"
+                                   style="background-color: #0f172a; border: 1px solid var(--ps-border); color: #ffffff; border-radius: 0.5rem;" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold" style="font-size: 0.9rem;">Pilar de Conteúdo <span style="color: #ef4444;">*</span></label>
+                            <select name="pilarConteudo" class="form-select" @bind="PilarConteudo"
+                                    style="background-color: #0f172a; border: 1px solid var(--ps-border); color: #ffffff; border-radius: 0.5rem;">
+                                <option value="Educação & Esclarecimento">Educação & Esclarecimento</option>
+                                <option value="Engajamento & Conexão">Engajamento & Conexão</option>
+                                <option value="Autoridade & Prova Social">Autoridade & Prova Social</option>
+                                <option value="Conversão & Vendas">Conversão & Vendas</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label font-weight-bold" style="font-size: 0.9rem;">Objetivo do Vídeo <span style="color: #ef4444;">*</span></label>
+                            <input type="text" name="objetivo" class="form-control"
+                                   placeholder="Ex: Gerar comentários e atrair novos seguidores"
+                                   @bind="Objetivo"
+                                   style="background-color: #0f172a; border: 1px solid var(--ps-border); color: #ffffff; border-radius: 0.5rem;" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label font-weight-bold" style="font-size: 0.9rem;">Tom de Voz Desejado (Opcional)</label>
+                            <input type="text" name="tomDesejado" class="form-control"
+                                   placeholder="Ex: Empático, Didático e Assertivo"
+                                   @bind="TomDesejado"
+                                   style="background-color: #0f172a; border: 1px solid var(--ps-border); color: #ffffff; border-radius: 0.5rem;" />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label font-weight-bold" style="font-size: 0.9rem;">Instruções Adicionais para a IA (Opcional)</label>
+                            <textarea name="instrucoes" class="form-control" rows="3"
+                                      placeholder="Ex: Use um exemplo prático do cotidiano e inclua uma CTA pedindo para comentar 'SABER MAIS'."
+                                      @bind="InstrucoesAdicionais"
+                                      style="background-color: #0f172a; border: 1px solid var(--ps-border); color: #ffffff; border-radius: 0.5rem;"></textarea>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger mt-3 mb-0" role="alert" style="border-radius: 0.5rem;">
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.25rem;">error</span>
+                            @ErrorMessage
+                        </div>
+                    }
+                </div>
+
+                <div class="modal-footer" style="border-top: 1px solid var(--ps-border);">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="Close" disabled="@IsSubmitting">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="GenerateScript" disabled="@IsSubmitting">
+                        @if (IsSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span>Gerando Roteiro com IA...</span>
+                        }
+                        else
+                        {
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.25rem;">auto_awesome</span>
+                            <span>Gerar Roteiro com IA</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<Guid> OnScriptGenerated { get; set; }
+
+    private string Tema { get; set; } = string.Empty;
+    private string PilarConteudo { get; set; } = "Educação & Esclarecimento";
+    private string Objetivo { get; set; } = string.Empty;
+    private string TomDesejado { get; set; } = string.Empty;
+    private string InstrucoesAdicionais { get; set; } = string.Empty;
+
+    private string ErrorMessage { get; set; } = string.Empty;
+    private bool IsSubmitting { get; set; }
+
+    private async Task GenerateScript()
+    {
+        if (string.IsNullOrWhiteSpace(Tema) || string.IsNullOrWhiteSpace(PilarConteudo) || string.IsNullOrWhiteSpace(Objetivo))
+        {
+            ErrorMessage = "Preencha todos os campos obrigatórios (Tema, Pilar de Conteúdo e Objetivo).";
+            return;
+        }
+
+        ErrorMessage = string.Empty;
+        IsSubmitting = true;
+
+        try
+        {
+            var command = new GenerateVideoScriptCommand(
+                Tema,
+                PilarConteudo,
+                Objetivo,
+                string.IsNullOrWhiteSpace(TomDesejado) ? null : TomDesejado,
+                string.IsNullOrWhiteSpace(InstrucoesAdicionais) ? null : InstrucoesAdicionais);
+
+            var result = await GenerateCommandHandler.Handle(command, CancellationToken.None);
+
+            if (result.IsSuccess)
+            {
+                var scriptId = result.Value;
+                ResetForm();
+                await OnScriptGenerated.InvokeAsync(scriptId);
+            }
+            else
+            {
+                ErrorMessage = result.Error.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+
+    private async Task Close()
+    {
+        ResetForm();
+        await OnClose.InvokeAsync();
+    }
+
+    private void ResetForm()
+    {
+        Tema = string.Empty;
+        PilarConteudo = "Educação & Esclarecimento";
+        Objetivo = string.Empty;
+        TomDesejado = string.Empty;
+        InstrucoesAdicionais = string.Empty;
+        ErrorMessage = string.Empty;
+    }
+}

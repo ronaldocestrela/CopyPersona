@@ -1,9 +1,14 @@
 @page "/roteiros"
+@rendermode InteractiveServer
 @using PersonaScript.BuildingBlocks.CQRS
+@using PersonaScript.Modules.Anamnese.Application.DTOs
+@using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStatus
+@using PersonaScript.Modules.Anamnese.Domain
 @using PersonaScript.Modules.Scripts.Application.DTOs
 @using PersonaScript.Modules.Scripts.Application.Queries.ListVideoScripts
 @using PersonaScript.Modules.Scripts.Domain
 @inject IQueryHandler<ListVideoScriptsQuery, IReadOnlyList<VideoScriptDto>> ListVideoScriptsQueryHandler
+@inject IQueryHandler<GetAnamneseStatusQuery, AnamneseStatusDto> GetAnamneseStatusQueryHandler
 @inject NavigationManager Navigation
 
 <div class="roteiros-container">
@@ -13,9 +18,18 @@
             <p>Gerencie seus roteiros de vídeo de alta retenção, plano de stories e calendário estratégico.</p>
         </div>
         <div>
-            <a href="/anamnese" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                <span class="material-symbols-outlined">add</span> Novo Conteúdo
-            </a>
+            @if (HasCompletedAnamnese)
+            {
+                <button class="btn btn-primary" @onclick="OpenGenerateModal" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span class="material-symbols-outlined">auto_awesome</span> Gerar Roteiro com IA
+                </button>
+            }
+            else
+            {
+                <a href="/anamnese" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <span class="material-symbols-outlined">add</span> Novo Conteúdo
+                </a>
+            }
         </div>
     </div>
 
@@ -65,14 +79,31 @@
     }
     else if (Scripts == null || Scripts.Count == 0)
     {
-        <div class="text-center py-5" style="background: var(--ps-card-bg); border: 1px dashed var(--ps-border); border-radius: 1rem; padding: 3rem;">
-            <span class="material-symbols-outlined" style="font-size: 4rem; color: var(--ps-text-muted);">video_library</span>
-            <h4 class="mt-3" style="color: var(--ps-text);">Nenhum roteiro encontrado</h4>
-            <p style="color: var(--ps-text-muted); max-width: 500px; margin: 0.5rem auto 1.5rem;">
-                Você ainda não possui roteiros gerados ou nenhum roteiro atende ao filtro selecionado. Conclua sua Anamnese para gerar seus primeiros roteiros.
-            </p>
-            <a href="/anamnese" class="btn btn-primary">Começar Anamnese</a>
-        </div>
+        @if (HasCompletedAnamnese)
+        {
+            <div class="text-center py-5" style="background: var(--ps-card-bg); border: 1px dashed var(--ps-border); border-radius: 1rem; padding: 3rem;">
+                <span class="material-symbols-outlined" style="font-size: 4rem; color: var(--ps-primary);">auto_awesome</span>
+                <h4 class="mt-3" style="color: var(--ps-text);">Nenhum roteiro encontrado</h4>
+                <p style="color: var(--ps-text-muted); max-width: 500px; margin: 0.5rem auto 1.5rem;">
+                    Sua Anamnese está concluída! Clique abaixo para gerar seu primeiro roteiro de vídeo de alta retenção com Inteligência Artificial.
+                </p>
+                <button class="btn btn-primary" @onclick="OpenGenerateModal">
+                    <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.25rem;">auto_awesome</span>
+                    Gerar Roteiro com IA
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5" style="background: var(--ps-card-bg); border: 1px dashed var(--ps-border); border-radius: 1rem; padding: 3rem;">
+                <span class="material-symbols-outlined" style="font-size: 4rem; color: var(--ps-text-muted);">video_library</span>
+                <h4 class="mt-3" style="color: var(--ps-text);">Nenhum roteiro encontrado</h4>
+                <p style="color: var(--ps-text-muted); max-width: 500px; margin: 0.5rem auto 1.5rem;">
+                    Você ainda não possui roteiros gerados ou nenhum roteiro atende ao filtro selecionado. Conclua sua Anamnese para gerar seus primeiros roteiros.
+                </p>
+                <a href="/anamnese" class="btn btn-primary">Começar Anamnese</a>
+            </div>
+        }
     }
     else
     {
@@ -109,11 +140,13 @@
 
 <TeleprompterModal Script="@SelectedScript" IsVisible="@ShowTeleprompter" OnClose="@(() => ShowTeleprompter = false)" />
 <ExportModal Script="@SelectedScript" IsVisible="@ShowExport" OnClose="@(() => ShowExport = false)" />
+<GerarRoteiroModal IsVisible="@ShowGenerateModal" OnClose="@(() => ShowGenerateModal = false)" OnScriptGenerated="HandleScriptGenerated" />
 
 @code {
     private IReadOnlyList<VideoScriptDto>? Scripts { get; set; }
     private bool IsLoading { get; set; } = true;
     private string? ErrorMessage { get; set; }
+    private bool HasCompletedAnamnese { get; set; }
 
     private VideoScriptStatus? SelectedStatus { get; set; }
     private string SearchTerm { get; set; } = string.Empty;
@@ -121,10 +154,28 @@
     private VideoScriptDto? SelectedScript { get; set; }
     private bool ShowTeleprompter { get; set; }
     private bool ShowExport { get; set; }
+    private bool ShowGenerateModal { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        await CheckAnamneseStatusAsync();
         await LoadScriptsAsync();
+    }
+
+    private async Task CheckAnamneseStatusAsync()
+    {
+        try
+        {
+            var statusResult = await GetAnamneseStatusQueryHandler.Handle(new GetAnamneseStatusQuery(), CancellationToken.None);
+            if (statusResult.IsSuccess && statusResult.Value != null)
+            {
+                HasCompletedAnamnese = statusResult.Value.Status == AnamneseStatus.Concluido;
+            }
+        }
+        catch
+        {
+            HasCompletedAnamnese = false;
+        }
     }
 
     private async Task LoadScriptsAsync()
@@ -171,6 +222,18 @@
         ShowExport = true;
     }
 
+    private void OpenGenerateModal()
+    {
+        ShowGenerateModal = true;
+    }
+
+    private async Task HandleScriptGenerated(Guid scriptId)
+    {
+        ShowGenerateModal = false;
+        await LoadScriptsAsync();
+        Navigation.NavigateTo($"/roteiros/{scriptId}");
+    }
+
     private static string GetStatusCssClass(VideoScriptStatus status) => status switch
     {
         VideoScriptStatus.Draft => "draft",
@@ -189,3 +252,4 @@
         _ => "Rascunho"
     };
 }
+

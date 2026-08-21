@@ -89,7 +89,7 @@ public sealed class VideoScriptPromptBuilder : IVideoScriptPromptBuilder
         sb.AppendLine("3. Chamada para Ação (CTA): Direcionamento claro, ético e persuasivo (comentário, direct ou agendamento).");
         sb.AppendLine("4. Legenda Sugerida: Legenda complementar pronta para publicação.");
         sb.AppendLine("5. Dicas de Gravação: Orientações de postura, enquadramento e entonação.");
-        sb.AppendLine("6. Tom de Voz Aplicado: Breve descrição do tom alcançado.");
+        sb.AppendLine("6. Tom de Voz Aplicado: Breve descrição concisa do tom alcançado.");
 
         return sb.ToString();
     }

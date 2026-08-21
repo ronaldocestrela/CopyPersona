@@ -206,6 +206,60 @@ public class VideoScriptTests
         script.AtualizadoEm.Should().NotBeNull();
     }
 
+    [Fact]
+    public void Create_ShouldTruncateTomVozAplicado_WhenExceeds1000Characters()
+    {
+        // Arrange
+        var tomVozExtenso = new string('A', 1200);
+
+        // Act
+        var result = VideoScript.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Tema Válido",
+            "Educação",
+            "Conversão",
+            "Gancho inicial",
+            "Retenção inicial",
+            "CTA inicial",
+            "Legenda",
+            "Dicas",
+            tomVozExtenso);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.TomVozAplicado.Length.Should().Be(1000);
+        result.Value.TomVozAplicado.Should().Be(new string('A', 1000));
+    }
+
+    [Fact]
+    public void Create_ShouldPreserveTomVozAplicado_WhenLengthIsBetween200And1000Characters()
+    {
+        // Arrange
+        var tomVoz250 = "Clareza, empatia e autoridade. " + new string('X', 220);
+
+        // Act
+        var result = VideoScript.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Tema Válido",
+            "Educação",
+            "Conversão",
+            "Gancho inicial",
+            "Retenção inicial",
+            "CTA inicial",
+            "Legenda",
+            "Dicas",
+            tomVoz250);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.TomVozAplicado.Length.Should().Be(tomVoz250.Length);
+        result.Value.TomVozAplicado.Should().Be(tomVoz250);
+    }
+
     private static VideoScript CreateValidScript()
     {
         return VideoScript.Create(
