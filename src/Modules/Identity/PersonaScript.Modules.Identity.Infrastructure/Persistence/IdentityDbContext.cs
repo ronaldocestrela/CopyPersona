@@ -30,6 +30,10 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
                 .IsRequired()
                 .HasDefaultValue(UserRole.Subscriber);
             entity.Property(user => user.TenantId).IsRequired();
+            entity.Property(user => user.CreatedAt).IsRequired();
+            entity.Property(user => user.IsFrozen).IsRequired();
+            entity.Property(user => user.FrozenAt);
+            entity.Property(user => user.FreezeReason).HasMaxLength(500);
         });
 
         modelBuilder.ApplyTenantQueryFilters(this);
