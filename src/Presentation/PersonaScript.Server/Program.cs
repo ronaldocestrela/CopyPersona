@@ -19,9 +19,14 @@ using DotNetEnv;
 using PersonaScript.Modules.Identity.Domain;
 
 // Carrega as variáveis de ambiente a partir do arquivo .env (se existir)
-Env.TraversePath().Load();
+Env.NoClobber().TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (!builder.Environment.IsDevelopment())
+{
+    builder.WebHost.UseStaticWebAssets();
+}
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

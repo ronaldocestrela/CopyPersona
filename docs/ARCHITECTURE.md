@@ -37,6 +37,20 @@ flowchart TB
   Identity -.-> Mail
 ```
 
+## Static web assets / Blazor script (.NET 10)
+
+O host Blazor ([PersonaScript.Server](src/Presentation/PersonaScript.Server)) serve assets estáticos via `MapStaticAssets()` em [Program.cs](src/Presentation/PersonaScript.Server/Program.cs). O script do runtime (`_framework/blazor.web.js`) **não** fica em `wwwroot/` no código-fonte — é um static web asset do SDK (`Microsoft.AspNetCore.App.Internal.Assets`), referenciado em [App.razor](src/Presentation/PersonaScript.Server/Components/App.razor) com `@Assets["_framework/blazor.web.js"]`.
+
+| Ambiente | Resolução do asset |
+|----------|-------------------|
+| Development | `StaticWebAssetsLoader` (automático) mapeia `_framework/*` para o SDK/NuGet |
+| Testing / Production (Debug local) | `builder.WebHost.UseStaticWebAssets()` quando `!IsDevelopment()` — lê `*.staticwebassets.runtime.json` do build |
+| Publish / Docker | Arquivos físicos em `wwwroot/_framework/` gerados pelo `dotnet publish`; `RequiresAspNetWebAssets=true` no `.csproj` garante inclusão |
+
+**`.env`:** carregado com `Env.NoClobber().TraversePath().Load()` para não sobrescrever `ASPNETCORE_ENVIRONMENT` já definido pelo `launchSettings.json` ou pelo container. Não copie `.env.production.example` para `.env` em desenvolvimento local.
+
+Referência: [aspnetcore#65468](https://github.com/dotnet/aspnetcore/issues/65468).
+
 ## Autenticação B2C (Identity)
 
 ### Rotas

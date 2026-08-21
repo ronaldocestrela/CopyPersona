@@ -54,6 +54,16 @@ Mailpit (http://localhost:8025) ficará disponível para fluxos de e-mail em ent
 
 Ajuste a senha se alterar `MSSQL_SA_PASSWORD` no `.env`.
 
+### Troubleshooting: erro 500 em `_framework/blazor.web.js`
+
+Se a tela inicial retornar 500 com `FileNotFoundException` em `wwwroot/_framework/blazor.web.js`:
+
+1. **Use o perfil Development** — `dotnet run --project src/Presentation/PersonaScript.Server` (porta em `launchSettings.json`). Evite `dotnet run --no-launch-profile` com `ASPNETCORE_ENVIRONMENT=Production` em build Debug local.
+2. **Não copie `.env.production.example` para `.env`** — o `.env` local deve seguir [`.env.example`](.env.example). Variáveis de produção no `.env` podem sobrescrever o ambiente antes do host subir (o projeto usa `NoClobber`, mas o shell pode já exportar `Production`).
+3. **Não commite `blazor.web.js` em `wwwroot/_framework/`** — o arquivo é gerado pelo SDK no build/publish; copiar manualmente quebra o modelo .NET 10.
+
+Detalhes em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#static-web-assets--blazor-script-net-10).
+
 ### 6. Execução em Produção / Demonstração (Docker Compose Completo)
 
 Para subir todo o ambiente containerizado (Aplicação + SQL Server + Mailpit) para demonstração ou homologação:
