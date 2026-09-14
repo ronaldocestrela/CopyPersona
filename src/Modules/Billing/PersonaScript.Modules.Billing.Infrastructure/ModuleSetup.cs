@@ -1,7 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Tenancy;
+using PersonaScript.Modules.Billing.Application.Commands.CreateCheckoutSession;
+using PersonaScript.Modules.Billing.Application.Commands.CreateCustomerPortalSession;
+using PersonaScript.Modules.Billing.Application.Commands.InitializeTenantSubscription;
+using PersonaScript.Modules.Billing.Application.Commands.ProcessStripeWebhook;
+using PersonaScript.Modules.Billing.Application.DTOs;
+using PersonaScript.Modules.Billing.Application.Queries.GetBillingInvoices;
+using PersonaScript.Modules.Billing.Application.Queries.GetSubscriptionDetails;
+using PersonaScript.Modules.Billing.Application.Queries.GetTenantQuotaUsage;
 using PersonaScript.Modules.Billing.Domain;
 using PersonaScript.Modules.Billing.Infrastructure.Persistence;
 using PersonaScript.Modules.Billing.Infrastructure.Repositories;
@@ -40,13 +49,30 @@ public static class ModuleSetup
         services.AddScoped<IQuotaTransactionRepository, QuotaTransactionRepository>();
         services.AddScoped<IProcessedStripeEventRepository, ProcessedStripeEventRepository>();
         services.AddScoped<Application.Abstractions.IStripePaymentService, Services.StripePaymentService>();
-        services.AddScoped<Application.Commands.CreateCheckoutSession.CreateCheckoutSessionCommandHandler>();
-        services.AddScoped<Application.Commands.CreateCustomerPortalSession.CreateCustomerPortalSessionCommandHandler>();
-        services.AddScoped<Application.Commands.ProcessStripeWebhook.ProcessStripeWebhookCommandHandler>();
-        services.AddScoped<Application.Commands.InitializeTenantSubscription.InitializeTenantSubscriptionCommandHandler>();
-        services.AddScoped<Application.Queries.GetTenantQuotaUsage.GetTenantQuotaUsageQueryHandler>();
-        services.AddScoped<Application.Queries.GetSubscriptionDetails.GetSubscriptionDetailsQueryHandler>();
-        services.AddScoped<Application.Queries.GetBillingInvoices.GetBillingInvoicesQueryHandler>();
+
+        services.AddScoped<CreateCheckoutSessionCommandHandler>();
+        services.AddScoped<ICommandHandler<CreateCheckoutSessionCommand, CheckoutSessionDto>, CreateCheckoutSessionCommandHandler>();
+
+        services.AddScoped<CreateCustomerPortalSessionCommandHandler>();
+        services.AddScoped<ICommandHandler<CreateCustomerPortalSessionCommand, CustomerPortalDto>, CreateCustomerPortalSessionCommandHandler>();
+
+        services.AddScoped<ProcessStripeWebhookCommandHandler>();
+        services.AddScoped<ICommandHandler<ProcessStripeWebhookCommand>, ProcessStripeWebhookCommandHandler>();
+
+        services.AddScoped<InitializeTenantSubscriptionCommandHandler>();
+        services.AddScoped<ICommandHandler<InitializeTenantSubscriptionCommand, Guid>, InitializeTenantSubscriptionCommandHandler>();
+
+        services.AddScoped<PersonaScript.Modules.Billing.Application.Commands.ConsumeQuota.ConsumeQuotaCommandHandler>();
+        services.AddScoped<ICommandHandler<PersonaScript.Modules.Billing.Application.Commands.ConsumeQuota.ConsumeQuotaCommand, Guid>, PersonaScript.Modules.Billing.Application.Commands.ConsumeQuota.ConsumeQuotaCommandHandler>();
+
+        services.AddScoped<GetTenantQuotaUsageQueryHandler>();
+        services.AddScoped<IQueryHandler<GetTenantQuotaUsageQuery, TenantQuotaUsageDto>, GetTenantQuotaUsageQueryHandler>();
+
+        services.AddScoped<GetSubscriptionDetailsQueryHandler>();
+        services.AddScoped<IQueryHandler<GetSubscriptionDetailsQuery, SubscriptionDetailsDto>, GetSubscriptionDetailsQueryHandler>();
+
+        services.AddScoped<GetBillingInvoicesQueryHandler>();
+        services.AddScoped<IQueryHandler<GetBillingInvoicesQuery, List<InvoiceDto>>, GetBillingInvoicesQueryHandler>();
 
         services.AddHostedService<BackgroundServices.MonthlyQuotaResetBackgroundService>();
 

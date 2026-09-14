@@ -316,12 +316,26 @@ Módulo de Backoffice completo e seguro, permitindo ao time de operações geren
   - 100% dos repositórios e handlers validados contra vazamento de dados entre tenants.
   - Total de testes da solução elevado para 339 testes com 100% de sucesso (`dotnet test`).
 
-### Subfase 7.2: Testes de Interface Blazor (bUnit) e Integração E2E
-- **Tarefas:**
-  - Expandir cobertura de testes de componentes Blazor com bUnit para Wizard de Anamnese, Diagnóstico de Posicionamento, Gerador de Roteiros e Backoffice.
-  - Executar testes de aceitação simulando a jornada completa: Cadastro -> Anamnese 10 Etapas -> Geração de Diagnóstico -> Geração de Roteiro -> Assinatura.
+### Subfase 7.2: Testes de Interface Blazor (bUnit) e Integração E2E [CONCLUÍDO]
+- **Tarefas Realizadas:**
+  - Expansão de cobertura de testes de componentes Blazor com bUnit para os fluxos críticos de UI:
+    - **Wizard de Anamnese:** Testes dos componentes auxiliares (`AnamneseProgressBar`, `AnamneseCharacterCounter`, `AnamneseDidacticTooltip`, `AnamnesePage`) e do fluxo completo do wizard (`AnamneseWizardTests`), cobrindo preenchimento sequencial até etapa 10, persistência com retomada de progresso e tratamento de falhas com alertas visuais.
+    - **Diagnóstico de Posicionamento:** Testes dos modais `EditarDiagnosticoModal` (validação de soma de 100% dos pilares, inputs numéricos e reativos) e `RegerarDiagnosticoModal` (validação de notas de ajuste, spinner de processamento assíncrono), além de testes de navegação e redirecionamento em `PosicionamentoPage`.
+    - **Gerador de Roteiros:** Testes dos modais `ExportModal` (cópia para clipboard, download Markdown e acionamento de impressão PDF via JSInterop com notificações Toast) e `RegerarRoteiroModal` (validação de notas obrigatórias de refinamento e callbacks).
+    - **Backoffice Operacional:** Testes das páginas administrativas `AdminDashboardPage` (métricas de MRR/ARR e restrições de autorização RBAC), `AdminTenantsPage` (listagem, filtros de busca por nome/email/nicho e drawer lateral de detalhes com impersonação), `AdminAuditLogsPage` (renderização de logs estruturados e paginação), `AdminEthicsPage` (regras éticas CFM/CFO/CFBio e termos proibidos com badge de conselho) e `AdminTelemetryPage` (métricas agregadas de LLM, custos por token, latência e alertas de anomalia).
+  - Implementação de teste automatizado de aceitação E2E cobrindo a jornada completa do usuário (`FullUserJourneyAcceptanceTests`):
+    - Cadastro e autenticação do assinante.
+    - Provisionamento e checagem de quotas do plano Starter (Módulo Billing).
+    - Preenchimento e conclusão das 10 etapas da Anamnese digital (Módulo Anamnese).
+    - Geração de Perfil de Persona e Diagnóstico de Posicionamento com 4 pilares (Módulo Personas).
+    - Geração de Roteiro de Vídeo para Reels/TikTok com gancho, retenção e CTA (Módulo Scripts).
+    - Consumo e decremento atômico de franquia de roteiros.
+    - Verificação estrita de barreira de isolamento anti cross-tenant leak (garantindo que o Tenant B não acesse o diagnóstico ou roteiro gerado pelo Tenant A).
 - **Entregáveis da Subfase 7.2:**
-  - Suíte de testes bUnit cobrindo todos os fluxos críticos de UI.
+  - 100% dos fluxos de interface Blazor e componentes modais cobertos por testes automatizados bUnit.
+  - Teste de aceitação E2E validando a jornada ponta a ponta sem falhas.
+  - Registro de interfaces CQRS (`ICommandHandler`, `IQueryHandler`) para operações de Billing.
+  - Total de testes da solução elevado de 339 para 382 testes com 100% de aprovação (`dotnet test`).
 
 ### Subfase 7.3: Otimização de Consultas SQL Server, Caching e Performance
 - **Tarefas:**

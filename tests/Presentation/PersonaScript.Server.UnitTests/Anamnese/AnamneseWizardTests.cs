@@ -127,4 +127,85 @@ public class AnamneseWizardTests : BunitContext
         cut.Find("h2").TextContent.Should().Contain("Anamnese Concluída com Sucesso");
         cut.Find("a[href='/posicionamento']").TextContent.Should().Contain("Ver Diagnóstico");
     }
+
+    [Fact]
+    public void Wizard_OnStep10_ClickingComplete_ShouldCallCompleteHandlerAndTransitionToCompletedState()
+    {
+        // Arrange
+        var statusDto = new AnamneseStatusDto(Guid.NewGuid(), AnamneseStatus.Rascunho, 10, 100, DateTimeOffset.UtcNow, null, null);
+        _statusHandler.Handle(Arg.Any<GetAnamneseStatusQuery>(), Arg.Any<CancellationToken>())
+                      .Returns(Task.FromResult(Result.Success(statusDto)));
+
+        _fullHandler.Handle(Arg.Any<GetFullAnamneseQuery>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.FromResult(Result.Success(new FullAnamneseDto(statusDto, null, null, null, null, null, null, null, null, null, null))));
+
+        _saveHandler.Handle(Arg.Any<SaveAnamneseStepCommand>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.FromResult(Result.Success()));
+
+        _completeHandler.Handle(Arg.Any<CompleteAnamneseCommand>(), Arg.Any<CancellationToken>())
+                        .Returns(Task.FromResult(Result.Success()));
+
+        var cut = Render<AnamneseWizard>();
+
+        // Assert - Step 10 renderiza botão de conclusão
+        var completeBtn = cut.Find("button:contains('Concluir Anamnese')");
+        completeBtn.Should().NotBeNull();
+
+        // Act
+        completeBtn.Click();
+
+        // Assert
+        _saveHandler.Received(1).Handle(Arg.Any<SaveAnamneseStepCommand>(), Arg.Any<CancellationToken>());
+        _completeHandler.Received(1).Handle(Arg.Any<CompleteAnamneseCommand>(), Arg.Any<CancellationToken>());
+        cut.Find("h2").TextContent.Should().Contain("Anamnese Concluída com Sucesso");
+    }
+
+    [Fact]
+    public void Wizard_ClickingSaveAndResume_ShouldInvokeSaveAndDisplayMessage()
+    {
+        // Arrange
+        var statusDto = new AnamneseStatusDto(Guid.NewGuid(), AnamneseStatus.Rascunho, 4, 40, DateTimeOffset.UtcNow, null, null);
+        _statusHandler.Handle(Arg.Any<GetAnamneseStatusQuery>(), Arg.Any<CancellationToken>())
+                      .Returns(Task.FromResult(Result.Success(statusDto)));
+
+        _fullHandler.Handle(Arg.Any<GetFullAnamneseQuery>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.FromResult(Result.Success(new FullAnamneseDto(statusDto, null, null, null, null, null, null, null, null, null, null))));
+
+        _saveHandler.Handle(Arg.Any<SaveAnamneseStepCommand>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.FromResult(Result.Success()));
+
+        var cut = Render<AnamneseWizard>();
+
+        // Act
+        var saveBtn = cut.Find("button:contains('Salvar e Continuar Depois')");
+        saveBtn.Click();
+
+        // Assert
+        _saveHandler.Received(1).Handle(Arg.Any<SaveAnamneseStepCommand>(), Arg.Any<CancellationToken>());
+        cut.Find(".alert-success").TextContent.Should().Contain("salvo com sucesso");
+    }
+
+    [Fact]
+    public void Wizard_WhenSaveFails_ShouldDisplayErrorMessage()
+    {
+        // Arrange
+        var statusDto = new AnamneseStatusDto(Guid.NewGuid(), AnamneseStatus.Rascunho, 2, 20, DateTimeOffset.UtcNow, null, null);
+        _statusHandler.Handle(Arg.Any<GetAnamneseStatusQuery>(), Arg.Any<CancellationToken>())
+                      .Returns(Task.FromResult(Result.Success(statusDto)));
+
+        _fullHandler.Handle(Arg.Any<GetFullAnamneseQuery>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.FromResult(Result.Success(new FullAnamneseDto(statusDto, null, null, null, null, null, null, null, null, null, null))));
+
+        _saveHandler.Handle(Arg.Any<SaveAnamneseStepCommand>(), Arg.Any<CancellationToken>())
+                    .Returns(Task.FromResult(Result.Failure(Error.Validation("SaveError", "Erro ao gravar dados da etapa"))));
+
+        var cut = Render<AnamneseWizard>();
+
+        // Act
+        var nextBtn = cut.Find("button:contains('Próxima Etapa')");
+        nextBtn.Click();
+
+        // Assert
+        cut.Find(".alert-danger").TextContent.Should().Contain("Erro ao gravar dados da etapa");
+    }
 }

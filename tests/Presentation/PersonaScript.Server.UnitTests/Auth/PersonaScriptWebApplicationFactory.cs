@@ -15,6 +15,7 @@ public sealed class PersonaScriptWebApplicationFactory : WebApplicationFactory<P
         builder.UseSetting("APPLY_MIGRATIONS", "false");
         builder.UseSetting("ApplyMigrationsOnStartup", "false");
         builder.UseSetting("ConnectionStrings:DefaultConnection", string.Empty);
+        builder.UseSetting("LLM:PrimaryProvider", "Mock");
     }
 
     protected override IHost CreateHost(IHostBuilder builder)
@@ -23,6 +24,11 @@ public sealed class PersonaScriptWebApplicationFactory : WebApplicationFactory<P
 
         using var scope = host.Services.CreateScope();
         scope.ServiceProvider.GetRequiredService<IdentityDbContext>().Database.EnsureCreated();
+        scope.ServiceProvider.GetRequiredService<PersonaScript.Modules.Anamnese.Infrastructure.Persistence.AnamneseDbContext>().Database.EnsureCreated();
+        scope.ServiceProvider.GetRequiredService<PersonaScript.Modules.Personas.Infrastructure.Persistence.PersonasDbContext>().Database.EnsureCreated();
+        scope.ServiceProvider.GetRequiredService<PersonaScript.Modules.Scripts.Infrastructure.Persistence.ScriptsDbContext>().Database.EnsureCreated();
+        scope.ServiceProvider.GetRequiredService<PersonaScript.Modules.Billing.Infrastructure.Persistence.BillingDbContext>().Database.EnsureCreated();
+        scope.ServiceProvider.GetRequiredService<PersonaScript.Modules.Backoffice.Infrastructure.Persistence.BackofficeDbContext>().Database.EnsureCreated();
 
         return host;
     }
