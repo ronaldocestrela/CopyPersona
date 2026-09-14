@@ -8,6 +8,7 @@ using PersonaScript.BuildingBlocks.AI.Models;
 using PersonaScript.BuildingBlocks.AI.Parsing;
 using PersonaScript.BuildingBlocks.AI.Providers;
 using PersonaScript.BuildingBlocks.AI.Resilience;
+using PersonaScript.BuildingBlocks.AI.Sanitization;
 using Polly;
 using Polly.Retry;
 
@@ -19,6 +20,7 @@ public static class DependencyInjection
     {
         services.Configure<LLMOptions>(configuration.GetSection(LLMOptions.SectionName));
         services.AddSingleton<ILLMJsonParser, LLMJsonParser>();
+        services.AddSingleton<IPromptSanitizer, PromptSanitizer>();
 
         // Resiliência HTTP Polly: Retry 3 vezes com Backoff Exponencial e Jitter
         var resiliencePipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()

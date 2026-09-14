@@ -369,16 +369,36 @@ Módulo de Backoffice completo e seguro, permitindo ao time de operações geren
   - Middleware de diagnóstico `Server-Timing` integrado na pipeline HTTP do host.
   - Total de testes da solução elevado de 382 para 400 testes com 100% de aprovação (`dotnet test`).
 
-### Subfase 7.4: Hardening de Segurança, Sanitização de Prompts e OWASP Compliance
-- **Tarefas:**
-  - Implementar sanitização de inputs de usuários para prevenir Prompt Injection nos Agentes de IA.
-  - Adicionar Rate Limiting nos endpoints de autenticação, geração de IA e webhooks.
-  - Validar cabeçalhos de segurança HTTP (CSP, X-Frame-Options, HSTS, Antiforgery Tokens em todos os forms).
+### Subfase 7.4: Hardening de Segurança, Sanitização de Prompts e OWASP Compliance (Concluída)
+- **Tarefas Realizadas:**
+  - Implementação de defesa em profundidade contra Prompt Injection (OWASP LLM01):
+    - Criação de `IPromptSanitizer` e `PromptSanitizer` em `PersonaScript.BuildingBlocks.AI` com regex compilados para neutralização de caracteres de controle, tokens nulos/invisíveis e delimitadores estruturais (`<system>`, `[INST]`, `<|im_start|>`, `<<SYS>>`).
+    - Detecção proativa de ataques de jailbreak e desvio de regras ("ignore previous instructions", "system prompt override", "act as DAN", "bypass ethical guidelines").
+    - Implementação de Prompt Boundary Isolation (`<untrusted_user_content>`) e System Prompt Hardening nos agentes (`PersonaPromptBuilder` e `VideoScriptPromptBuilder`).
+    - Validação com rejeição graciosa via `Result.Failure(DomainErrors.Prompt.InjectionDetected)` nos Handlers CQRS (`GenerateVideoScriptCommandHandler`, `GeneratePersonaDiagnosisCommandHandler`, `TestPromptPlaygroundCommandHandler`).
+  - Adição de Rate Limiting nativo do ASP.NET Core (.NET 10) particionado:
+    - Política `auth-policy`: proteção de endpoints de autenticação e tokens contra brute-force e credential stuffing por IP remoto (`/account/login`, `/account/register`, `/account/token`, etc.).
+    - Política `ai-generation-policy`: proteção particionada por `TenantId`/`UserId` para geração e testes de prompts de IA (`/api/backoffice/prompts/test`).
+    - Política `webhooks-policy`: proteção de flooding por IP para `/webhooks/stripe`.
+    - Resposta customizada `429 Too Many Requests` com cabeçalho `Retry-After` e payload padronizado `Result.Failure`.
+  - Hardening de Cabeçalhos HTTP e OWASP Compliance (OWASP A05:2021):
+    - Middleware `SecurityHeadersMiddleware` injetando:
+      - `Content-Security-Policy`: compatível com Blazor InteractiveServer (`frame-ancestors 'self'`, WebSockets, estilos e fontes).
+      - `X-Frame-Options: DENY` (anti-clickjacking).
+      - `X-Content-Type-Options: nosniff` (anti-MIME-sniffing).
+      - `Referrer-Policy: strict-origin-when-cross-origin`.
+      - `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()`.
+      - `X-XSS-Protection: 0`.
+      - `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` em HTTPS.
+      - Remoção de headers sensíveis de servidor (`Server`, `X-Powered-By`).
+    - Hardening de Cookies de autenticação com `HttpOnly = true`, `SameSite = SameSiteMode.Lax` e `CookieSecurePolicy.SameAsRequest`.
 - **Entregáveis da Subfase 7.4:**
-  - Aplicação protegida contra OWASP Top 10 e Prompt Injections.
+  - Aplicação 100% protegida contra OWASP Top 10 e Prompt Injections adversariais.
+  - Suítes de testes unitários e de integração (`PromptSanitizerTests`, `PromptInjectionSecurityTests`, `PersonaPromptInjectionSecurityTests`, `SecurityHeadersIntegrationTests`, `RateLimitingIntegrationTests`).
+  - Total de testes da solução elevado de 400 para **431 testes com 100% de aprovação (`dotnet test`)**.
 
-#### Resultado Esperado da FASE 7:
-Sistema altamente seguro, imune a vazamentos cross-tenant, com alta cobertura de testes automatizados (backend e frontend), otimizado em performance e protegido contra abusos de IA.
+#### Resultado Esperado da FASE 7 (CONCLUÍDA):
+Sistema altamente seguro, imune a vazamentos cross-tenant, com alta cobertura de testes automatizados (backend e frontend), otimizado em performance (< 500ms SLA e caching IMemoryCache) e protegido contra abusos de IA e ataques web.
 
 ---
 

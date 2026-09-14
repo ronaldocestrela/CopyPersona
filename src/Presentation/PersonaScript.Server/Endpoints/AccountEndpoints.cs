@@ -17,13 +17,13 @@ public static class AccountEndpoints
 {
     public static IEndpointRouteBuilder MapAccountEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/account/register", RegisterAsync);
-        endpoints.MapPost("/account/login", LoginAsync);
-        endpoints.MapPost("/account/esqueci-senha", RequestPasswordResetAsync);
-        endpoints.MapPost("/account/redefinir-senha", ResetPasswordAsync);
+        endpoints.MapPost("/account/register", RegisterAsync).RequireRateLimiting(PersonaScript.Server.Middleware.RateLimitingExtensions.AuthPolicy);
+        endpoints.MapPost("/account/login", LoginAsync).RequireRateLimiting(PersonaScript.Server.Middleware.RateLimitingExtensions.AuthPolicy);
+        endpoints.MapPost("/account/esqueci-senha", RequestPasswordResetAsync).RequireRateLimiting(PersonaScript.Server.Middleware.RateLimitingExtensions.AuthPolicy);
+        endpoints.MapPost("/account/redefinir-senha", ResetPasswordAsync).RequireRateLimiting(PersonaScript.Server.Middleware.RateLimitingExtensions.AuthPolicy);
         endpoints.MapGet("/account/external-login/{provider}", ExternalLoginAsync);
         endpoints.MapGet("/account/external-callback", ExternalCallbackAsync);
-        endpoints.MapPost("/account/token", IssueJwtTokenAsync).DisableAntiforgery();
+        endpoints.MapPost("/account/token", IssueJwtTokenAsync).DisableAntiforgery().RequireRateLimiting(PersonaScript.Server.Middleware.RateLimitingExtensions.AuthPolicy);
         return endpoints;
     }
 

@@ -35,6 +35,9 @@ public class DependencyInjectionTests
         var jsonParser = provider.GetService<ILLMJsonParser>();
         jsonParser.Should().NotBeNull();
 
+        var promptSanitizer = provider.GetService<IPromptSanitizer>();
+        promptSanitizer.Should().NotBeNull();
+
         var llmProvider = provider.GetService<ILLMProvider>();
         llmProvider.Should().NotBeNull();
         llmProvider.Should().BeOfType<FallbackLLMProviderDecorator>();

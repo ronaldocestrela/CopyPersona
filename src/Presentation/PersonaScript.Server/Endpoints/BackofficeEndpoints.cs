@@ -137,6 +137,15 @@ public static class BackofficeEndpoints
             return result.IsSuccess ? Results.Ok(new { success = true }) : Results.BadRequest(new { error = result.Error.Message });
         }).RequireAuthorization("RequireSupportAgent").DisableAntiforgery();
 
+        endpoints.MapPost("/api/backoffice/prompts/test", async (
+            HttpContext context,
+            ICommandHandler<PersonaScript.Modules.Backoffice.Application.Commands.Prompts.TestPromptPlaygroundCommand, PersonaScript.Modules.Backoffice.Application.DTOs.TestPromptResultDto> handler,
+            PersonaScript.Modules.Backoffice.Application.Commands.Prompts.TestPromptPlaygroundCommand command) =>
+        {
+            var result = await handler.Handle(command, context.RequestAborted);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(new { error = result.Error.Message });
+        }).RequireAuthorization("RequireSupportAgent").DisableAntiforgery().RequireRateLimiting(PersonaScript.Server.Middleware.RateLimitingExtensions.AiPolicy);
+
         return endpoints;
     }
 }

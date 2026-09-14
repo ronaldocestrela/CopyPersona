@@ -81,7 +81,7 @@ public static class StripeEndpoints
 
             var processResult = await webhookHandler.Handle(parseResult.Value, cancellationToken);
             return processResult.IsSuccess ? Results.Ok(new { status = "success" }) : Results.BadRequest(processResult.Error);
-        }).AllowAnonymous();
+        }).AllowAnonymous().RequireRateLimiting(PersonaScript.Server.Middleware.RateLimitingExtensions.WebhooksPolicy);
 
         return endpoints;
     }

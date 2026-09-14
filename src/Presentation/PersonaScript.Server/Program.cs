@@ -14,6 +14,7 @@ using PersonaScript.Modules.Scripts.Infrastructure;
 using PersonaScript.Modules.Backoffice;
 using PersonaScript.Server.Components;
 using PersonaScript.Server.Endpoints;
+using PersonaScript.Server.Middleware;
 
 using DotNetEnv;
 using PersonaScript.Modules.Identity.Domain;
@@ -44,6 +45,9 @@ builder.Services.AddAuthentication(options =>
         options.AccessDeniedPath = "/acesso-negado";
         options.LogoutPath = "/logout";
         options.Cookie.Name = "PersonaScript.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.SlidingExpiration = true;
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -95,6 +99,7 @@ builder.Services.AddScriptsModule(builder.Configuration);
 builder.Services.AddBackofficeModule(builder.Configuration);
 builder.Services.AddScoped<PersonaScript.Server.Services.IQuotaNotifierService, PersonaScript.Server.Services.QuotaNotifierService>();
 builder.Services.AddScoped<IImpersonationService, PersonaScript.Server.Services.CookieImpersonationService>();
+builder.Services.AddSecurityRateLimiting(builder.Configuration);
 
 builder.Services.AddHealthChecks();
 
@@ -124,11 +129,13 @@ app.UseWhen(
     context => !context.Request.Path.StartsWithSegments("/api") && !context.Request.Path.StartsWithSegments("/webhooks"),
     appBuilder => appBuilder.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true));
 
+app.UseMiddleware<PersonaScript.Server.Middleware.SecurityHeadersMiddleware>();
 app.UseMiddleware<PersonaScript.Server.Middleware.PerformanceTimingMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
+app.UseRateLimiter();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()

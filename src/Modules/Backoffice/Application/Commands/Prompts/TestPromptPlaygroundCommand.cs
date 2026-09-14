@@ -21,11 +21,16 @@ public sealed class TestPromptPlaygroundCommandHandler : ICommandHandler<TestPro
 {
     private readonly ILLMProvider _llmProvider;
     private readonly ILLMTelemetryService? _telemetryService;
+    private readonly IPromptSanitizer _promptSanitizer;
 
-    public TestPromptPlaygroundCommandHandler(ILLMProvider llmProvider, ILLMTelemetryService? telemetryService = null)
+    public TestPromptPlaygroundCommandHandler(
+        ILLMProvider llmProvider,
+        ILLMTelemetryService? telemetryService = null,
+        IPromptSanitizer? promptSanitizer = null)
     {
         _llmProvider = llmProvider;
         _telemetryService = telemetryService;
+        _promptSanitizer = promptSanitizer ?? new PersonaScript.BuildingBlocks.AI.Sanitization.PromptSanitizer();
     }
 
     public async Task<Result<TestPromptResultDto>> Handle(TestPromptPlaygroundCommand command, CancellationToken cancellationToken)
@@ -38,6 +43,14 @@ public sealed class TestPromptPlaygroundCommandHandler : ICommandHandler<TestPro
         if (string.IsNullOrWhiteSpace(command.UserPromptTemplate))
         {
             return Result.Failure<TestPromptResultDto>(Error.Validation("TestPromptPlayground.UserPromptTemplateRequired", "O User Prompt Template é obrigatório."));
+        }
+
+        if (_promptSanitizer.ContainsInjectionAttempt(command.TestVariablesJson, out var pattern) ||
+            _promptSanitizer.ContainsInjectionAttempt(command.UserPromptTemplate, out pattern))
+        {
+            return Result.Failure<TestPromptResultDto>(Error.Validation(
+                "Prompt.InjectionDetected",
+                $"Tentativa de injeção de prompt adversarial detectada no playground (Padrão: '{pattern}')."));
         }
 
         // Renderiza as variáveis no User Prompt Template

@@ -16,17 +16,20 @@ public sealed class GeneratePersonaDiagnosisCommandHandler : ICommandHandler<Gen
     private readonly ITenantContext _tenantContext;
     private readonly IQueryHandler<GetFullAnamneseQuery, FullAnamneseDto> _getFullAnamneseQueryHandler;
     private readonly IPersonaDiagnosisGenerator _generator;
+    private readonly PersonaScript.BuildingBlocks.AI.Abstractions.IPromptSanitizer _promptSanitizer;
 
     public GeneratePersonaDiagnosisCommandHandler(
         IPersonaDiagnosisRepository repository,
         ITenantContext tenantContext,
         IQueryHandler<GetFullAnamneseQuery, FullAnamneseDto> getFullAnamneseQueryHandler,
-        IPersonaDiagnosisGenerator generator)
+        IPersonaDiagnosisGenerator generator,
+        PersonaScript.BuildingBlocks.AI.Abstractions.IPromptSanitizer? promptSanitizer = null)
     {
         _repository = repository;
         _tenantContext = tenantContext;
         _getFullAnamneseQueryHandler = getFullAnamneseQueryHandler;
         _generator = generator;
+        _promptSanitizer = promptSanitizer ?? new PersonaScript.BuildingBlocks.AI.Sanitization.PromptSanitizer();
     }
 
     public async Task<Result<Guid>> Handle(GeneratePersonaDiagnosisCommand command, CancellationToken cancellationToken)
@@ -35,6 +38,13 @@ public sealed class GeneratePersonaDiagnosisCommandHandler : ICommandHandler<Gen
         if (tenantId == Guid.Empty)
         {
             return Result.Failure<Guid>(PersonaScript.Modules.Personas.Domain.DomainErrors.Personas.TenantIdInvalido);
+        }
+
+        if (_promptSanitizer.ContainsInjectionAttempt(command.Feedback, out var pattern))
+        {
+            return Result.Failure<Guid>(Error.Validation(
+                "Prompt.InjectionDetected",
+                $"Tentativa de injeção de prompt adversarial detectada no feedback (Padrão: '{pattern}')."));
         }
 
         var anamneseResult = await _getFullAnamneseQueryHandler.Handle(new GetFullAnamneseQuery(), cancellationToken);

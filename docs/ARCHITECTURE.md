@@ -219,10 +219,17 @@ Implementado:
   - Caching Decorator em memória (`IMemoryCache`) para `IPromptTemplateRepository`, `ICouncilRuleRepository` e `IForbiddenTermRepository` com invalidação cirúrgica por Commands CQRS.
   - Middleware `PerformanceTimingMiddleware` com cabeçalhos `Server-Timing` e monitoramento de SLA (< 500ms).
   - Total de testes da solução elevado de 382 para 400 testes com 100% de aprovação (`dotnet test`).
+- Subfase 7.4 concluída: Hardening de Segurança, Sanitização de Prompts e OWASP Compliance:
+  - Serviço `IPromptSanitizer` / `PromptSanitizer` no BuildingBlock de IA com defesa contra injeções adversariais (OWASP LLM01), remoção de delimitadores de sistema (`<system>`, `[INST]`, `<|im_start|>`), isolamento de contexto (`<untrusted_user_content>`) e System Prompt Hardening nos agentes (`PersonaPromptBuilder`, `VideoScriptPromptBuilder`).
+  - Validação estrita e rejeição de ataques com `Result.Failure(DomainErrors.Prompt.InjectionDetected)` em handlers CQRS (`GenerateVideoScriptCommandHandler`, `GeneratePersonaDiagnosisCommandHandler`, `TestPromptPlaygroundCommandHandler`).
+  - Rate Limiting nativo do ASP.NET Core com políticas `auth-policy`, `ai-generation-policy` e `webhooks-policy`, emitindo HTTP 429 Too Many Requests com `Retry-After`.
+  - `SecurityHeadersMiddleware` injetando cabeçalhos de segurança OWASP (`Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`).
+  - Hardening de cookies com `HttpOnly`, `SameSite = Lax` e `SecurePolicy`.
+  - Total de testes da solução elevado de 400 para **431 testes com 100% de aprovação (`dotnet test`)**.
 
 Próxima entrega:
 
-- Subfase 7.4: Hardening de Segurança, Sanitização de Prompts e OWASP Compliance.
+- FASE 8: Homologação, Infraestrutura, CI/CD e Lançamento (Subfase 8.1: Pipeline de CI/CD e Infraestrutura de Produção).
 
 ## Referências
 
