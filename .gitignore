@@ -1,25 +1,90 @@
-# Environment
+# ==============================================================================
+# Environment, Credentials & Local Configuration
+# ==============================================================================
 .env
+.env.*
+!.env.example
+*.local.json
+appsettings.*.local.json
+appsettings.Local.json
+secrets.json
 
-# .NET
-bin/
-obj/
+# ==============================================================================
+# .NET Build Outputs & Cache
+# ==============================================================================
+**/[Bb]in/
+**/[Oo]bj/
+publish/
+artifacts/
 *.user
+*.userosscache
 *.suo
+*.userprefs
 *.cache
 *.dll
 *.pdb
 *.exe
-TestResults/
+*.rsp
 *.DotSettings.user
 
-# IDE
-.vs/
-.vscode/
-.idea/
-*.swp
-*~
+# ==============================================================================
+# Testing & Code Coverage
+# ==============================================================================
+[Tt]est[Rr]esults/
+**/[Tt]est[Rr]esults/
+*.trx
+coverage/
+*.coverage
+*.coveragexml
+playwright-report/
+test-results/
+blob-report/
 
-# OS
+# ==============================================================================
+# Logs & Diagnostic Artifacts
+# ==============================================================================
+*.log
+logs/
+**/logs/
+migrations-sql/
+
+# ==============================================================================
+# IDEs & Editors
+# ==============================================================================
+# Visual Studio
+.vs/
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.sln.iml
+_ReSharper*/
+
+# Temporary & Swap files
+*.swp
+*.*~
+*~
+*.bak
+
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
 Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/

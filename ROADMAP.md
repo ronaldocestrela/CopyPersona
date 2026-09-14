@@ -365,6 +365,8 @@ Módulo de Backoffice completo e seguro, permitindo ao time de operações geren
       - Acesso em memória a prompts de IA via repositório em cache: < 15ms.
 - **Entregáveis da Subfase 7.3:**
   - Banco de dados 100% indexado para queries multi-tenant e change tracker otimizado.
+  - Migrações formais do EF Core geradas para todos os 6 módulos (`Identity`, `Anamnese`, `Billing`, `Personas`, `Scripts`, `Backoffice`), eliminando divergências de modelo e `PendingModelChangesWarning`.
+  - Testes automatizados de consistência de migrações (`DatabaseMigrationsConsistencyTests`) e regeneração dos scripts SQL idempotentes em `migrations-sql/`.
   - Caching Decorator em memória (IMemoryCache) ativo para IA Prompts e Regras Éticas com invalidação via CQRS.
   - Middleware de diagnóstico `Server-Timing` integrado na pipeline HTTP do host.
   - Total de testes da solução elevado de 382 para 400 testes com 100% de aprovação (`dotnet test`).

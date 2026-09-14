@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PersonaScript.Modules.Backoffice.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using PersonaScript.Modules.Backoffice.Infrastructure.Persistence;
 namespace PersonaScript.Modules.Backoffice.Migrations
 {
     [DbContext(typeof(BackofficeDbContext))]
-    public partial class BackofficeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260914125006_AddBackofficePerformanceIndexes")]
+    partial class AddBackofficePerformanceIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

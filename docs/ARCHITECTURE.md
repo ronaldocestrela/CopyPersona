@@ -240,7 +240,9 @@ Implementado:
   - Health checks granulares do ASP.NET Core: `/health/live` (liveness probe leve), `/health/ready` (readiness probe avaliando os 6 DbContexts) e `/health` (diagnóstico JSON completo formatado com durações e metadados).
   - Serviço de alertas operacionais proativos (`IOperationalAlertService`, `SlackTeamsWebhookAlertService`) com formatação específica para Slack (Block Kit) e Microsoft Teams (MessageCards), disparando automaticamente em falhas de webhook do Stripe e rate limits/erros de autenticação de provedores de LLM.
   - Métricas e telemetria nativas do .NET 10 via `System.Diagnostics.Metrics.Meter` (`personscript.llm.requests`, `personscript.llm.failures`, `personscript.billing.webhook_failures`, `personscript.llm.duration.ms`).
-  - Total de testes da solução elevado para **442 testes com 100% de aprovação (`dotnet test`)**.
+  - Sincronização completa de Migrações e Índices de Performance (.NET 10 / EF Core): geração e consolidação das migrations pendentes da Subfase 7.3 em todos os 6 módulos (`Identity`, `Anamnese`, `Billing`, `Personas`, `Scripts`, `Backoffice`), eliminando `PendingModelChangesWarning` em tempo de inicialização e regenerando os scripts SQL idempotentes em `migrations-sql/`.
+  - Testes de consistência de migrações (`DatabaseMigrationsConsistencyTests`) validando a paridade estrita entre o mapeamento C# e os `ModelSnapshot`s compilados.
+  - Total de testes da solução elevado para **448 testes com 100% de aprovação (`dotnet test`)**.
   - Documentação viva completa em [`docs/OBSERVABILITY_AND_ALERTS.md`](OBSERVABILITY_AND_ALERTS.md).
 
 Próxima entrega:

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PersonaScript.Modules.Scripts.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using PersonaScript.Modules.Scripts.Infrastructure.Persistence;
 namespace PersonaScript.Modules.Scripts.Infrastructure.Migrations
 {
     [DbContext(typeof(ScriptsDbContext))]
-    public partial class ScriptsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260914125005_AddScriptsPerformanceIndexes")]
+    partial class AddScriptsPerformanceIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
