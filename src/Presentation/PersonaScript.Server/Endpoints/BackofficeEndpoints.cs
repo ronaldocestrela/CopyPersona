@@ -13,7 +13,7 @@ public static class BackofficeEndpoints
 {
     public static IEndpointRouteBuilder MapBackofficeEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/api/backoffice");
+        var group = endpoints.MapGroup("/api/backoffice").DisableAntiforgery();
 
         group.MapGet("/dashboard", () =>
             Results.Ok(new { status = "success", message = "Painel do Backoffice Operacional" }))
@@ -58,7 +58,7 @@ public static class BackofficeEndpoints
             }
 
             return Results.Ok(new { success = true, redirectUrl = "/dashboard" });
-        }).RequireAuthorization("RequireSupportAgent");
+        }).RequireAuthorization("RequireSupportAgent").DisableAntiforgery();
 
         group.MapPost("/impersonate/stop", async (
             HttpContext context,
@@ -71,7 +71,7 @@ public static class BackofficeEndpoints
             }
 
             return Results.Ok(new { success = true, redirectUrl = "/admin/tenants" });
-        }).RequireAuthorization("RequireBackofficeAccess");
+        }).RequireAuthorization("RequireBackofficeAccess").DisableAntiforgery();
 
         group.MapPost("/tenants/freeze", async (
             HttpContext context,
@@ -87,7 +87,7 @@ public static class BackofficeEndpoints
                 context.RequestAborted);
 
             return result.IsSuccess ? Results.Ok(new { success = true }) : Results.BadRequest(new { error = result.Error.Message });
-        }).RequireAuthorization("RequireSupportAgent");
+        }).RequireAuthorization("RequireSupportAgent").DisableAntiforgery();
 
         group.MapPost("/tenants/unfreeze", async (
             HttpContext context,
@@ -103,7 +103,7 @@ public static class BackofficeEndpoints
                 context.RequestAborted);
 
             return result.IsSuccess ? Results.Ok(new { success = true }) : Results.BadRequest(new { error = result.Error.Message });
-        }).RequireAuthorization("RequireSupportAgent");
+        }).RequireAuthorization("RequireSupportAgent").DisableAntiforgery();
 
         group.MapPost("/tenants/reset-password", async (
             HttpContext context,
@@ -119,7 +119,7 @@ public static class BackofficeEndpoints
                 context.RequestAborted);
 
             return result.IsSuccess ? Results.Ok(new { success = true }) : Results.BadRequest(new { error = result.Error.Message });
-        }).RequireAuthorization("RequireSupportAgent");
+        }).RequireAuthorization("RequireSupportAgent").DisableAntiforgery();
 
         group.MapPost("/tenants/grant-credits", async (
             HttpContext context,
@@ -135,7 +135,7 @@ public static class BackofficeEndpoints
                 context.RequestAborted);
 
             return result.IsSuccess ? Results.Ok(new { success = true }) : Results.BadRequest(new { error = result.Error.Message });
-        }).RequireAuthorization("RequireSupportAgent");
+        }).RequireAuthorization("RequireSupportAgent").DisableAntiforgery();
 
         return endpoints;
     }

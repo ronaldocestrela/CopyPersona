@@ -210,10 +210,11 @@ Implementado:
 - Subfase 6.2 concluída: Gestão de Tenants/Usuários, Anamnese consolidada, Impersonação auditada de Suporte com justificativa obrigatória e log `AdminImpersonationLog`.
 - Subfase 6.3 concluída: Gestão Financeira B2C, métricas MRR/ARR, ajuste de limites de planos e sobrescrita de quota por tenant com log `OVERRIDE_TENANT_QUOTA`.
 - Subfase 6.4 concluída: Gestão Dinâmica de Prompts de IA, tabela versionada `PromptTemplates`, editor com playground em tempo real para LLM, rollback instantâneo de versão de prompt com 1 clique e logs de auditoria `CREATE_PROMPT_VERSION` e `ROLLBACK_PROMPT_VERSION`.
+- Subfase 7.1 concluída: Suíte de Testes de Isolamento Multi-Tenant (Anti Cross-Tenant Leak) cobrindo 100% dos repositórios, queries e commands em todos os módulos (Anamnese, Personas, Scripts, Billing, Identity, Backoffice) e endpoints HTTP E2E (`MultiTenantHttpCrossTenantIntegrationTests`), totalizando 339 testes com 100% de sucesso.
 
 Próxima entrega:
 
-- Subfase 6.5: Telemetria de Tokens, Custos de LLM, Latência e Observabilidade dos Agentes.
+- Subfase 7.2: Testes de Interface Blazor (bUnit) e Integração E2E.
 
 ## Referências
 

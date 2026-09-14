@@ -305,12 +305,16 @@ Módulo de Backoffice completo e seguro, permitindo ao time de operações geren
 
 ## FASE 7: Qualidade, Cobertura de Testes (TDD), Performance e Segurança
 
-### Subfase 7.1: Suíte de Testes de Isolamento Multi-Tenant (Anti Cross-Tenant Leak)
-- **Tarefas:**
-  - Escrever suíte de testes de integração automatizados em xUnit que tenta forçar acessos cruzados em todos os Repositórios e CQRS Handlers (tentativa de leitura/escrita do Tenant B usando token do Tenant A).
-  - Garantir que todas as consultas retornem nulo/vazio ou `Result.Failure` sem expor dados de terceiros.
+### Subfase 7.1: Suíte de Testes de Isolamento Multi-Tenant (Anti Cross-Tenant Leak) [CONCLUÍDO]
+- **Tarefas Realizadas:**
+  - Suíte completa de testes unitários e de integração automatizados em xUnit forçando acessos cruzados (cross-tenant leak) em 100% dos módulos: Anamnese, Personas, Scripts, Billing, Identity, Backoffice e Server E2E (`MultiTenantHttpCrossTenantIntegrationTests`).
+  - Verificação de que consultas e comandos disparados pelo Tenant B contra registros do Tenant A retornam nulo/vazio ou `Result.Failure(Error.NotFound / Error.Unauthorized)` sem expor dados de terceiros.
+  - Validação do `TenantDbContextInterceptor` bloqueando alterações de `TenantId` em entidades modificadas e gravações em contextos anônimos.
+  - Correção de resiliência em persistência assíncrona (`SaveChangesAsync`) nos handlers de quota e subscription do módulo de Billing.
+  - Ajuste na pipeline de middleware do servidor (`UseWhen` para `StatusCodePagesWithReExecute`) garantindo preservação de status codes nativos de APIs (401, 403, 404) e prevenindo re-execução de rotas Razor UI em chamadas HTTP anônimas ou não autorizadas.
 - **Entregáveis da Subfase 7.1:**
   - 100% dos repositórios e handlers validados contra vazamento de dados entre tenants.
+  - Total de testes da solução elevado para 339 testes com 100% de sucesso (`dotnet test`).
 
 ### Subfase 7.2: Testes de Interface Blazor (bUnit) e Integração E2E
 - **Tarefas:**

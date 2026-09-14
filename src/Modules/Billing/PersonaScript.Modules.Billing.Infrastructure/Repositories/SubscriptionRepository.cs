@@ -38,4 +38,9 @@ public sealed class SubscriptionRepository(BillingDbContext dbContext) : ISubscr
     {
         dbContext.Subscriptions.Update(subscription);
     }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -8,4 +8,5 @@ public interface ISubscriptionRepository
     Task AddAsync(Subscription subscription, CancellationToken cancellationToken = default);
 
     void Update(Subscription subscription);
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

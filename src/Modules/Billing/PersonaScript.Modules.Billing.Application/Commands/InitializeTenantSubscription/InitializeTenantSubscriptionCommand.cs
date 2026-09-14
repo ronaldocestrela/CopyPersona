@@ -75,6 +75,7 @@ public sealed class InitializeTenantSubscriptionCommandHandler(
         }
 
         await quotaRepository.AddAsync(quotaResult.Value, cancellationToken);
+        await subscriptionRepository.SaveChangesAsync(cancellationToken);
 
         return Result.Success(subscription.Id);
     }

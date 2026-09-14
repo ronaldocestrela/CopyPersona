@@ -44,6 +44,7 @@ public sealed class ConsumeQuotaCommandHandler(
 
         quotaRepository.Update(quota);
         await transactionRepository.AddAsync(consumeResult.Value, cancellationToken);
+        await quotaRepository.SaveChangesAsync(cancellationToken);
 
         return Result.Success(consumeResult.Value.Id);
     }

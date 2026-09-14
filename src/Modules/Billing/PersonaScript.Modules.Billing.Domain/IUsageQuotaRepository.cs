@@ -8,5 +8,6 @@ public interface IUsageQuotaRepository
     Task AddAsync(UsageQuota quota, CancellationToken cancellationToken = default);
     void Update(UsageQuota quota);
     Task UpdateAsync(UsageQuota quota, CancellationToken cancellationToken = default);
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
 
