@@ -17,11 +17,41 @@ using PersonaScript.Modules.Scripts.Infrastructure;
 using PersonaScript.Server.Components;
 using PersonaScript.Server.Endpoints;
 using PersonaScript.Server.Middleware;
+using PersonaScript.Server.Observability;
+using Serilog;
 
 // Carrega as variáveis de ambiente a partir do arquivo .env (se existir)
 Env.NoClobber().TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .Enrich.WithProcessId()
+        .Enrich.WithThreadId()
+        .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName)
+        .Enrich.WithProperty("Application", "PersonaScript.Server");
+
+    if (context.HostingEnvironment.IsDevelopment())
+    {
+        configuration.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] [{TenantId}] {Message:lj}{NewLine}{Exception}");
+    }
+    else
+    {
+        configuration.WriteTo.Console(new Serilog.Formatting.Json.JsonFormatter());
+    }
+
+    var seqUrl = context.Configuration["Seq:ServerUrl"] ?? context.Configuration["SERILOG__WRITETO__SEQ__SERVERURL"];
+    if (!string.IsNullOrWhiteSpace(seqUrl))
+    {
+        configuration.WriteTo.Seq(seqUrl);
+    }
+});
 
 if (!builder.Environment.IsDevelopment())
 {
@@ -100,7 +130,7 @@ builder.Services.AddScoped<PersonaScript.Server.Services.IQuotaNotifierService, 
 builder.Services.AddScoped<IImpersonationService, PersonaScript.Server.Services.CookieImpersonationService>();
 builder.Services.AddSecurityRateLimiting(builder.Configuration);
 
-builder.Services.AddHealthChecks();
+builder.Services.AddPersonaScriptObservability(builder.Configuration);
 
 var app = builder.Build();
 
@@ -133,6 +163,7 @@ app.UseMiddleware<PersonaScript.Server.Middleware.PerformanceTimingMiddleware>()
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseTenantLogContext();
 app.UseAntiforgery();
 app.UseRateLimiter();
 
@@ -140,7 +171,7 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
+app.MapPersonaScriptHealthEndpoints();
 app.MapAccountEndpoints();
 app.MapBackofficeEndpoints();
 app.MapStripeEndpoints();

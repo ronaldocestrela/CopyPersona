@@ -74,7 +74,9 @@ public static class DependencyInjection
                 }
             }
 
-            return new FallbackLLMProviderDecorator(primaryProvider, fallbackProviders, jsonParser, logger);
+            var failureNotifier = sp.GetService<ILLMFailureNotifier>();
+
+            return new FallbackLLMProviderDecorator(primaryProvider, fallbackProviders, jsonParser, logger, failureNotifier);
         });
 
         return services;

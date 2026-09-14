@@ -421,13 +421,22 @@ Sistema altamente seguro, imune a vazamentos cross-tenant, com alta cobertura de
   - Esteira de CI/CD funcional, containerização multi-stage .NET 10 segura e scripts operacionais para homologação e produção.
 
 
-### Subfase 8.2: Logging Estruturado, Observabilidade e Alertas
+### Subfase 8.2: Logging Estruturado, Observabilidade e Alertas (CONCLUÍDA)
 - **Tarefas:**
   - Configurar logging estruturado com Serilog (enviando para Application Insights / Seq / OpenTelemetry).
   - Configurar painel de saúde em `/health` e monitoramento de disponibilidade da aplicação e do banco de dados SQL Server.
   - Configurar alertas automáticos no Slack/Teams para falhas em Webhooks de pagamento ou taxa de erro elevada em chaves de LLM.
+- **Implementações Realizadas:**
+  - Configuração do Serilog estruturado com enriquecedores de multi-tenancy (`TenantId`), usuário (`UserId`), correlação (`TraceId`), ambiente (`Environment`), processo e thread via `TenantLogContextMiddleware`.
+  - Sinks configurados para Console JSON (produção/contêineres), Console legível colorido (desenvolvimento) e suporte nativo a Seq/OTLP via `appsettings.json` e variáveis de ambiente.
+  - Probes granulares de integridade do ASP.NET Core: `/health/live` (liveness probe leve para Docker/K8s), `/health/ready` (readiness probe avaliando a saúde dos 6 DbContexts da aplicação) e `/health` (relatório JSON diagnóstico detalhado com durações individuais).
+  - Criação do serviço de alertas proativos `IOperationalAlertService` e `SlackTeamsWebhookAlertService` com templates otimizados para Slack (Block Kit) e Microsoft Teams (MessageCards).
+  - Disparo automático de alertas em falhas de webhook do Stripe (assinatura inválida ou erro no processamento de faturas) e integração resiliente com o `FallbackLLMProviderDecorator` e `OperationalLLMFailureNotifier` em casos de rate limit, erro 401/429 ou exaustão de provedores de IA.
+  - Métricas nativas .NET 10 via `System.Diagnostics.Metrics.Meter` (`PersonaScriptMetrics`) instrumentando chamadas de LLM, contadores de falhas e webhooks.
+  - Criação de 11 novos testes automatizados elevando a suíte para 442 testes com 100% de sucesso.
+  - Documentação viva detalhada em `docs/OBSERVABILITY_AND_ALERTS.md` e atualização em `docs/ARCHITECTURE.md`.
 - **Entregáveis da Subfase 8.2:**
-  - Sistema 100% observável com alertas proativos de erro em produção.
+  - Sistema 100% observável com telemetria rica, health checks granulares e alertas operacionais proativos para Slack e Microsoft Teams.
 
 ### Subfase 8.3: Programa Beta Fechado com Profissionais de Saúde
 - **Tarefas:**

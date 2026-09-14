@@ -93,4 +93,38 @@ public class FallbackLLMProviderDecoratorTests
         result.Error.Code.Should().Be("AI.AllProvidersFailed");
         result.Error.Message.Should().Contain("RateLimitExceeded").And.Contain("ProviderUnavailable");
     }
+
+    [Fact]
+    public async Task CompleteAsync_AllProvidersFail_NotifiesFailureNotifier()
+    {
+        // Arrange
+        var primaryMock = new MockLLMProvider(_jsonParser);
+        primaryMock.SetResponseEvaluator(req => Result.Failure<LLMResponse>(LLMErrors.RateLimitExceeded("OpenAI")));
+
+        var fallbackMock = new MockLLMProvider(_jsonParser);
+        fallbackMock.SetResponseEvaluator(req => Result.Failure<LLMResponse>(LLMErrors.ProviderUnavailable("Gemini")));
+
+        var notifierMock = new Moq.Mock<ILLMFailureNotifier>();
+
+        var decorator = new FallbackLLMProviderDecorator(
+            primaryMock,
+            new[] { fallbackMock },
+            _jsonParser,
+            logger: null,
+            failureNotifier: notifierMock.Object);
+
+        var request = new LLMRequest { UserPrompt = "Teste Falha Total com Alerta" };
+
+        // Act
+        var result = await decorator.CompleteAsync(request);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        notifierMock.Verify(n => n.NotifyFailureAsync(
+            Moq.It.IsAny<LLMProviderType>(),
+            Moq.It.IsAny<string?>(),
+            Moq.It.IsAny<string>(),
+            true,
+            Moq.It.IsAny<CancellationToken>()), Moq.Times.Once);
+    }
 }

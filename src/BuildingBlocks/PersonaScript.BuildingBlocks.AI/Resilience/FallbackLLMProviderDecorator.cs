@@ -14,6 +14,7 @@ public sealed class FallbackLLMProviderDecorator : ILLMProvider
     private readonly IReadOnlyList<ILLMProvider> _fallbackProviders;
     private readonly ILLMJsonParser _jsonParser;
     private readonly ILogger<FallbackLLMProviderDecorator>? _logger;
+    private readonly ILLMFailureNotifier? _failureNotifier;
 
     public LLMProviderType ProviderType => _primaryProvider.ProviderType;
 
@@ -21,12 +22,14 @@ public sealed class FallbackLLMProviderDecorator : ILLMProvider
         ILLMProvider primaryProvider,
         IEnumerable<ILLMProvider> fallbackProviders,
         ILLMJsonParser jsonParser,
-        ILogger<FallbackLLMProviderDecorator>? logger = null)
+        ILogger<FallbackLLMProviderDecorator>? logger = null,
+        ILLMFailureNotifier? failureNotifier = null)
     {
         _primaryProvider = primaryProvider ?? throw new ArgumentNullException(nameof(primaryProvider));
         _fallbackProviders = fallbackProviders?.ToList() ?? new List<ILLMProvider>();
         _jsonParser = jsonParser ?? throw new ArgumentNullException(nameof(jsonParser));
         _logger = logger;
+        _failureNotifier = failureNotifier;
     }
 
     public async Task<Result<LLMResponse>> CompleteAsync(LLMRequest request, CancellationToken cancellationToken = default)
@@ -59,6 +62,16 @@ public sealed class FallbackLLMProviderDecorator : ILLMProvider
                     provider.ProviderType,
                     result.Error.Code,
                     result.Error.Message);
+
+                if (_failureNotifier != null && (result.Error.Code.Contains("RateLimit") || result.Error.Code.Contains("Unauthorized") || result.Error.Code.Contains("Quota")))
+                {
+                    await _failureNotifier.NotifyFailureAsync(
+                        provider.ProviderType,
+                        result.Error.Code,
+                        result.Error.Message,
+                        allProvidersFailed: false,
+                        cancellationToken);
+                }
             }
             catch (Exception ex)
             {
@@ -71,6 +84,17 @@ public sealed class FallbackLLMProviderDecorator : ILLMProvider
         }
 
         string aggregatedErrors = string.Join(" | ", errorsSummary);
+
+        if (_failureNotifier != null)
+        {
+            await _failureNotifier.NotifyFailureAsync(
+                _primaryProvider.ProviderType,
+                "AI.AllProvidersFailed",
+                aggregatedErrors,
+                allProvidersFailed: true,
+                cancellationToken);
+        }
+
         return Result.Failure<LLMResponse>(LLMErrors.AllProvidersFailed(aggregatedErrors));
     }
 

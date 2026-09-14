@@ -234,14 +234,24 @@ Implementado:
   - Scripts operacionais [`scripts/deploy.sh`](../scripts/deploy.sh) (com health check ativo e rollback automático) e [`scripts/apply-migrations.sh`](../scripts/apply-migrations.sh) (gerador de SQL idempotente por DbContext).
   - Guia técnico completo documentado em [`docs/CI_CD_INFRASTRUCTURE.md`](CI_CD_INFRASTRUCTURE.md).
 
+- Subfase 8.2 concluída: Logging Estruturado, Observabilidade e Alertas:
+  - Logging estruturado com Serilog e enriquecimento contextual automático via `TenantLogContextMiddleware` (`TenantId`, `UserId`, `TraceId`, `Environment`, `ProcessId`, `ThreadId`).
+  - Suporte a múltiplos sinks configuráveis: console legível para desenvolvimento, JSON estruturado para contêineres e Seq/OTLP via `appsettings.json`.
+  - Health checks granulares do ASP.NET Core: `/health/live` (liveness probe leve), `/health/ready` (readiness probe avaliando os 6 DbContexts) e `/health` (diagnóstico JSON completo formatado com durações e metadados).
+  - Serviço de alertas operacionais proativos (`IOperationalAlertService`, `SlackTeamsWebhookAlertService`) com formatação específica para Slack (Block Kit) e Microsoft Teams (MessageCards), disparando automaticamente em falhas de webhook do Stripe e rate limits/erros de autenticação de provedores de LLM.
+  - Métricas e telemetria nativas do .NET 10 via `System.Diagnostics.Metrics.Meter` (`personscript.llm.requests`, `personscript.llm.failures`, `personscript.billing.webhook_failures`, `personscript.llm.duration.ms`).
+  - Total de testes da solução elevado para **442 testes com 100% de aprovação (`dotnet test`)**.
+  - Documentação viva completa em [`docs/OBSERVABILITY_AND_ALERTS.md`](OBSERVABILITY_AND_ALERTS.md).
+
 Próxima entrega:
 
-- Subfase 8.2: Logging Estruturado, Observabilidade e Alertas (Serilog, Seq/Application Insights, OpenTelemetry e painel de saúde expandido).
+- Subfase 8.3: Programa Beta Fechado com Profissionais de Saúde (20 a 50 profissionais, métricas de usabilidade e calibração de prompts no Backoffice).
 
 ## Referências
 
 - [AGENTS.md](../AGENTS.md) — diretrizes para desenvolvimento
 - [docs/CI_CD_INFRASTRUCTURE.md](CI_CD_INFRASTRUCTURE.md) — esteira de CI/CD e infraestrutura de produção
+- [docs/OBSERVABILITY_AND_ALERTS.md](OBSERVABILITY_AND_ALERTS.md) — observabilidade, logging estruturado e alertas
 - [README.md](../README.md) — como executar localmente
 - [docs/design/stitch/README.md](design/stitch/README.md) — assets Cadastro/Login
 
