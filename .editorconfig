@@ -10,8 +10,15 @@ end_of_line = lf
 [*.{cs,csx}]
 dotnet_sort_system_directives_first = true
 
+[**/Migrations/**]
+generated_code = true
+
+[**/{obj,bin}/**]
+generated_code = true
+
 [*.md]
 trim_trailing_whitespace = false
 
 [*.{json,yml,yaml}]
 indent_size = 2
+

@@ -41,7 +41,7 @@ public class ClarificationAnalyzerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.IsVague.Should().BeTrue();
         result.Value.Items.Should().NotBeEmpty();
-        
+
         var item = result.Value.Items.First();
         item.QuestionId.Should().Be("3.5");
         item.FieldName.Should().Be("PorQueEscolhemVoce");

@@ -1,4 +1,5 @@
 using System.Text;
+using DotNetEnv;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -6,18 +7,16 @@ using Microsoft.IdentityModel.Tokens;
 using PersonaScript.BuildingBlocks.AI;
 using PersonaScript.BuildingBlocks.Tenancy;
 using PersonaScript.Modules.Anamnese.Infrastructure;
+using PersonaScript.Modules.Backoffice;
 using PersonaScript.Modules.Billing.Infrastructure;
 using PersonaScript.Modules.Identity.Application.Abstractions;
+using PersonaScript.Modules.Identity.Domain;
 using PersonaScript.Modules.Identity.Infrastructure;
 using PersonaScript.Modules.Personas.Infrastructure;
 using PersonaScript.Modules.Scripts.Infrastructure;
-using PersonaScript.Modules.Backoffice;
 using PersonaScript.Server.Components;
 using PersonaScript.Server.Endpoints;
 using PersonaScript.Server.Middleware;
-
-using DotNetEnv;
-using PersonaScript.Modules.Identity.Domain;
 
 // Carrega as variáveis de ambiente a partir do arquivo .env (se existir)
 Env.NoClobber().TraversePath().Load();
@@ -105,8 +104,8 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-var applyMigrations = app.Environment.IsDevelopment() || 
-                      app.Configuration.GetValue<bool>("APPLY_MIGRATIONS") || 
+var applyMigrations = app.Environment.IsDevelopment() ||
+                      app.Configuration.GetValue<bool>("APPLY_MIGRATIONS") ||
                       app.Configuration.GetValue<bool>("ApplyMigrationsOnStartup");
 
 if (applyMigrations)

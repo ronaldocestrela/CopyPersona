@@ -19,7 +19,7 @@ public sealed class GetPromptTemplatesQueryHandler : IQueryHandler<GetPromptTemp
     public async Task<Result<IReadOnlyList<PromptTemplateDto>>> Handle(GetPromptTemplatesQuery query, CancellationToken cancellationToken)
     {
         var activePrompts = await _promptRepository.GetAllActivePromptsAsync(cancellationToken);
-        
+
         var dtos = activePrompts.Select(p => new PromptTemplateDto(
             p.Id,
             p.AgentName,

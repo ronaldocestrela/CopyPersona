@@ -24,7 +24,7 @@ public sealed class GetPromptHistoryQueryHandler : IQueryHandler<GetPromptHistor
         }
 
         var versions = await _promptRepository.GetAllVersionsByAgentNameAsync(query.AgentName, cancellationToken);
-        
+
         var dtos = versions.Select(p => new PromptTemplateDto(
             p.Id,
             p.AgentName,

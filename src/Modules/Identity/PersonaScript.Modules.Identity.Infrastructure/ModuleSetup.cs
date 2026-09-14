@@ -3,18 +3,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PersonaScript.BuildingBlocks.CQRS;
+using PersonaScript.BuildingBlocks.Results;
 using PersonaScript.Modules.Identity.Application.Abstractions;
 using PersonaScript.Modules.Identity.Application.Commands.LoginUser;
 using PersonaScript.Modules.Identity.Application.Commands.RegisterUser;
+using PersonaScript.Modules.Identity.Application.Commands.RequestPasswordReset;
+using PersonaScript.Modules.Identity.Application.Commands.ResetPassword;
 using PersonaScript.Modules.Identity.Domain;
+using PersonaScript.Modules.Identity.Infrastructure.Emails;
 using PersonaScript.Modules.Identity.Infrastructure.Persistence;
 using PersonaScript.Modules.Identity.Infrastructure.Repositories;
 using PersonaScript.Modules.Identity.Infrastructure.Security;
-
-using PersonaScript.BuildingBlocks.Results;
-using PersonaScript.Modules.Identity.Application.Commands.RequestPasswordReset;
-using PersonaScript.Modules.Identity.Application.Commands.ResetPassword;
-using PersonaScript.Modules.Identity.Infrastructure.Emails;
 
 namespace PersonaScript.Modules.Identity.Infrastructure;
 

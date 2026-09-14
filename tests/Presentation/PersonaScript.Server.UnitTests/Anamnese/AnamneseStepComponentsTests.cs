@@ -21,7 +21,7 @@ public class AnamneseStepComponentsTests : BunitContext
             .Add(p => p.ModelChanged, m => updatedModel = m));
 
         cut.Find("h3").TextContent.Should().Contain("Etapa 1 — Quem é você");
-        
+
         var nameInput = cut.Find("input[placeholder*='Mariana']");
         nameInput.Change("Dra. Mariana Silva");
 

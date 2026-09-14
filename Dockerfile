@@ -41,6 +41,8 @@ COPY ["src/Modules/Scripts/PersonaScript.Modules.Scripts.Domain/PersonaScript.Mo
 COPY ["src/Modules/Scripts/PersonaScript.Modules.Scripts.Application/PersonaScript.Modules.Scripts.Application.csproj", "src/Modules/Scripts/PersonaScript.Modules.Scripts.Application/"]
 COPY ["src/Modules/Scripts/PersonaScript.Modules.Scripts.Infrastructure/PersonaScript.Modules.Scripts.Infrastructure.csproj", "src/Modules/Scripts/PersonaScript.Modules.Scripts.Infrastructure/"]
 
+COPY ["src/Modules/Backoffice/PersonaScript.Modules.Backoffice.csproj", "src/Modules/Backoffice/"]
+
 # Copiar arquivos de projeto (Presentation)
 COPY ["src/Presentation/PersonaScript.Server/PersonaScript.Server.csproj", "src/Presentation/PersonaScript.Server/"]
 
@@ -62,4 +64,6 @@ RUN dotnet publish "PersonaScript.Server.csproj" -c Release -o /app/publish /p:U
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER $APP_UID
 ENTRYPOINT ["dotnet", "PersonaScript.Server.dll"]
+

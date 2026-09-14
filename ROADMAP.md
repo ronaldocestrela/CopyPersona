@@ -404,13 +404,22 @@ Sistema altamente seguro, imune a vazamentos cross-tenant, com alta cobertura de
 
 ## FASE 8: Homologação, Infraestrutura, CI/CD e Lançamento (Go-Live)
 
-### Subfase 8.1: Pipeline de CI/CD e Infraestrutura de Produção
+### Subfase 8.1: Pipeline de CI/CD e Infraestrutura de Produção (CONCLUÍDA)
 - **Tarefas:**
   - Configurar GitHub Actions / Azure Pipelines para compilação automatizada, execução da suíte completa de testes unitários e de integração, e análise de código estático (SonarQube/dotnet format).
   - Configurar scripts de deployment automatizado para ambiente de Staging e Produção (Docker / Azure App Service / SQL Azure).
   - Executar as EF Core Migrations automatizadas na inicialização do servidor ou via pipeline.
+- **Implementações Realizadas:**
+  - Criação do workflow de CI (`.github/workflows/ci.yml`) com validação estática estrita (`dotnet format --verify-no-changes`), compilação Release .NET 10, execução dos 431 testes com cobertura e auditoria de segurança de dependências NuGet.
+  - Criação do workflow de CD (`.github/workflows/cd.yml`) com automação de build multi-stage Docker no GitHub Container Registry (GHCR), suporte a Staging (`develop`) e Produção (`v*.*.*` / `workflow_dispatch`) e smoke test pós-deploy em `/health`.
+  - Correção e aprimoramento do `Dockerfile` multi-stage (.NET 10), incluindo o módulo `Backoffice`, cache de camadas e execução sob usuário seguro não-root `USER $APP_UID`.
+  - Atualização do `docker-compose.prod.yml` com limites de recursos (CPUs/Memória), driver de logging com rotação (`json-file`, 50MB, 5 cópias) e injeção completa de variáveis de produção (SQL Server, Stripe, LLMs, JWT).
+  - Criação do script de automação operacional `scripts/deploy.sh` com health check ativo e rollback automático em caso de falha.
+  - Criação do script `scripts/apply-migrations.sh` para auditoria e geração de scripts SQL idempotentes dos 6 DbContexts da aplicação.
+  - Documentação viva em `docs/CI_CD_INFRASTRUCTURE.md` e atualização em `docs/ARCHITECTURE.md`.
 - **Entregáveis da Subfase 8.1:**
-  - Esteira de CI/CD funcional implantando automaticamente em ambiente de homologação e produção.
+  - Esteira de CI/CD funcional, containerização multi-stage .NET 10 segura e scripts operacionais para homologação e produção.
+
 
 ### Subfase 8.2: Logging Estruturado, Observabilidade e Alertas
 - **Tarefas:**

@@ -81,11 +81,11 @@ public static class ModelBuilderTenantExtensions
     {
         var entityParam = Expression.Parameter(typeof(TEntity), "e");
         var dbContextConst = Expression.Constant(dbContext);
-        
+
         var tenantContextAccess = Expression.MakeMemberAccess(dbContextConst, tenantContextMember);
         var tenantIdAccess = Expression.Property(tenantContextAccess, nameof(ITenantContext.TenantId));
         var tenantGuidAccess = Expression.Property(tenantIdAccess, nameof(TenantId.Value));
-        
+
         var entityTenantIdAccess = Expression.Property(entityParam, nameof(IMustHaveTenant.TenantId));
         var equalsExpr = Expression.Equal(entityTenantIdAccess, tenantGuidAccess);
 

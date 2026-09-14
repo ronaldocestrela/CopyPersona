@@ -10,10 +10,10 @@ using PersonaScript.Modules.Anamnese.Application.DTOs;
 using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStatus;
 using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStep;
 using PersonaScript.Modules.Anamnese.Application.Queries.GetFullAnamnese;
+using PersonaScript.Modules.Anamnese.Application.Services;
 using PersonaScript.Modules.Anamnese.Domain;
 using PersonaScript.Modules.Anamnese.Infrastructure.Persistence;
 using PersonaScript.Modules.Anamnese.Infrastructure.Repositories;
-using PersonaScript.Modules.Anamnese.Application.Services;
 
 namespace PersonaScript.Modules.Anamnese.Infrastructure;
 

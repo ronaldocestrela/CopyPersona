@@ -227,13 +227,22 @@ Implementado:
   - Hardening de cookies com `HttpOnly`, `SameSite = Lax` e `SecurePolicy`.
   - Total de testes da solução elevado de 400 para **431 testes com 100% de aprovação (`dotnet test`)**.
 
+- Subfase 8.1 concluída: Pipeline de CI/CD e Infraestrutura de Produção:
+  - Workflows GitHub Actions modulares: `ci.yml` (linter `dotnet format`, build Release, 431 testes com cobertura e auditoria de vulnerabilidades de dependências) e `cd.yml` (build multi-stage Docker para GHCR, deploy Staging/Produção e smoke test em `/health`).
+  - Containerização .NET 10 multi-stage com execução sob usuário não-root (`USER $APP_UID`) e inclusão de todos os 6 módulos no `Dockerfile`.
+  - Orquestração com `docker-compose.prod.yml` com logging rotacionado (`json-file`, 50MB, 5 cópias), limites de recursos de CPU e memória, healthchecks e suporte a `APPLY_MIGRATIONS=true`.
+  - Scripts operacionais [`scripts/deploy.sh`](../scripts/deploy.sh) (com health check ativo e rollback automático) e [`scripts/apply-migrations.sh`](../scripts/apply-migrations.sh) (gerador de SQL idempotente por DbContext).
+  - Guia técnico completo documentado em [`docs/CI_CD_INFRASTRUCTURE.md`](CI_CD_INFRASTRUCTURE.md).
+
 Próxima entrega:
 
-- FASE 8: Homologação, Infraestrutura, CI/CD e Lançamento (Subfase 8.1: Pipeline de CI/CD e Infraestrutura de Produção).
+- Subfase 8.2: Logging Estruturado, Observabilidade e Alertas (Serilog, Seq/Application Insights, OpenTelemetry e painel de saúde expandido).
 
 ## Referências
 
 - [AGENTS.md](../AGENTS.md) — diretrizes para desenvolvimento
+- [docs/CI_CD_INFRASTRUCTURE.md](CI_CD_INFRASTRUCTURE.md) — esteira de CI/CD e infraestrutura de produção
 - [README.md](../README.md) — como executar localmente
 - [docs/design/stitch/README.md](design/stitch/README.md) — assets Cadastro/Login
+
 

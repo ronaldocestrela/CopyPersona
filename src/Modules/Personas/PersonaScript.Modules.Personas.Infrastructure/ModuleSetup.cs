@@ -4,14 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using PersonaScript.BuildingBlocks.CQRS;
 using PersonaScript.BuildingBlocks.Tenancy;
 using PersonaScript.Modules.Personas.Application.Commands.GeneratePersonaDiagnosis;
+using PersonaScript.Modules.Personas.Application.Commands.UpdatePersonaDiagnosis;
 using PersonaScript.Modules.Personas.Application.DTOs;
 using PersonaScript.Modules.Personas.Application.Queries.GetPersonaDiagnosis;
 using PersonaScript.Modules.Personas.Application.Services;
 using PersonaScript.Modules.Personas.Domain;
 using PersonaScript.Modules.Personas.Infrastructure.Persistence;
 using PersonaScript.Modules.Personas.Infrastructure.Repositories;
-
-using PersonaScript.Modules.Personas.Application.Commands.UpdatePersonaDiagnosis;
 
 namespace PersonaScript.Modules.Personas.Infrastructure;
 
