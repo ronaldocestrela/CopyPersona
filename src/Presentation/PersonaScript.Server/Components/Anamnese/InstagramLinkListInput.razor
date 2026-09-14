@@ -15,7 +15,7 @@
                        style="padding-left: 2rem;"
                        placeholder="@Placeholder"
                        value="@currentValue"
-                       @oninput="(e) => OnItemInputChanged(index, e)" />
+                       @onchange="(e) => OnItemChanged(index, e)" />
             </div>
 
             @if (!string.IsNullOrWhiteSpace(currentValue))
@@ -78,7 +78,7 @@
         return string.Empty;
     }
 
-    private async Task OnItemInputChanged(int index, ChangeEventArgs e)
+    private async Task OnItemChanged(int index, ChangeEventArgs e)
     {
         var rawInput = e.Value?.ToString() ?? string.Empty;
 

@@ -61,7 +61,7 @@ public class InstagramLinkListInputTests : BunitContext
             .Add(p => p.ValuesChanged, v => updatedValues = v));
 
         var input = cut.Find("input");
-        input.Input("https://instagram.com/dramariana/");
+        input.Change("https://instagram.com/dramariana/");
 
         updatedValues.Should().NotBeNull();
         updatedValues.Should().ContainSingle().Which.Should().Be("dramariana");

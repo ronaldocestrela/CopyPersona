@@ -138,6 +138,8 @@ sequenceDiagram
   - Schema EF Core `"anamnese"`, tabela `anamnese.Anamneses`.
   - Mapeamento de colunas JSON nativo SQL Server (`OwnsOne(..., b => b.ToJson())`).
   - Repositório `AnamneseRepository` e filtro global `ApplyTenantQueryFilters`.
+- **UI / Frontend Blazor (`PersonaScript.Server.Components.Anamnese`):**
+  - Formulários e etapas (`Step1` a `Step10`) e componentes de links utilizam estritamente o evento `@onchange` para campos de texto/área de texto (`input`/`textarea`), evitando `@oninput` com vinculação de `value` ao servidor via SignalR, prevenindo sobrescrita de digitação, perda de foco e caracteres invertidos.
 
 ## Mapa de projetos
 

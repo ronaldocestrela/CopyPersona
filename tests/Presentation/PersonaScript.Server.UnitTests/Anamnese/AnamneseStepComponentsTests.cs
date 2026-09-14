@@ -64,4 +64,69 @@ public class AnamneseStepComponentsTests : BunitContext
         var listContainers = cut.FindAll(".anamnese-instagram-list-container");
         listContainers.Should().HaveCount(2);
     }
+
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "bUnit TestContext manages component lifecycle")]
+    public void Step3Component_ShouldRenderFieldsAndTriggerModelChangedOnChange()
+    {
+        Etapa3Dto? updatedModel = null;
+        var initialModel = new Etapa3Dto("Master 1", "Lucrativo 1", "Preferido 1", "Diferencial 1", "Escolhem 1", "Critica 1");
+
+        var cut = Render<Step3Component>(parameters => parameters
+            .Add(p => p.Model, initialModel)
+            .Add(p => p.ModelChanged, m => updatedModel = m));
+
+        cut.Find("h3").TextContent.Should().Contain("Etapa 3 — Seu Trabalho");
+
+        var masterInput = cut.Find("input[placeholder*='Harmonização facial']");
+        masterInput.Change("Lentes de Contato Dental Ultra Finas");
+
+        updatedModel.Should().NotBeNull();
+        updatedModel!.ProcedimentoMaster.Should().Be("Lentes de Contato Dental Ultra Finas");
+
+        var diferencialTextarea = cut.Find("textarea[placeholder*='Consulta sem pressa']");
+        diferencialTextarea.Change("Atendimento personalizado com scanner 3D e café gourmet");
+
+        updatedModel.DiferencialAtendimento.Should().Be("Atendimento personalizado com scanner 3D e café gourmet");
+    }
+
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "bUnit TestContext manages component lifecycle")]
+    public void Step4Component_ShouldRenderFieldsAndTriggerModelChangedOnChange()
+    {
+        Etapa4Dto? updatedModel = null;
+        var initialModel = new Etapa4Dto("Perfil 1", "Medos 1", "Desejos 1", "Perguntas 1", "Mitos 1", CanalOrigemEnum.Instagram);
+
+        var cut = Render<Step4Component>(parameters => parameters
+            .Add(p => p.Model, initialModel)
+            .Add(p => p.ModelChanged, m => updatedModel = m));
+
+        cut.Find("h3").TextContent.Should().Contain("Etapa 4 — Seu Paciente");
+
+        var perfilTextarea = cut.Find("textarea[placeholder*='Mulheres entre 35']");
+        perfilTextarea.Change("Mulheres de 30 a 50 anos empresárias");
+
+        updatedModel.Should().NotBeNull();
+        updatedModel!.PerfilDemograficoPsicografico.Should().Be("Mulheres de 30 a 50 anos empresárias");
+    }
+
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "bUnit TestContext manages component lifecycle")]
+    public void Step7Component_ShouldRenderFieldsAndTriggerModelChangedOnChange()
+    {
+        Etapa7Dto? updatedModel = null;
+        var initialModel = new Etapa7Dto("Temas 1", "Palestra 1", "Verdade 1", "Deu Certo 1", "Nao Funcionou 1", "Sonhos 1");
+
+        var cut = Render<Step7Component>(parameters => parameters
+            .Add(p => p.Model, initialModel)
+            .Add(p => p.ModelChanged, m => updatedModel = m));
+
+        cut.Find("h3").TextContent.Should().Contain("Etapa 7 — Seu Conhecimento");
+
+        var temasTextarea = cut.Find("textarea[placeholder*='Prevenção do envelhecimento']");
+        temasTextarea.Change("Como prevenir flacidez facial após os 40");
+
+        updatedModel.Should().NotBeNull();
+        updatedModel!.TemasFavoritos.Should().Be("Como prevenir flacidez facial após os 40");
+    }
 }

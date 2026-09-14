@@ -32,7 +32,7 @@ public class InstagramLinkInputTests : BunitContext
         input.GetAttribute("value").Should().Be("dramariana");
         cut.Markup.Should().Contain("instagram.com/dramariana");
 
-        input.Input("https://instagram.com/novoperfil/");
+        input.Change("https://instagram.com/novoperfil/");
         updatedValue.Should().Be("novoperfil");
     }
 }
