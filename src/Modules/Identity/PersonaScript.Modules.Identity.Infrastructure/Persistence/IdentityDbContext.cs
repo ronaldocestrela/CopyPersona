@@ -30,6 +30,8 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
                 .IsRequired()
                 .HasDefaultValue(UserRole.Subscriber);
             entity.Property(user => user.TenantId).IsRequired();
+            entity.HasIndex(user => user.TenantId);
+            entity.HasIndex(user => new { user.TenantId, user.Role });
             entity.Property(user => user.CreatedAt).IsRequired();
             entity.Property(user => user.IsFrozen).IsRequired();
             entity.Property(user => user.FrozenAt);

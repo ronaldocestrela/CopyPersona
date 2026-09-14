@@ -34,12 +34,29 @@ public static class BackofficeModuleSetup
                 options.UseInMemoryDatabase("PersonaScript_Backoffice_InMemory"));
         }
 
+        services.AddMemoryCache();
         services.AddScoped<IAdminImpersonationLogRepository, AdminImpersonationLogRepository>();
         services.AddScoped<IAdminAuditLogRepository, AdminAuditLogRepository>();
-        services.AddScoped<IPromptTemplateRepository, PromptTemplateRepository>();
+
+        services.AddScoped<PromptTemplateRepository>();
+        services.AddScoped<IPromptTemplateRepository>(sp =>
+            new CachedPromptTemplateRepository(
+                sp.GetRequiredService<PromptTemplateRepository>(),
+                sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>()));
+
         services.AddScoped<IAgentExecutionLogRepository, AgentExecutionLogRepository>();
-        services.AddScoped<ICouncilRuleRepository, CouncilRuleRepository>();
-        services.AddScoped<IForbiddenTermRepository, ForbiddenTermRepository>();
+
+        services.AddScoped<CouncilRuleRepository>();
+        services.AddScoped<ICouncilRuleRepository>(sp =>
+            new CachedCouncilRuleRepository(
+                sp.GetRequiredService<CouncilRuleRepository>(),
+                sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>()));
+
+        services.AddScoped<ForbiddenTermRepository>();
+        services.AddScoped<IForbiddenTermRepository>(sp =>
+            new CachedForbiddenTermRepository(
+                sp.GetRequiredService<ForbiddenTermRepository>(),
+                sp.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>()));
         services.AddSingleton<PersonaScript.Modules.Backoffice.Application.Services.ILLMCostCalculator, PersonaScript.Modules.Backoffice.Application.Services.LLMCostCalculator>();
         services.AddSingleton<PersonaScript.Modules.Backoffice.Application.Abstractions.ILLMTelemetryService, PersonaScript.Modules.Backoffice.Application.Services.LLMTelemetryService>();
         services.AddScoped<PersonaScript.Modules.Backoffice.Application.Services.IDynamicPromptEngine, PersonaScript.Modules.Backoffice.Application.Services.DynamicPromptEngine>();

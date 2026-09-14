@@ -26,6 +26,8 @@ public sealed class BackofficeDbContext : DbContext
             builder.Property(x => x.TargetUserEmail).HasMaxLength(256).IsRequired();
             builder.Property(x => x.Reason).HasMaxLength(1000).IsRequired();
             builder.Property(x => x.IpAddress).HasMaxLength(45);
+            builder.HasIndex(x => x.TargetTenantId);
+            builder.HasIndex(x => new { x.TargetUserEmail, x.StartedAt });
         });
 
         modelBuilder.Entity<AdminAuditLog>(builder =>
@@ -36,6 +38,8 @@ public sealed class BackofficeDbContext : DbContext
             builder.Property(x => x.AdminEmail).HasMaxLength(256).IsRequired();
             builder.Property(x => x.TargetUserEmail).HasMaxLength(256).IsRequired();
             builder.Property(x => x.DetailsJson).IsRequired();
+            builder.HasIndex(x => x.TargetTenantId);
+            builder.HasIndex(x => new { x.ActionType, x.Timestamp });
         });
 
         modelBuilder.Entity<PromptTemplate>(builder =>

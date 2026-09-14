@@ -23,6 +23,9 @@ public sealed class ScriptsDbContext(DbContextOptions<ScriptsDbContext> options,
 
             entity.Property(s => s.TenantId).IsRequired();
             entity.HasIndex(s => s.TenantId);
+            entity.HasIndex(s => new { s.TenantId, s.GeradoEm });
+            entity.HasIndex(s => new { s.TenantId, s.Status, s.GeradoEm });
+            entity.HasIndex(s => new { s.TenantId, s.AnamneseId });
 
             entity.Property(s => s.AnamneseId).IsRequired();
             entity.Property(s => s.PersonaDiagnosisId);
@@ -54,6 +57,8 @@ public sealed class ScriptsDbContext(DbContextOptions<ScriptsDbContext> options,
 
             entity.Property(sp => sp.TenantId).IsRequired();
             entity.HasIndex(sp => sp.TenantId);
+            entity.HasIndex(sp => new { sp.TenantId, sp.GeradoEm });
+            entity.HasIndex(sp => new { sp.TenantId, sp.AnamneseId });
 
             entity.Property(sp => sp.AnamneseId).IsRequired();
             entity.Property(sp => sp.PersonaDiagnosisId);
@@ -73,6 +78,8 @@ public sealed class ScriptsDbContext(DbContextOptions<ScriptsDbContext> options,
 
             entity.Property(c => c.TenantId).IsRequired();
             entity.HasIndex(c => c.TenantId);
+            entity.HasIndex(c => new { c.TenantId, c.GeradoEm });
+            entity.HasIndex(c => new { c.TenantId, c.AnamneseId });
 
             entity.Property(c => c.AnamneseId).IsRequired();
             entity.Property(c => c.PersonaDiagnosisId);

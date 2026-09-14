@@ -212,10 +212,17 @@ Implementado:
 - Subfase 6.4 concluída: Gestão Dinâmica de Prompts de IA, tabela versionada `PromptTemplates`, editor com playground em tempo real para LLM, rollback instantâneo de versão de prompt com 1 clique e logs de auditoria `CREATE_PROMPT_VERSION` e `ROLLBACK_PROMPT_VERSION`.
 - Subfase 7.1 concluída: Suíte de Testes de Isolamento Multi-Tenant (Anti Cross-Tenant Leak) cobrindo 100% dos repositórios, queries e commands em todos os módulos (Anamnese, Personas, Scripts, Billing, Identity, Backoffice) e endpoints HTTP E2E (`MultiTenantHttpCrossTenantIntegrationTests`), totalizando 339 testes com 100% de sucesso.
 - Subfase 7.2 concluída: Testes de Interface Blazor (bUnit) e Integração E2E com cobertura completa de UI (Anamnese Wizard e componentes auxiliares, Diagnóstico de Posicionamento e modais de edição/regeneração, Gerador de Roteiros e modais de exportação/refinamento, Backoffice Operacional com Dashboard, Tenants, Auditoria, Ética e Telemetria) e teste de aceitação de jornada completa de ponta a ponta (`FullUserJourneyAcceptanceTests` cobrindo Registro -> Assinatura/Quotas -> Anamnese 10 Etapas -> Diagnóstico de Persona -> Roteiro de Vídeo -> Consumo de Franquia -> Barreira Multi-Tenant), elevando o total da suíte para 382 testes automatizados com 100% de sucesso.
+- Subfase 7.3 concluída: Otimização de Consultas SQL Server, Caching e Performance:
+  - Convenção automática `EnsureTenantIndexes` no BuildingBlock Tenancy para todas as entidades `IMustHaveTenant`.
+  - Índices explícitos e compostos de alta seletividade nos módulos `Identity`, `Anamnese`, `Personas`, `Scripts`, `Billing` e `Backoffice`.
+  - `ValueComparer` explícito para coleções JSON de `AnamneseDbContext`, eliminando alertas de tracking do EF Core.
+  - Caching Decorator em memória (`IMemoryCache`) para `IPromptTemplateRepository`, `ICouncilRuleRepository` e `IForbiddenTermRepository` com invalidação cirúrgica por Commands CQRS.
+  - Middleware `PerformanceTimingMiddleware` com cabeçalhos `Server-Timing` e monitoramento de SLA (< 500ms).
+  - Total de testes da solução elevado de 382 para 400 testes com 100% de aprovação (`dotnet test`).
 
 Próxima entrega:
 
-- Subfase 7.3: Otimização de Consultas SQL Server, Caching e Performance.
+- Subfase 7.4: Hardening de Segurança, Sanitização de Prompts e OWASP Compliance.
 
 ## Referências
 

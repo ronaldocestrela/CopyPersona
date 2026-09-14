@@ -21,6 +21,8 @@ public sealed class PersonasDbContext(DbContextOptions<PersonasDbContext> option
 
             entity.Property(p => p.TenantId).IsRequired();
             entity.HasIndex(p => p.TenantId);
+            entity.HasIndex(p => new { p.TenantId, p.GeradoEm });
+            entity.HasIndex(p => new { p.TenantId, p.AnamneseId });
 
             entity.Property(p => p.AnamneseId).IsRequired();
             entity.Property(p => p.FrasePosicionamento).IsRequired();

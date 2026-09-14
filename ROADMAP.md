@@ -337,13 +337,37 @@ Módulo de Backoffice completo e seguro, permitindo ao time de operações geren
   - Registro de interfaces CQRS (`ICommandHandler`, `IQueryHandler`) para operações de Billing.
   - Total de testes da solução elevado de 339 para 382 testes com 100% de aprovação (`dotnet test`).
 
-### Subfase 7.3: Otimização de Consultas SQL Server, Caching e Performance
-- **Tarefas:**
-  - Adicionar índices otimizados no SQL Server por `TenantId` em todas as tabelas de módulo.
-  - Configurar Caching em memória (IMemoryCache / Redis) para leitura de `PromptTemplate` ativos e regras de conselhos éticos.
-  - Validar tempo de carregamento de páginas (< 500ms) e tempo de resposta de APIs.
+### Subfase 7.3: Otimização de Consultas SQL Server, Caching e Performance [CONCLUÍDO]
+- **Tarefas Realizadas:**
+  - Indexação de banco de dados e otimização relacional para multi-tenancy:
+    - Implementação de convenção automática `EnsureTenantIndexes` no BuildingBlock Tenancy, assegurando que toda entidade com `IMustHaveTenant` possua índice na coluna discriminadora `TenantId`.
+    - Adição de índices explícitos e compostos em todos os módulos:
+      - `Identity`: Índices `(TenantId)` e `(TenantId, Role)` em `Users`.
+      - `Anamnese`: Índice composto `(TenantId, Status)` em `Anamneses`.
+      - `Personas`: Índices compostos `(TenantId, GeradoEm)` e `(TenantId, AnamneseId)` em `PersonaDiagnoses`.
+      - `Scripts`: Índices compostos `(TenantId, GeradoEm)`, `(TenantId, Status, GeradoEm)` e `(TenantId, AnamneseId)` em `VideoScripts`, e `(TenantId, GeradoEm)` e `(TenantId, AnamneseId)` em `StoryPlans` e `NinetyDayCalendars`.
+      - `Billing`: Índices compostos `(TenantId, Status)` em `Subscriptions`, `(TenantId, PeriodEnd)` em `UsageQuotas`, e `(TenantId, TransactionDate)` em `QuotaTransactions`.
+      - `Backoffice`: Índices compostos `(TargetTenantId)`, `(ActionType, Timestamp)` em `AdminAuditLogs`, e `(TargetTenantId)`, `(TargetUserEmail, StartedAt)` em `AdminImpersonationLogs`.
+    - Correção e registro de `ValueComparer<IReadOnlyCollection<string>>` e `ValueComparer<IReadOnlyCollection<ArquetipoComunicacaoEnum>>` nas colunas JSON de `AnamneseDbContext`, eliminando alertas de tracking e acelerando comparações de snapshot do EF Core.
+  - Arquitetura de Caching de baixa latência em memória e Redis-ready:
+    - Criação de implementações do padrão Decorator para repositórios de alta frequência em pipelines de IA e conformidade ética:
+      - `CachedPromptTemplateRepository`: cache de templates ativos por agente (`prompt:active:{agent}`) e listagem geral (`prompt:all_active`).
+      - `CachedCouncilRuleRepository`: cache de regras de conselho por sigla (`council:rule:{acronym}`) e listagem geral (`council:rules:all_active`).
+      - `CachedForbiddenTermRepository`: cache de termos proibidos ativos (`forbidden_terms:all_active`).
+    - Estratégia de invalidação cirúrgica: mutações disparadas por Commands CQRS (`Add`, `Update`, `Delete`) invalidam o cache imediatamente, garantindo consistência sem stale reads.
+    - Registro de `AddMemoryCache()` e resolução transparente via injeção de dependência no `BackofficeModuleSetup`.
+  - Instrumentação de Telemetria e Validação de SLAs de Desempenho (< 500ms):
+    - Criação do middleware `PerformanceTimingMiddleware`, emitindo o cabeçalho padronizado `Server-Timing: app;dur={ms}` em todas as respostas HTTP e registrando alertas de log para qualquer rota que ultrapasse 500ms.
+    - Implementação de suíte de testes de integração e benchmarks (`PerformanceSlaIntegrationTests`), comprovando latências:
+      - Endpoint de `/health`: resposta imediata (< 50ms).
+      - Páginas de autenticação SSR `/login` e `/cadastro`: carregamento < 300ms.
+      - Bootstrap de assets Blazor `/_framework/blazor.web.js`: < 250ms.
+      - Acesso em memória a prompts de IA via repositório em cache: < 15ms.
 - **Entregáveis da Subfase 7.3:**
-  - Banco de dados indexado e caching configurado para baixa latência.
+  - Banco de dados 100% indexado para queries multi-tenant e change tracker otimizado.
+  - Caching Decorator em memória (IMemoryCache) ativo para IA Prompts e Regras Éticas com invalidação via CQRS.
+  - Middleware de diagnóstico `Server-Timing` integrado na pipeline HTTP do host.
+  - Total de testes da solução elevado de 382 para 400 testes com 100% de aprovação (`dotnet test`).
 
 ### Subfase 7.4: Hardening de Segurança, Sanitização de Prompts e OWASP Compliance
 - **Tarefas:**

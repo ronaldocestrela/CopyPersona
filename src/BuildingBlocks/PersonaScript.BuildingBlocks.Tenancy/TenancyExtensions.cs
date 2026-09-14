@@ -30,6 +30,8 @@ public static class ModelBuilderTenantExtensions
 
             method.Invoke(null, [modelBuilder, dbContext, tenantContextMember]);
         }
+
+        modelBuilder.EnsureTenantIndexes();
     }
 
     public static void ApplyTenantQueryFilters(this ModelBuilder modelBuilder, ITenantContext tenantContext)
@@ -46,6 +48,27 @@ public static class ModelBuilderTenantExtensions
                 .MakeGenericMethod(entityType.ClrType);
 
             method.Invoke(null, [modelBuilder, tenantContext]);
+        }
+
+        modelBuilder.EnsureTenantIndexes();
+    }
+
+    public static void EnsureTenantIndexes(this ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (!typeof(IMustHaveTenant).IsAssignableFrom(entityType.ClrType))
+            {
+                continue;
+            }
+
+            var hasIndex = entityType.GetIndexes()
+                .Any(idx => idx.Properties.Any(p => p.Name == nameof(IMustHaveTenant.TenantId)));
+
+            if (!hasIndex)
+            {
+                modelBuilder.Entity(entityType.ClrType).HasIndex(nameof(IMustHaveTenant.TenantId));
+            }
         }
     }
 

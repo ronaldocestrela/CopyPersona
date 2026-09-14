@@ -44,6 +44,7 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options,
 
             entity.Property(s => s.TenantId).IsRequired();
             entity.HasIndex(s => s.TenantId);
+            entity.HasIndex(s => new { s.TenantId, s.Status });
 
             entity.Property(s => s.PlanId).IsRequired();
             entity.HasOne(s => s.Plan)
@@ -68,6 +69,7 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options,
 
             entity.Property(q => q.TenantId).IsRequired();
             entity.HasIndex(q => q.TenantId);
+            entity.HasIndex(q => new { q.TenantId, q.PeriodEnd });
 
             entity.Property(q => q.SubscriptionId).IsRequired();
             entity.Property(q => q.PeriodStart).IsRequired();
@@ -88,6 +90,7 @@ public sealed class BillingDbContext(DbContextOptions<BillingDbContext> options,
 
             entity.Property(t => t.TenantId).IsRequired();
             entity.HasIndex(t => t.TenantId);
+            entity.HasIndex(t => new { t.TenantId, t.TransactionDate });
 
             entity.Property(t => t.QuotaId).IsRequired();
             entity.Property(t => t.ResourceType).IsRequired();
