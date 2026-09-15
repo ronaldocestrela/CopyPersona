@@ -245,9 +245,15 @@ Implementado:
   - Total de testes da solução elevado para **448 testes com 100% de aprovação (`dotnet test`)**.
   - Documentação viva completa em [`docs/OBSERVABILITY_AND_ALERTS.md`](OBSERVABILITY_AND_ALERTS.md).
 
+- Subfase 8.3 concluída: Seed de Usuário Master (Backoffice) e SmartAuth:
+  - Criação do seeder idempotente [`MasterAdminSeeder.cs`](../src/Modules/Identity/PersonaScript.Modules.Identity.Infrastructure/Seed/MasterAdminSeeder.cs) no módulo Identity, com credenciais configuradas via variáveis de ambiente (`MASTER_ADMIN_EMAIL`, `MASTER_ADMIN_PASSWORD`, `MASTER_ADMIN_NAME`) no `.env` e `.docker-compose.prod.yml`.
+  - Atribuição automática do papel `SystemAdmin` e execução durante a inicialização/migrações (`SeedMasterAdminAsync`).
+  - Implementação do esquema de autenticação inteligente `SmartAuth` (`AddPolicyScheme`), que roteia requisições com `Bearer` ou sob `/api` para `JwtBearer` e requisições Web normais para `CookieAuthentication`, corrigindo conflito que causava falsos 404 ao acessar rotas protegidas como `/admin`.
+  - Suíte de testes automatizados expandida para **453 testes com 100% de aprovação**.
+
 Próxima entrega:
 
-- Subfase 8.3: Programa Beta Fechado com Profissionais de Saúde (20 a 50 profissionais, métricas de usabilidade e calibração de prompts no Backoffice).
+- Subfase 8.4: Programa Beta Fechado com Profissionais de Saúde (20 a 50 profissionais, métricas de usabilidade e calibração de prompts no Backoffice).
 
 ## Referências
 

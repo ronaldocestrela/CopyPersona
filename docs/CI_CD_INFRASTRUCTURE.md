@@ -115,3 +115,6 @@ Para a operação plena dos pipelines no GitHub Actions / Produção, devem ser 
 | `LLM__GeminiApiKey` | Chave API Google Gemini | `AIzaSy...` |
 | `LLM__AnthropicApiKey` | Chave API Anthropic Claude | `sk-ant-...` |
 | `Resend__ApiKey` | Chave do provedor de e-mails transacionais | `re_...` |
+| `MASTER_ADMIN_EMAIL` | E-mail do usuário Master Administrador do Backoffice | `admin@personascript.ai` |
+| `MASTER_ADMIN_PASSWORD` | Senha inicial do usuário Master Administrador | Senha alfanumérica forte (mínimo 8 caracteres) |
+| `MASTER_ADMIN_NAME` | Nome de exibição do administrador | `Master Administrator` |

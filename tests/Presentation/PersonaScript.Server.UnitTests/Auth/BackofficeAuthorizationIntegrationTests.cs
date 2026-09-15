@@ -74,6 +74,21 @@ public class BackofficeAuthorizationIntegrationTests : IClassFixture<PersonaScri
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
+    [Fact]
+    public async Task AdminPage_ShouldRedirectToLogin_WhenUnauthenticated()
+    {
+        var client = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        var response = await client.GetAsync("/admin");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.ToString().Should().Contain("/login?ReturnUrl=%2Fadmin");
+    }
+
     private string GenerateTokenForRole(UserRole role)
     {
         using var scope = _factory.Services.CreateScope();

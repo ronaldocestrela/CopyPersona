@@ -36,12 +36,13 @@ dotnet run --project src/Presentation/PersonaScript.Server
 
 Endpoints:
 
-- App: http://localhost:5000 (ou porta do `launchSettings.json`)
+- App: http://localhost:5000 (ou porta do `launchSettings.json` / http://localhost:8080 em Docker)
 - Health: http://localhost:5000/health
 - Cadastro: http://localhost:5000/cadastro
 - Login: http://localhost:5000/login
 - Anamnese: http://localhost:5000/anamnese
 - Posicionamento: http://localhost:5000/posicionamento/diagnostico
+- Backoffice Operacional: http://localhost:5000/admin (Requer papel de administrador)
 
 ### 4. Testar cadastro e login
 
@@ -53,6 +54,24 @@ Endpoints:
 Mailpit (http://localhost:8025) ficará disponível para fluxos de e-mail em entregas futuras (reset de senha).
 
 Ajuste a senha se alterar `MSSQL_SA_PASSWORD` no `.env`.
+
+### 5. Acesso ao Backoffice (Usuário Master)
+
+O sistema conta com um **seeder idempotente automático** que cria/promove o usuário Master Administrador com papel `SystemAdmin` durante a inicialização (quando `APPLY_MIGRATIONS=true` ou em Development).
+
+As credenciais padrão são carregadas a partir do `.env` (ou `.env.production`):
+
+```env
+MASTER_ADMIN_EMAIL=admin@personascript.ai
+MASTER_ADMIN_PASSWORD=AdminPersonaScript2026!
+MASTER_ADMIN_NAME=Master Administrator
+```
+
+Para acessar o painel:
+1. Navegue para `http://localhost:5000/admin` (ou `http://localhost:8080/admin` se estiver rodando via Docker).
+2. O sistema redirecionará para a tela de login.
+3. Insira as credenciais do administrador configuradas no `.env`.
+4. O redirecionamento concederá acesso direto ao Dashboard Operacional, Gestão de Tenants, Prompts de IA, Telemetria e Governança Ética.
 
 ### Troubleshooting: erro 500 em `_framework/blazor.web.js`
 

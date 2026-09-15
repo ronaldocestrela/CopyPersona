@@ -59,6 +59,8 @@ public static class ModuleSetup
         services.AddScoped<ICommandHandler<PersonaScript.Modules.Identity.Application.Commands.ExternalLogin.ExternalLoginCommand, LoginResult>, PersonaScript.Modules.Identity.Application.Commands.ExternalLogin.ExternalLoginCommandHandler>();
         services.AddScoped<ICommandHandler<PersonaScript.Modules.Identity.Application.Commands.GenerateJwtToken.GenerateJwtTokenCommand, JwtTokenResult>, PersonaScript.Modules.Identity.Application.Commands.GenerateJwtToken.GenerateJwtTokenCommandHandler>();
 
+        services.AddScoped<PersonaScript.Modules.Identity.Infrastructure.Seed.MasterAdminSeeder>();
+
         return services;
     }
 
@@ -74,5 +76,12 @@ public static class ModuleSetup
         {
             await dbContext.Database.EnsureCreatedAsync(cancellationToken);
         }
+    }
+
+    public static async Task SeedMasterAdminAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var seeder = scope.ServiceProvider.GetRequiredService<PersonaScript.Modules.Identity.Infrastructure.Seed.MasterAdminSeeder>();
+        await seeder.SeedAsync(cancellationToken);
     }
 }

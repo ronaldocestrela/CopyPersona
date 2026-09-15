@@ -68,6 +68,9 @@ services:
       - LLM__AnthropicApiKey=${LLM__AnthropicApiKey:-}
       - LLM__DefaultAnthropicModel=${LLM__DefaultAnthropicModel:-claude-3-5-sonnet-20241022}
       - Resend__ApiKey=${Resend__ApiKey:-re_123456789}
+      - MASTER_ADMIN_EMAIL=${MASTER_ADMIN_EMAIL:-admin@personascript.ai}
+      - MASTER_ADMIN_PASSWORD=${MASTER_ADMIN_PASSWORD:-AdminPersonaScript2026!}
+      - MASTER_ADMIN_NAME=${MASTER_ADMIN_NAME:-Master Administrator}
     ports:
       - "${APP_PORT:-8080}:8080"
     healthcheck:

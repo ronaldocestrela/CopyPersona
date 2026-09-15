@@ -64,9 +64,30 @@ builder.Services.AddRazorComponents()
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
 var jwtKey = Encoding.UTF8.GetBytes(jwtOptions.Secret);
 
+const string smartAuthScheme = "SmartAuth";
+
 builder.Services.AddAuthentication(options =>
     {
-        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultScheme = smartAuthScheme;
+        options.DefaultChallengeScheme = smartAuthScheme;
+    })
+    .AddPolicyScheme(smartAuthScheme, "Smart Cookie or Bearer Selector", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+        {
+            var authHeader = context.Request.Headers.Authorization.FirstOrDefault();
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            {
+                return JwtBearerDefaults.AuthenticationScheme;
+            }
+
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
+                return JwtBearerDefaults.AuthenticationScheme;
+            }
+
+            return CookieAuthenticationDefaults.AuthenticationScheme;
+        };
     })
     .AddCookie(options =>
     {
@@ -95,26 +116,20 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    var defaultAuthSchemes = new[] { CookieAuthenticationDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme };
-
     options.AddPolicy("RequireSystemAdmin", policy =>
-        policy.AddAuthenticationSchemes(defaultAuthSchemes)
-              .RequireRole(UserRole.SystemAdmin.ToString()));
+        policy.RequireRole(UserRole.SystemAdmin.ToString()));
 
     options.AddPolicy("RequireSupportAgent", policy =>
-        policy.AddAuthenticationSchemes(defaultAuthSchemes)
-              .RequireRole(UserRole.SupportAgent.ToString(), UserRole.SystemAdmin.ToString()));
+        policy.RequireRole(UserRole.SupportAgent.ToString(), UserRole.SystemAdmin.ToString()));
 
     options.AddPolicy("RequireFinanceAdmin", policy =>
-        policy.AddAuthenticationSchemes(defaultAuthSchemes)
-              .RequireRole(UserRole.FinanceAdmin.ToString(), UserRole.SystemAdmin.ToString()));
+        policy.RequireRole(UserRole.FinanceAdmin.ToString(), UserRole.SystemAdmin.ToString()));
 
     options.AddPolicy("RequireBackofficeAccess", policy =>
-        policy.AddAuthenticationSchemes(defaultAuthSchemes)
-              .RequireRole(
-                  UserRole.SupportAgent.ToString(),
-                  UserRole.FinanceAdmin.ToString(),
-                  UserRole.SystemAdmin.ToString()));
+        policy.RequireRole(
+            UserRole.SupportAgent.ToString(),
+            UserRole.FinanceAdmin.ToString(),
+            UserRole.SystemAdmin.ToString()));
 });
 builder.Services.AddCascadingAuthenticationState();
 
@@ -146,6 +161,7 @@ if (applyMigrations)
     await app.Services.ApplyPersonasMigrationsAsync();
     await app.Services.ApplyScriptsMigrationsAsync();
     await app.Services.ApplyBackofficeMigrationsAsync();
+    await app.Services.SeedMasterAdminAsync();
 }
 
 if (!app.Environment.IsDevelopment())
@@ -156,7 +172,13 @@ if (!app.Environment.IsDevelopment())
 
 app.UseWhen(
     context => !context.Request.Path.StartsWithSegments("/api") && !context.Request.Path.StartsWithSegments("/webhooks"),
-    appBuilder => appBuilder.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true));
+    appBuilder => appBuilder.UseStatusCodePages(async statusCodeContext =>
+    {
+        if (statusCodeContext.HttpContext.Response.StatusCode == StatusCodes.Status404NotFound)
+        {
+            statusCodeContext.HttpContext.Response.Redirect("/not-found");
+        }
+    }));
 
 app.UseMiddleware<PersonaScript.Server.Middleware.SecurityHeadersMiddleware>();
 app.UseMiddleware<PersonaScript.Server.Middleware.PerformanceTimingMiddleware>();
