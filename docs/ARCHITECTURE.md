@@ -66,8 +66,19 @@ Referência: [aspnetcore#65468](https://github.com/dotnet/aspnetcore/issues/6546
 | `/redefinir-senha` | Página SSR | Formulário para digitação da nova senha (POST → `/account/redefinir-senha`) |
 | `POST /account/redefinir-senha` | Endpoint | Valida token e atualiza a senha no banco de dados |
 | `/logout` | Endpoint GET | Encerra cookie e redireciona para `/login` |
+| `GET /account/external-login/{provider}` | Endpoint GET | Inicia o desafio OAuth para o provedor social configurado (`Google`) |
+| `GET /account/external-callback` | Endpoint GET | Processa o callback social (`ExternalCookie`), cria/recupera o usuário e emite a sessão principal |
 
 Design Stitch exportado em [`docs/design/stitch/`](design/stitch/README.md). Servidor de e-mails transacionais utilizando a API REST do **Resend** (com fallback para `FakeEmailSender` em ambiente de testes).
+
+### Login Social (Google OAuth 2.0)
+
+O sistema suporta login federado via Google OAuth 2.0:
+- **Configuração:** variáveis `Authentication__Google__ClientId` e `Authentication__Google__ClientSecret` no `.env` (ou `Authentication:Google` no `appsettings.json`).
+- **Callback Path do Google:** `/signin-google`.
+- **Esquema intermediário:** `AccountEndpoints.ExternalScheme` (`"ExternalCookie"`, cookie `PersonaScript.ExternalAuth`), evitando conflito com o cookie principal da aplicação.
+- **Auto-provisionamento B2C:** no primeiro login social, o usuário é criado automaticamente pelo `ExternalLoginCommandHandler` via `User.RegisterFromExternalProvider` (`TenantId = UserId`), disparando e-mail de boas-vindas. Nos logins seguintes, a conta existente é autenticada diretamente.
+- O cookie temporário é encerrado e a sessão principal `PersonaScript.Auth` é emitida com claims completas de tenant.
 
 ### Fluxo
 

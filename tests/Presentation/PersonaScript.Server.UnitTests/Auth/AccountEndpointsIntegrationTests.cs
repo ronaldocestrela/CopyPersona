@@ -158,6 +158,51 @@ public class AccountEndpointsIntegrationTests : IClassFixture<PersonaScriptWebAp
         response.Headers.Location!.OriginalString.Should().Contain("/login?error=");
     }
 
+    [Fact]
+    public async Task ExternalLogin_ShouldRedirectToError_WhenProviderNotConfigured()
+    {
+        var client = CreateClient();
+        var response = await client.GetAsync("/account/external-login/Apple");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.OriginalString.Should().Contain("/login?error=");
+        Uri.UnescapeDataString(response.Headers.Location!.OriginalString).Should().Contain("não está configurado");
+    }
+
+    [Fact]
+    public async Task ExternalLogin_ShouldChallengeGoogleOAuth_WhenConfigured()
+    {
+        using var customFactory = _factory.WithWebHostBuilder(builder =>
+        {
+            builder.UseSetting("Authentication:Google:ClientId", "test-google-client-id");
+            builder.UseSetting("Authentication:Google:ClientSecret", "test-google-client-secret");
+        });
+
+        var client = customFactory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = true,
+        });
+
+        var response = await client.GetAsync("/account/external-login/Google");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location.Should().NotBeNull();
+        response.Headers.Location!.OriginalString.Should().StartWith("https://accounts.google.com/o/oauth2/v2/auth");
+        response.Headers.Location!.OriginalString.Should().Contain("client_id=test-google-client-id");
+        response.Headers.Location!.OriginalString.Should().Contain("response_type=code");
+    }
+
+    [Fact]
+    public async Task ExternalCallback_ShouldRedirectToError_WhenExternalCookieMissing()
+    {
+        var client = CreateClient();
+        var response = await client.GetAsync("/account/external-callback?provider=Google");
+
+        response.StatusCode.Should().Be(HttpStatusCode.Redirect);
+        response.Headers.Location!.OriginalString.Should().Contain("/login?error=");
+    }
+
     private HttpClient CreateClient() =>
         _factory.CreateClient(new WebApplicationFactoryClientOptions
         {

@@ -11,11 +11,7 @@ services:
     volumes:
       - sqlserver_prod_data:/var/opt/mssql
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD:-PersonaScript_ProdPass2026!Strong}\" -C -Q \"SELECT 1\" || exit 1",
-        ]
+      test: [ "CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD:-PersonaScript_ProdPass2026!Strong}\" -C -Q \"SELECT 1\" || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -71,10 +67,12 @@ services:
       - MASTER_ADMIN_EMAIL=${MASTER_ADMIN_EMAIL:-admin@personascript.ai}
       - MASTER_ADMIN_PASSWORD=${MASTER_ADMIN_PASSWORD:-AdminPersonaScript2026!}
       - MASTER_ADMIN_NAME=${MASTER_ADMIN_NAME:-Master Administrator}
+      - Authentication__Google__ClientId=${Authentication__Google__ClientId:-}
+      - Authentication__Google__ClientSecret=${Authentication__Google__ClientSecret:-}
     ports:
       - "${APP_PORT:-8080}:8080"
     healthcheck:
-      test: ["CMD-SHELL", "cat /proc/net/tcp | grep -q '1F90' || exit 1"] # Porta 8080 (0x1F90 em hex)
+      test: [ "CMD-SHELL", "cat /proc/net/tcp | grep -q '1F90' || exit 1" ] # Porta 8080 (0x1F90 em hex)
       interval: 15s
       timeout: 5s
       retries: 5

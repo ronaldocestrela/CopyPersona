@@ -14,9 +14,11 @@ public class AuthSocialButtonsTests : BunitContext
         var googleLink = cut.Find("a[href='/account/external-login/Google']");
         googleLink.Should().NotBeNull();
         googleLink.TextContent.Should().Contain("Google");
+        googleLink.GetAttribute("data-enhance-nav").Should().Be("false");
 
         var appleLink = cut.Find("a[href='/account/external-login/Apple']");
         appleLink.Should().NotBeNull();
         appleLink.TextContent.Should().Contain("Apple");
+        appleLink.GetAttribute("data-enhance-nav").Should().Be("false");
     }
 }

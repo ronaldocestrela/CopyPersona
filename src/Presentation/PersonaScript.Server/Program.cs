@@ -66,7 +66,7 @@ var jwtKey = Encoding.UTF8.GetBytes(jwtOptions.Secret);
 
 const string smartAuthScheme = "SmartAuth";
 
-builder.Services.AddAuthentication(options =>
+var authBuilder = builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = smartAuthScheme;
         options.DefaultChallengeScheme = smartAuthScheme;
@@ -100,6 +100,14 @@ builder.Services.AddAuthentication(options =>
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         options.SlidingExpiration = true;
     })
+    .AddCookie(AccountEndpoints.ExternalScheme, options =>
+    {
+        options.Cookie.Name = "PersonaScript.ExternalAuth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+    })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -113,6 +121,18 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(jwtKey)
         };
     });
+
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    authBuilder.AddGoogle(Microsoft.AspNetCore.Authentication.Google.GoogleDefaults.AuthenticationScheme, options =>
+    {
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+        options.SignInScheme = AccountEndpoints.ExternalScheme;
+    });
+}
 
 builder.Services.AddAuthorization(options =>
 {

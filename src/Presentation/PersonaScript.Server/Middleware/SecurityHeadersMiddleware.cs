@@ -15,7 +15,7 @@ public sealed class SecurityHeadersMiddleware
         "connect-src 'self' ws: wss:; " +
         "frame-ancestors 'self'; " +
         "base-uri 'self'; " +
-        "form-action 'self';";
+        "form-action 'self' https://accounts.google.com https://appleid.apple.com;";
 
     public SecurityHeadersMiddleware(RequestDelegate _next)
     {

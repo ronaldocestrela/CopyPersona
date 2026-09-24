@@ -15,6 +15,8 @@ namespace PersonaScript.Server.Endpoints;
 
 public static class AccountEndpoints
 {
+    public const string ExternalScheme = "ExternalCookie";
+
     public static IEndpointRouteBuilder MapAccountEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/account/register", RegisterAsync).RequireRateLimiting(PersonaScript.Server.Middleware.RateLimitingExtensions.AuthPolicy);
@@ -114,8 +116,9 @@ public static class AccountEndpoints
         return Results.Redirect("/login?success=senha_redefinida");
     }
 
-    private static IResult ExternalLoginAsync(
+    private static async Task<IResult> ExternalLoginAsync(
         HttpContext context,
+        IAuthenticationSchemeProvider schemeProvider,
         [FromRoute] string provider,
         [FromQuery] string? returnUrl = "/")
     {
@@ -124,6 +127,12 @@ public static class AccountEndpoints
              !string.Equals(provider, "Apple", StringComparison.OrdinalIgnoreCase)))
         {
             return Results.Redirect($"/login?error={Uri.EscapeDataString("Provedor social inválido.")}");
+        }
+
+        var scheme = await schemeProvider.GetSchemeAsync(provider);
+        if (scheme is null)
+        {
+            return Results.Redirect($"/login?error={Uri.EscapeDataString($"O login com {provider} não está configurado neste ambiente.")}");
         }
 
         var redirectUrl = $"/account/external-callback?provider={Uri.EscapeDataString(provider)}&returnUrl={Uri.EscapeDataString(returnUrl ?? "/")}";
@@ -138,7 +147,17 @@ public static class AccountEndpoints
         [FromQuery] string provider,
         [FromQuery] string? returnUrl = "/")
     {
-        var authenticateResult = await context.AuthenticateAsync(provider);
+        var authenticateResult = await context.AuthenticateAsync(ExternalScheme);
+        if ((!authenticateResult.Succeeded || authenticateResult.Principal is null) && !string.IsNullOrWhiteSpace(provider))
+        {
+            var schemeProvider = context.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
+            var scheme = await schemeProvider.GetSchemeAsync(provider);
+            if (scheme is not null)
+            {
+                authenticateResult = await context.AuthenticateAsync(provider);
+            }
+        }
+
         if (!authenticateResult.Succeeded || authenticateResult.Principal is null)
         {
             return Results.Redirect($"/login?error={Uri.EscapeDataString("Falha na autenticação social com o provedor.")}");
@@ -152,16 +171,21 @@ public static class AccountEndpoints
 
         var fullName = authenticateResult.Principal.FindFirstValue(ClaimTypes.Name)
             ?? authenticateResult.Principal.FindFirstValue("name")
-            ?? email;
+            ?? string.Join(" ", new[] { authenticateResult.Principal.FindFirstValue(ClaimTypes.GivenName), authenticateResult.Principal.FindFirstValue(ClaimTypes.Surname) }.Where(s => !string.IsNullOrWhiteSpace(s))).Trim();
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(providerKey))
         {
+            await context.SignOutAsync(ExternalScheme);
             return Results.Redirect($"/login?error={Uri.EscapeDataString("E-mail não retornado pelo provedor social.")}");
         }
 
+        var resolvedFullName = !string.IsNullOrWhiteSpace(fullName) ? fullName : email;
+
         var commandResult = await handler.Handle(
-            new ExternalLoginCommand(provider, providerKey, email, fullName ?? email),
+            new ExternalLoginCommand(provider, providerKey, email, resolvedFullName),
             context.RequestAborted);
+
+        await context.SignOutAsync(ExternalScheme);
 
         if (commandResult.IsFailure)
         {
