@@ -145,6 +145,14 @@ Utilizado em ações de alta prioridade ou conversão imediata:
 - **`.framer-card`**: Fundo `#121215`, borda `1px solid rgba(255, 255, 255, 0.08)`, cantos arredondados de `16px`.
 - **`.framer-card-glow`**: Adiciona uma linha de luz sutil no topo do cartão via pseudo-elemento `::before` com gradiente linear.
 
+### 4.5 Modais e Diálogos de Sobreposição (Modals)
+- **`.modal-backdrop`**: Overlay em tela cheia (`position: fixed; inset: 0; z-index: 1050; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);`) com animação suave de fade-in (`psModalFadeIn`). Suporta fechamento ao clicar no fundo escurecido.
+- **`.modal` & `.modal-dialog`**: Contêiner fixo centralizado na viewport (`z-index: 1055; display: flex; align-items: center; justify-content: center;`) com animação suave de escala e elevação (`psModalScaleUp`).
+- **`.modal-content`**: Cartão com fundo `#0e0e13`, gradiente radial sutil no topo, cantos arredondados (`1.25rem`), borda translúcida e sombra projetada profunda (`box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.9)`).
+- **`.modal-header` & `.modal-title-group`**: Cabeçalho com ícone destacado (ex.: neon lime para IA), título e subtítulo descritivo, além de botão `.btn-close` circular translúcido com transição de hover.
+- **`.form-grid` & `.modal-input` / `.modal-select` / `.modal-textarea`**: Campos de entrada estilizados com fundo `#08080b`, borda sutil e anel de foco neon lime/glow, rótulos com tag opcional/obrigatória.
+- **`.modal-footer`**: Ações alinhadas à direita com botão secundário de cancelamento e botão primário `.btn-modal-submit` em neon lime de alta energia.
+
 ---
 
 ## 5. Mapeamento de Telas e Arquivos CSS
