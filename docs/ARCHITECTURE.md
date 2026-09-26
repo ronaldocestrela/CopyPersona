@@ -262,16 +262,30 @@ Implementado:
   - Implementação do esquema de autenticação inteligente `SmartAuth` (`AddPolicyScheme`), que roteia requisições com `Bearer` ou sob `/api` para `JwtBearer` e requisições Web normais para `CookieAuthentication`, corrigindo conflito que causava falsos 404 ao acessar rotas protegidas como `/admin`.
   - Suíte de testes automatizados expandida para **453 testes com 100% de aprovação**.
 
+- Subfase 8.4 concluída: Nova Identidade Visual & Design System (Referência Framer AI Agents):
+  - Refatoração estética e visual completa alinhada à referência canônica na pasta `refrence` (Framer AI Design Agent):
+    - **Paleta True Dark & Efeito Glass:** Fundo OLED Black (`#000000`), cartões e superfícies escuras em camadas (`#0a0a0c`, `#0e0e12`, `#141416`), bordas translúcidas de precisão (`rgba(255, 255, 255, 0.08)` a `0.18`) e `backdrop-filter: blur(20px)`.
+    - **Acentos de Alto Contraste:** Neon Lime (`#cbff00`), Electric Blue/Cyan (`#0099ff`) e Purple (`#8a58ff`), com pulsing dots de status de agente e badges com tipografia mono.
+    - **Tipografia Moderna:** Integração de `Geist`, `Inter` e `JetBrains Mono` via Google Fonts no [`App.razor`](../src/Presentation/PersonaScript.Server/Components/App.razor), garantindo tracking refinado e contraste editorial.
+    - **Landing Page Interativa (`Home.razor` & `Home.razor.css`):** Hero de alto impacto com headline de IA, badges dinâmicos, simulação do *Canvas* com execução visual dos Agentes 1 (Estrategista) e 2 (Copywriter), Bento Grid de recursos e CTA final.
+    - **Top Navigation (`NavMenu.razor.css`):** Barra de navegação flutuante/sticky em vidro fosco com microinterações, logo com badge de IA em neon lime e botões pill, restrita exclusivamente à área interna/logada (`/anamnese`, `/posicionamento/diagnostico`, `/roteiros`, `/minha-conta/assinatura`).
+    - **Isolamento de Layouts (`LandingLayout.razor` vs `MainLayout.razor`):** Criação de layout público dedicado para a tela inicial (`Home.razor`) desprovido de barra de navegação interna, garantindo visual de landing page imersivo e livre de menus da área autenticada.
+    - **Harmonização Global dos Módulos:** Atualização dos estilos de autenticação (`auth.css`), diagnóstico e posicionamento (`posicionamento.css`), estúdio de roteiros e teleprompter (`roteiros.css`), wizard de anamnese (`anamnese.css`) e gestão de assinaturas (`AssinaturaPage.razor.css`).
+  - Suíte de testes automatizados expandida para **460 testes com 100% de aprovação**.
+
 Próxima entrega:
 
-- Subfase 8.4: Programa Beta Fechado com Profissionais de Saúde (20 a 50 profissionais, métricas de usabilidade e calibração de prompts no Backoffice).
+- Subfase 8.5: Programa Beta Fechado com Profissionais de Saúde (20 a 50 profissionais, métricas de usabilidade e calibração de prompts no Backoffice).
 
 ## Referências
 
 - [AGENTS.md](../AGENTS.md) — diretrizes para desenvolvimento
+- [docs/DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) — manual e tokens da identidade visual (Framer AI Agents)
 - [docs/CI_CD_INFRASTRUCTURE.md](CI_CD_INFRASTRUCTURE.md) — esteira de CI/CD e infraestrutura de produção
 - [docs/OBSERVABILITY_AND_ALERTS.md](OBSERVABILITY_AND_ALERTS.md) — observabilidade, logging estruturado e alertas
 - [README.md](../README.md) — como executar localmente
 - [docs/design/stitch/README.md](design/stitch/README.md) — assets Cadastro/Login
+
+
 
 

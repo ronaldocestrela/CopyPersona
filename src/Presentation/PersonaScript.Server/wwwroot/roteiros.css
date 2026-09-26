@@ -1,26 +1,31 @@
-/* ==========================================
+/* ==========================================================================
    PersonaScript AI — Roteiros, Teleprompter & Export CSS
-   ========================================== */
+   Dark & Sleek Framer Visual Identity
+   ========================================================================== */
 
 :root {
-    --ps-primary: #6366f1;
-    --ps-primary-hover: #4f46e5;
-    --ps-secondary: #ec4899;
-    --ps-bg-dark: #0f172a;
-    --ps-card-bg: #1e293b;
-    --ps-border: #334155;
-    --ps-text: #f8fafc;
-    --ps-text-muted: #94a3b8;
-    --ps-success: #10b981;
+    --ps-primary: #ffffff;
+    --ps-primary-hover: #e5e5e5;
+    --ps-secondary: #cbff00;
+    --ps-bg-dark: #000000;
+    --ps-card-bg: #0e0e12;
+    --ps-card-bg-hover: #141419;
+    --ps-border: rgba(255, 255, 255, 0.08);
+    --ps-border-hover: rgba(255, 255, 255, 0.2);
+    --ps-text: #ffffff;
+    --ps-text-muted: rgba(255, 255, 255, 0.6);
+    --ps-success: #00de68;
     --ps-warning: #f59e0b;
-    --ps-info: #3b82f6;
+    --ps-info: #0099ff;
 }
 
 /* Hub Container */
 .roteiros-container {
-    padding: 2rem;
+    padding: 1.5rem;
     max-width: 1400px;
     margin: 0 auto;
+    color: var(--ps-text);
+    font-family: var(--ps-font-sans, sans-serif);
 }
 
 .roteiros-header {
@@ -28,20 +33,24 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--ps-border);
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .roteiros-title-group h1 {
-    font-size: 1.875rem;
+    font-size: 2rem;
     font-weight: 700;
+    letter-spacing: -0.03em;
     color: var(--ps-text);
     margin: 0;
 }
 
 .roteiros-title-group p {
     color: var(--ps-text-muted);
-    margin-top: 0.25rem;
+    font-size: 0.95rem;
+    margin-top: 0.35rem;
 }
 
 /* Search & Filters Bar */
@@ -61,18 +70,19 @@
 
 .search-box input {
     width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.75rem;
-    border-radius: 0.75rem;
+    padding: 0.75rem 1.25rem 0.75rem 2.75rem;
+    border-radius: 9999px;
     border: 1px solid var(--ps-border);
-    background-color: var(--ps-card-bg);
+    background-color: #08080a;
     color: var(--ps-text);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
 }
 
 .search-box input:focus {
     outline: none;
-    border-color: var(--ps-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
 }
 
 .search-box i {
@@ -91,22 +101,30 @@
 }
 
 .filter-pill {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.15rem;
     border-radius: 9999px;
     border: 1px solid var(--ps-border);
-    background: transparent;
+    background: rgba(255, 255, 255, 0.04);
     color: var(--ps-text-muted);
-    font-size: 0.875rem;
+    font-size: 0.825rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
 }
 
-.filter-pill:hover, .filter-pill.active {
-    background: var(--ps-primary);
+.filter-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
-    border-color: var(--ps-primary);
+    border-color: var(--ps-border-hover);
+}
+
+.filter-pill.active {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 2px 12px rgba(255, 255, 255, 0.15);
 }
 
 /* Script Card Grid */
@@ -119,18 +137,19 @@
 .roteiro-card {
     background: var(--ps-card-bg);
     border: 1px solid var(--ps-border);
-    border-radius: 1rem;
-    padding: 1.5rem;
+    border-radius: 1.25rem;
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.25s;
 }
 
 .roteiro-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    border-color: rgba(99, 102, 241, 0.4);
+    transform: translateY(-3px);
+    background: var(--ps-card-bg-hover);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    border-color: var(--ps-border-hover);
 }
 
 .roteiro-card-header {
@@ -142,8 +161,9 @@
 }
 
 .roteiro-card-title {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     font-weight: 600;
+    letter-spacing: -0.02em;
     color: var(--ps-text);
     line-height: 1.4;
 }
@@ -151,21 +171,24 @@
 .badge-status {
     padding: 0.25rem 0.65rem;
     border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: var(--ps-font-mono, monospace);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    white-space: nowrap;
 }
 
-.badge-status.draft { background: rgba(245, 158, 11, 0.15); color: var(--ps-warning); }
-.badge-status.approved { background: rgba(59, 130, 246, 0.15); color: var(--ps-info); }
-.badge-status.recorded { background: rgba(16, 185, 129, 0.15); color: var(--ps-success); }
-.badge-status.published { background: rgba(147, 51, 234, 0.15); color: #c084fc; }
+.badge-status.draft { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+.badge-status.approved { background: rgba(0, 153, 255, 0.12); color: #38bdf8; border: 1px solid rgba(0, 153, 255, 0.25); }
+.badge-status.recorded { background: rgba(0, 222, 104, 0.12); color: #4ade80; border: 1px solid rgba(0, 222, 104, 0.25); }
+.badge-status.published { background: rgba(138, 88, 255, 0.12); color: #c084fc; border: 1px solid rgba(138, 88, 255, 0.25); }
 
 .roteiro-pilar-tag {
-    font-size: 0.8rem;
-    color: var(--ps-primary);
-    font-weight: 500;
+    font-size: 0.75rem;
+    color: #cbff00;
+    font-family: var(--ps-font-mono, monospace);
+    font-weight: 600;
     margin-bottom: 0.75rem;
     display: inline-block;
 }
@@ -173,7 +196,7 @@
 .roteiro-card-preview {
     color: var(--ps-text-muted);
     font-size: 0.9rem;
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: 1.5rem;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -194,8 +217,8 @@
 .roteiro-detalhe-header {
     background: var(--ps-card-bg);
     border: 1px solid var(--ps-border);
-    border-radius: 1rem;
-    padding: 1.5rem 2rem;
+    border-radius: 1.25rem;
+    padding: 1.75rem 2rem;
     margin-bottom: 1.5rem;
 }
 
@@ -213,7 +236,7 @@
     border: none;
     border-bottom: 2px solid transparent;
     color: var(--ps-text-muted);
-    font-weight: 600;
+    font-weight: 500;
     font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -225,17 +248,18 @@
 }
 
 .tab-button.active {
-    color: var(--ps-primary);
-    border-bottom-color: var(--ps-primary);
+    color: #cbff00;
+    border-bottom-color: #cbff00;
+    font-weight: 600;
 }
 
 .tab-content-card {
     background: var(--ps-card-bg);
     border: 1px solid var(--ps-border);
-    border-radius: 1rem;
-    padding: 2rem;
+    border-radius: 1.25rem;
+    padding: 2.25rem;
     min-height: 300px;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     line-height: 1.8;
     color: var(--ps-text);
     white-space: pre-line;
@@ -260,8 +284,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
-    background: rgba(15, 23, 42, 0.95);
-    border-bottom: 1px solid #1e293b;
+    background: rgba(10, 10, 14, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
     gap: 1rem;
     flex-wrap: wrap;
 }
@@ -299,18 +324,18 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: rgba(99, 102, 241, 0.5);
+    background: rgba(203, 255, 0, 0.6);
     pointer-events: none;
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+    box-shadow: 0 0 12px rgba(203, 255, 0, 0.8);
 }
 
 /* Feedback Section */
 .feedback-box {
     margin-top: 2rem;
     padding: 1.5rem;
-    background: rgba(30, 41, 59, 0.5);
+    background: var(--ps-card-bg);
     border: 1px solid var(--ps-border);
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;

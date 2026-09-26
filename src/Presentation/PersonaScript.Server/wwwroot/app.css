@@ -1,38 +1,319 @@
-h1:focus {
-    outline: none;
+/* ==========================================================================
+   PersonaScript AI — Design System & Visual Identity
+   Inspired by Framer AI Agents Reference (True Dark, Refined Glass, Neon Accents)
+   ========================================================================== */
+
+:root {
+    /* Backgrounds & Surfaces */
+    --ps-bg-canvas: #000000;
+    --ps-bg-surface: #0a0a0c;
+    --ps-bg-card: #121215;
+    --ps-bg-card-hover: #18181c;
+    --ps-bg-elevated: #202026;
+    --ps-bg-glass: rgba(10, 10, 12, 0.72);
+
+    /* Borders & Dividers */
+    --ps-border-subtle: rgba(255, 255, 255, 0.08);
+    --ps-border-default: rgba(255, 255, 255, 0.12);
+    --ps-border-hover: rgba(255, 255, 255, 0.22);
+    --ps-border-glow: rgba(255, 255, 255, 0.35);
+
+    /* Typography */
+    --ps-font-sans: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --ps-font-mono: "JetBrains Mono", monospace;
+    --ps-text-primary: #ffffff;
+    --ps-text-secondary: rgba(255, 255, 255, 0.72);
+    --ps-text-muted: rgba(255, 255, 255, 0.44);
+
+    /* High-contrast Accent Colors (Framer Inspired) */
+    --ps-lime: #cbff00;
+    --ps-lime-dim: rgba(203, 255, 0, 0.15);
+    --ps-cyan: #0099ff;
+    --ps-cyan-dim: rgba(0, 153, 255, 0.15);
+    --ps-emerald: #00de68;
+    --ps-emerald-dim: rgba(0, 222, 104, 0.15);
+    --ps-purple: #8a58ff;
+    --ps-purple-dim: rgba(138, 88, 255, 0.15);
+    --ps-orange: #fd7702;
+
+    /* Selection */
+    --selection-color: #ffffff;
+    --selection-bg: rgba(0, 153, 255, 0.35);
+
+    /* Radii */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-pill: 9999px;
+
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-smooth: 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Reset & Global Base */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--ps-bg-canvas);
+    color: var(--ps-text-primary);
+    font-family: var(--ps-font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+}
+
+::selection {
+    color: var(--selection-color);
+    background-color: var(--selection-bg);
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--ps-bg-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+/* App Master Layout */
+.page-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(circle at 50% 0%, rgba(138, 88, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 85% 15%, rgba(0, 153, 255, 0.05) 0%, transparent 50%),
+                var(--ps-bg-canvas);
+}
+
+.main-content {
+    flex: 1;
+    width: 100%;
+}
+
+/* Reusable Framer-style Badges */
+.framer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--ps-border-default);
+    color: var(--ps-text-secondary);
+    backdrop-filter: blur(12px);
+    transition: all var(--transition-fast);
+}
+
+.framer-badge-lime {
+    background: var(--ps-lime-dim);
+    color: var(--ps-lime);
+    border-color: rgba(203, 255, 0, 0.3);
+}
+
+.framer-badge-cyan {
+    background: var(--ps-cyan-dim);
+    color: var(--ps-cyan);
+    border-color: rgba(0, 153, 255, 0.3);
+}
+
+.framer-badge-purple {
+    background: var(--ps-purple-dim);
+    color: #bfa4ff;
+    border-color: rgba(138, 88, 255, 0.3);
+}
+
+.framer-badge-mono {
+    font-family: var(--ps-font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+/* Framer Buttons */
+.btn-framer-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: #ffffff;
+    color: #000000;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.65rem 1.35rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid #ffffff;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+    transition: all var(--transition-smooth);
+    text-decoration: none;
+}
+
+.btn-framer-primary:hover {
+    background: #e6e6e6;
+    border-color: #e6e6e6;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(255, 255, 255, 0.22);
+}
+
+.btn-framer-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--ps-text-primary);
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.65rem 1.35rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--ps-border-default);
+    backdrop-filter: blur(10px);
+    transition: all var(--transition-smooth);
+    text-decoration: none;
+}
+
+.btn-framer-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--ps-border-hover);
+    transform: translateY(-1px);
+}
+
+.btn-framer-lime {
+    background: var(--ps-lime);
+    color: #000000;
+    border-color: var(--ps-lime);
+    box-shadow: 0 4px 20px rgba(203, 255, 0, 0.25);
+}
+
+.btn-framer-lime:hover {
+    background: #b8e600;
+    border-color: #b8e600;
+    box-shadow: 0 6px 28px rgba(203, 255, 0, 0.35);
+}
+
+/* Framer Cards */
+.framer-card {
+    background: var(--ps-bg-card);
+    border: 1px solid var(--ps-border-subtle);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-smooth);
+}
+
+.framer-card:hover {
+    border-color: var(--ps-border-hover);
+    background: var(--ps-bg-card-hover);
+}
+
+.framer-card-glow {
+    position: relative;
+}
+
+.framer-card-glow::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 20%;
+    right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+}
+
+/* Pulsing Agent Dot */
+.agent-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ps-lime);
+    box-shadow: 0 0 10px var(--ps-lime);
+    display: inline-block;
+    animation: agentPulse 2s infinite ease-in-out;
+}
+
+@keyframes agentPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(0.85);
+    }
+}
+
+/* Blazor Framework UI & Validation Messages */
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+    outline: 1px solid var(--ps-emerald);
 }
 
 .invalid {
-    outline: 1px solid #e50000;
+    outline: 1px solid #ef4444;
 }
 
 .validation-message {
-    color: #e50000;
+    color: #f87171;
+    font-size: 0.825rem;
+    margin-top: 0.25rem;
 }
 
-.blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
-    padding: 1rem 1rem 1rem 3.7rem;
-    color: white;
+#blazor-error-ui {
+    background: #18181b;
+    color: #f43f5e;
+    border-top: 1px solid rgba(244, 63, 94, 0.3);
+    bottom: 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.85rem 1.5rem;
+    position: fixed;
+    width: 100%;
+    z-index: 10000;
+    font-size: 0.9rem;
 }
 
-    .blazor-error-boundary::after {
-        content: "An error has occurred."
-    }
-
-.darker-border-checkbox.form-check-input {
-    border-color: #929292;
+#blazor-error-ui a {
+    color: #ffffff;
+    text-decoration: underline;
+    margin-left: 0.5rem;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-    color: var(--bs-secondary-color);
-    text-align: end;
-}
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-    text-align: start;
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 1.25rem;
+    top: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
 }

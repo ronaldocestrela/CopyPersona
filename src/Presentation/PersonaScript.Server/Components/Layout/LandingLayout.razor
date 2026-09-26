@@ -1,0 +1,17 @@
+@inherits LayoutComponentBase
+
+<PersonaScript.Server.Components.Layout.SupportModeBanner />
+
+<div class="page-layout landing-layout">
+    <main class="main-content">
+        @Body
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+<PersonaScript.Server.Components.Billing.QuotaExceededModal />
