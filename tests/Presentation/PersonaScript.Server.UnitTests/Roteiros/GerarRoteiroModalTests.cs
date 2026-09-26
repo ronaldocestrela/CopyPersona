@@ -115,4 +115,41 @@ public class GerarRoteiroModalTests : BunitContext
         // Assert
         cut.Find(".alert-danger").TextContent.Should().Contain("Limite mensal de roteiros atingido.");
     }
+
+    [Fact]
+    public void Modal_WhenClickingBackdrop_ShouldTriggerOnClose()
+    {
+        // Arrange
+        var closed = false;
+        var cut = Render<GerarRoteiroModal>(parameters => parameters
+            .Add(p => p.IsVisible, true)
+            .Add(p => p.OnClose, () => closed = true));
+
+        // Act
+        var backdrop = cut.Find(".modal-backdrop");
+        backdrop.Click();
+
+        // Assert
+        closed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Modal_WhenClickingCloseOrCancelButtons_ShouldTriggerOnClose()
+    {
+        // Arrange
+        var closeCount = 0;
+        var cut = Render<GerarRoteiroModal>(parameters => parameters
+            .Add(p => p.IsVisible, true)
+            .Add(p => p.OnClose, () => closeCount++));
+
+        // Act 1: Click close button (X)
+        cut.Find("button.btn-close").Click();
+
+        // Act 2: Click cancel button
+        cut.Find("button.btn-outline-secondary").Click();
+
+        // Assert
+        closeCount.Should().Be(2);
+    }
 }
+

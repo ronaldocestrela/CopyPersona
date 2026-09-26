@@ -1,5 +1,8 @@
 @page "/roteiros"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@layout MainLayout
 @using PersonaScript.BuildingBlocks.CQRS
 @using PersonaScript.Modules.Anamnese.Application.DTOs
 @using PersonaScript.Modules.Anamnese.Application.Queries.GetAnamneseStatus

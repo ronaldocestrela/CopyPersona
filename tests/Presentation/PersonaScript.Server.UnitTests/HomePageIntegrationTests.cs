@@ -26,6 +26,10 @@ public sealed class HomePageIntegrationTests : IClassFixture<PersonaScriptWebApp
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var html = await response.Content.ReadAsStringAsync();
         html.Should().Contain("_framework/blazor.web.js");
+        html.Should().Contain("agentes de IA");
+        html.Should().Contain("/cadastro");
+        html.Should().Contain("/login");
+        html.Should().Contain("canvas-window");
     }
 
     [Fact]
@@ -42,5 +46,35 @@ public sealed class HomePageIntegrationTests : IClassFixture<PersonaScriptWebApp
         var body = await response.Content.ReadAsStringAsync();
         body.Should().NotBeNullOrWhiteSpace();
         body.Should().Contain("Blazor", "blazor.web.js must contain the Blazor runtime bootstrap");
+    }
+
+    [Fact]
+    public async Task Home_ShouldNotRenderNavigationBar()
+    {
+        var client = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = true,
+        });
+
+        using var response = await client.GetAsync("/");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().NotContain("top-nav", "a tela inicial não deve conter a barra de navegação da área restrita");
+        html.Should().NotContain("nav-links-container");
+    }
+
+    [Theory]
+    [InlineData("/anamnese")]
+    [InlineData("/posicionamento/diagnostico")]
+    [InlineData("/roteiros")]
+    public async Task RestrictedPages_ShouldRenderNavigationBar(string url)
+    {
+        var client = await AuthTestHelper.CreateAuthenticatedClientAsync(_factory);
+
+        using var response = await client.GetAsync(url);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("top-nav", $"a página restrita {url} deve conter a barra de navegação");
     }
 }

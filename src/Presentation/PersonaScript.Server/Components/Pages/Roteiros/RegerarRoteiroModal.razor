@@ -1,27 +1,33 @@
 @if (IsVisible)
 {
-    <div class="modal-backdrop fade show" style="display: block; background: rgba(0, 0, 0, 0.7); z-index: 1050;"></div>
-    <div class="modal fade show" style="display: block; z-index: 1055;" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background-color: var(--ps-card-bg); border: 1px solid var(--ps-border); color: var(--ps-text); border-radius: 1rem;">
-                <div class="modal-header" style="border-bottom: 1px solid var(--ps-border);">
-                    <h5 class="modal-title font-weight-bold" style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span class="material-symbols-outlined" style="color: var(--ps-primary);">auto_awesome</span>
-                        Regerar Roteiro com IA
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+    <div class="modal-backdrop fade show" @onclick="Close"></div>
+    <div class="modal fade show" tabindex="-1" role="dialog" aria-modal="true" @onclick="Close">
+        <div class="modal-dialog modal-dialog-centered" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <div class="modal-title-icon">
+                            <span class="material-symbols-outlined">auto_awesome</span>
+                        </div>
+                        <div>
+                            <h5 class="modal-title font-weight-bold">Regerar Roteiro com IA</h5>
+                            <p class="modal-subtitle">Ajuste fino de tom e retenção</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Close" aria-label="Fechar">
+                        <span class="material-symbols-outlined" style="font-size: 1.15rem;">close</span>
+                    </button>
                 </div>
-                <div class="modal-body" style="padding: 1.5rem;">
-                    <p style="color: var(--ps-text-muted); font-size: 0.95rem; margin-bottom: 1.25rem;">
+                <div class="modal-body">
+                    <p class="modal-description">
                         Informe abaixo o que você deseja ajustar no tom, no gancho, na linguagem ou na CTA para recriar o roteiro.
                     </p>
 
                     <div class="mb-3">
-                        <label class="form-label font-weight-bold" style="font-size: 0.9rem;">Feedback / Instruções para a IA:</label>
-                        <textarea class="form-control" rows="4"
+                        <label class="modal-form-label">Feedback / Instruções para a IA:</label>
+                        <textarea class="modal-textarea form-control" rows="4"
                                   placeholder="Ex: Deixe o gancho mais informal, use metáforas mais simples e coloque uma CTA focada em resposta por Direct."
-                                  @bind="FeedbackNotes"
-                                  style="background-color: #0f172a; border: 1px solid var(--ps-border); color: #ffffff; border-radius: 0.5rem;"></textarea>
+                                  @bind="FeedbackNotes"></textarea>
                     </div>
 
                     @if (!string.IsNullOrEmpty(ErrorMessage))
@@ -31,9 +37,9 @@
                         </div>
                     }
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid var(--ps-border);">
-                    <button type="button" class="btn btn-outline-secondary" @onclick="Close" disabled="@IsSubmitting">Cancelar</button>
-                    <button type="button" class="btn btn-primary" @onclick="Confirm" disabled="@IsSubmitting">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-modal-cancel" @onclick="Close" disabled="@IsSubmitting">Cancelar</button>
+                    <button type="button" class="btn btn-primary btn-modal-submit" @onclick="Confirm" disabled="@IsSubmitting">
                         @if (IsSubmitting)
                         {
                             <span class="spinner-border spinner-border-sm me-2" role="status"></span>
@@ -41,7 +47,7 @@
                         }
                         else
                         {
-                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.25rem;">auto_awesome</span>
+                            <span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 0.35rem; font-size: 1.15rem;">auto_awesome</span>
                             <span>Regerar Roteiro</span>
                         }
                     </button>

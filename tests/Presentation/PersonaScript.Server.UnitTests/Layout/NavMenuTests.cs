@@ -20,12 +20,12 @@ public class NavMenuTests : BunitContext
         var links = cut.FindAll("a.nav-link");
         links.Select(l => l.GetAttribute("href")).Should().Contain(new[]
         {
-            "",
             "anamnese",
             "posicionamento/diagnostico",
             "roteiros",
             "backoffice"
         });
+        links.Select(l => l.GetAttribute("href")).Should().NotContain("", "a barra de navegação da área restrita não deve conter link direto para a tela inicial");
     }
 
     [Fact]

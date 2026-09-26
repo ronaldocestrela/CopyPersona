@@ -1,7 +1,7 @@
 <header class="top-nav">
     <div class="nav-container">
         <div class="brand-group">
-            <a href="" class="brand-link">
+            <a href="anamnese" class="brand-link">
                 <div class="brand-icon">
                     <span class="material-symbols-outlined">auto_awesome</span>
                 </div>
@@ -15,11 +15,6 @@
 
         <nav class="nav-links-container @(isNavOpen ? "active" : "")">
             <div class="nav-links">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All" @onclick="CloseNavMenu">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span>Início</span>
-                </NavLink>
-
                 <NavLink class="nav-link" href="anamnese" Match="NavLinkMatch.Prefix" @onclick="CloseNavMenu">
                     <span class="material-symbols-outlined">assignment</span>
                     <span>Anamnese</span>

@@ -1,5 +1,8 @@
 @page "/roteiros/{Id:guid}"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@layout MainLayout
 @using PersonaScript.BuildingBlocks.CQRS
 @using PersonaScript.Modules.Scripts.Application.Commands.RegenerateVideoScript
 @using PersonaScript.Modules.Scripts.Application.Commands.SubmitVideoScriptFeedback

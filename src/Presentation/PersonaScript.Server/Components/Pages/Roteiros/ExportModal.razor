@@ -3,16 +3,23 @@
 
 @if (IsVisible && Script != null)
 {
-    <div class="modal-backdrop fade show" style="display: block; background: rgba(0, 0, 0, 0.7); z-index: 1050;"></div>
-    <div class="modal fade show" style="display: block; z-index: 1055;" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background-color: var(--ps-card-bg); border: 1px solid var(--ps-border); color: var(--ps-text); border-radius: 1rem;">
-                <div class="modal-header" style="border-bottom: 1px solid var(--ps-border);">
-                    <h5 class="modal-title font-weight-bold" style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span class="material-symbols-outlined" style="color: var(--ps-primary);">file_download</span>
-                        Exportar Roteiro
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" @onclick="Close"></button>
+    <div class="modal-backdrop fade show" @onclick="Close"></div>
+    <div class="modal fade show" tabindex="-1" role="dialog" aria-modal="true" @onclick="Close">
+        <div class="modal-dialog modal-dialog-centered" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title-group">
+                        <div class="modal-title-icon" style="background: rgba(0, 153, 255, 0.12); border-color: rgba(0, 153, 255, 0.25); color: var(--ps-info);">
+                            <span class="material-symbols-outlined">file_download</span>
+                        </div>
+                        <div>
+                            <h5 class="modal-title font-weight-bold">Exportar Roteiro</h5>
+                            <p class="modal-subtitle">Download e cópia rápida</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" @onclick="Close" aria-label="Fechar">
+                        <span class="material-symbols-outlined" style="font-size: 1.15rem;">close</span>
+                    </button>
                 </div>
                 <div class="modal-body" style="padding: 1.5rem;">
                     <p style="color: var(--ps-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">

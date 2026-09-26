@@ -1,59 +1,181 @@
-﻿@page "/"
+@page "/"
+@layout LandingLayout
 
-<PageTitle>PersonaScript AI</PageTitle>
+<PageTitle>PersonaScript AI — Marketing e Vendas com Agentes de IA</PageTitle>
 
-<main class="home">
-    <p class="eyebrow">PersonaScript AI</p>
-    <h1>Marketing e vendas com agentes de IA</h1>
-    <p class="lead">
-        Crie personas e roteiros com inteligência artificial. Comece criando sua conta ou faça login.
-    </p>
-    <div class="home-actions">
-        <a class="home-cta" href="/cadastro">Criar conta</a>
-        <a class="home-link" href="/login">Entrar</a>
-    </div>
-</main>
+<div class="framer-home">
+    <!-- Hero Glow Background -->
+    <div class="hero-radial-glow" aria-hidden="true"></div>
 
-<style>
-    .home {
-        max-width: 42rem;
-        margin: 4rem auto;
-        padding: 0 1.5rem;
-        font-family: "Hanken Grotesk", Georgia, serif;
-    }
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-badge-wrapper">
+            <span class="framer-badge framer-badge-lime">
+                <span class="agent-status-dot"></span>
+                <span>Nova Geração · Agentes Autônomos</span>
+            </span>
+        </div>
 
-    .eyebrow {
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        margin-bottom: 0.75rem;
-    }
+        <h1 class="hero-title">
+            Marketing e vendas com <span class="gradient-text">agentes de IA</span> que criam ao seu lado
+        </h1>
 
-    .lead {
-        font-size: 1.125rem;
-        line-height: 1.6;
-    }
+        <p class="hero-subtitle">
+            Do diagnóstico de persona ao roteiro viral de vídeo. Crie o perfil do cliente ideal com o 
+            <strong>Estrategista de Persona</strong> e produza roteiros de alta retenção com o 
+            <strong>Copywriter de Vídeo</strong> em segundos.
+        </p>
 
-    .home-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1.5rem;
-        flex-wrap: wrap;
-    }
+        <div class="hero-actions">
+            <a class="btn-framer-primary" href="/cadastro">
+                <span>Criar Conta Gratuitamente</span>
+                <span class="material-symbols-outlined" style="font-size: 1.1rem;">arrow_forward</span>
+            </a>
+            <a class="btn-framer-secondary" href="/login">
+                <span>Entrar na Plataforma</span>
+            </a>
+        </div>
+    </section>
 
-    .home-cta {
-        background: #4f46e5;
-        color: white;
-        padding: 0.75rem 1.25rem;
-        border-radius: 999px;
-        text-decoration: none;
-        font-weight: 600;
-    }
+    <!-- Canvas Preview (Framer Agent Workspace Simulation) -->
+    <section class="canvas-preview-section">
+        <div class="canvas-window">
+            <div class="canvas-window-header">
+                <div class="window-controls">
+                    <span class="control-dot dot-close"></span>
+                    <span class="control-dot dot-minimize"></span>
+                    <span class="control-dot dot-maximize"></span>
+                </div>
+                <div class="canvas-agent-status">
+                    <span class="agent-tag">
+                        <span class="material-symbols-outlined" style="font-size: 1rem; color: #cbff00;">smart_toy</span>
+                        <span>PersonaScript Canvas · Agente 1 & Agente 2</span>
+                    </span>
+                </div>
+                <div class="canvas-window-meta">
+                    <span class="framer-badge framer-badge-mono" style="font-size: 0.65rem; padding: 0.15rem 0.5rem;">v2.6 Live</span>
+                </div>
+            </div>
 
-    .home-link {
-        color: #4f46e5;
-        padding: 0.75rem 1.25rem;
-        text-decoration: none;
-        font-weight: 600;
-    }
-</style>
+            <!-- Agent Prompt Simulation Bar -->
+            <div class="canvas-prompt-bar">
+                <span class="material-symbols-outlined prompt-icon">auto_awesome</span>
+                <span class="prompt-text">
+                    "Gere a persona de um personal trainer de alta renda e crie um roteiro de 60s focado em mulheres executivas sem tempo."
+                </span>
+                <span class="prompt-badge">Executado com IA</span>
+            </div>
+
+            <!-- Canvas Grid with Agents Outputs -->
+            <div class="canvas-body">
+                <!-- Agent 1 Card -->
+                <div class="canvas-card">
+                    <div class="card-header">
+                        <div class="card-badge-group">
+                            <span class="framer-badge framer-badge-cyan framer-badge-mono">Agente 1 · Estrategista</span>
+                            <span class="status-indicator">Perfil Estruturado</span>
+                        </div>
+                        <h3>Dra. Helena · Executiva 38 anos</h3>
+                    </div>
+                    <div class="card-content-list">
+                        <div class="content-row">
+                            <span class="row-label">Dor Central:</span>
+                            <span class="row-value">Falta de energia às 15h e rotina sedentária por excesso de reuniões.</span>
+                        </div>
+                        <div class="content-row">
+                            <span class="row-label">Desejo Oculto:</span>
+                            <span class="row-value">Recuperar autoestima e disposição sem dietas malucas ou horas na academia.</span>
+                        </div>
+                        <div class="content-row">
+                            <span class="row-label">Objeção Fatal:</span>
+                            <span class="row-value">"Não tenho 1 hora por dia para treinar."</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent 2 Card -->
+                <div class="canvas-card active-border">
+                    <div class="card-header">
+                        <div class="card-badge-group">
+                            <span class="framer-badge framer-badge-lime framer-badge-mono">Agente 2 · Copywriter</span>
+                            <span class="status-indicator">Roteiro Otimizado</span>
+                        </div>
+                        <h3>Vídeo Curto · "O Treino Invisível das 07h"</h3>
+                    </div>
+                    <div class="script-flow">
+                        <div class="script-block hook">
+                            <span class="block-tag">[00:00 - Gancho]</span>
+                            <p>"Se você acorda cansada e passa o dia compensando no café, o erro não é o seu sono..."</p>
+                        </div>
+                        <div class="script-block retention">
+                            <span class="block-tag">[00:08 - Retenção]</span>
+                            <p>"Grandes executivas não treinam 2 horas. Elas aplicam 18 minutos de ativação metabólica antes da primeira call..."</p>
+                        </div>
+                        <div class="script-block cta">
+                            <span class="block-tag">[00:48 - CTA]</span>
+                            <p>"Comente 'ROTINA' que eu te envio o protocolo exato no seu direct."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Bento Grid -->
+    <section class="features-section">
+        <div class="section-header">
+            <span class="framer-badge framer-badge-mono">Tecnologia & Precisão</span>
+            <h2 class="section-title">Construído para profissionais que não têm tempo a perder</h2>
+            <p class="section-subtitle">Toda a inteligência do marketing digital condensada em agentes dedicados ao seu negócio.</p>
+        </div>
+
+        <div class="bento-grid">
+            <div class="bento-card">
+                <div class="bento-icon">
+                    <span class="material-symbols-outlined">psychology</span>
+                </div>
+                <h3>Anamnese Inteligente</h3>
+                <p>Questionário dinâmico que mapeia seu nicho, seus diferenciais e a linguagem exata do seu cliente ideal.</p>
+            </div>
+
+            <div class="bento-card">
+                <div class="bento-icon">
+                    <span class="material-symbols-outlined">analytics</span>
+                </div>
+                <h3>Diagnóstico de Posicionamento</h3>
+                <p>Descubra os ângulos de autoridade mais lucrativos para se destacar em mercados saturados.</p>
+            </div>
+
+            <div class="bento-card">
+                <div class="bento-icon">
+                    <span class="material-symbols-outlined">video_camera_front</span>
+                </div>
+                <h3>Teleprompter de Estúdio</h3>
+                <p>Grave seus vídeos lendo o roteiro com controle de velocidade, rolagem suave e modo espelho na tela.</p>
+            </div>
+
+            <div class="bento-card">
+                <div class="bento-icon">
+                    <span class="material-symbols-outlined">security</span>
+                </div>
+                <h3>Isolamento Total B2C</h3>
+                <p>Seus roteiros, personas e anamneses ficam isolados no seu tenant individual com segurança rigorosa.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom CTA Banner -->
+    <section class="bottom-cta-section">
+        <div class="cta-banner">
+            <div class="cta-content">
+                <h2>Pronto para destravar sua produção de conteúdo?</h2>
+                <p>Junte-se a criadores e profissionais autônomos que transformaram visualizações em clientes pagantes.</p>
+                <div class="cta-actions">
+                    <a class="btn-framer-primary" href="/cadastro">Começar Agora Gratuitamente</a>
+                    <a class="btn-framer-secondary" href="/login">Já sou assinante</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
