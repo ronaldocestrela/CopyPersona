@@ -1,4 +1,6 @@
 @page "/minha-conta/assinatura"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @layout MainLayout
 @using Microsoft.AspNetCore.Components.Web
 @using PersonaScript.Modules.Billing.Application.Commands.CreateCheckoutSession

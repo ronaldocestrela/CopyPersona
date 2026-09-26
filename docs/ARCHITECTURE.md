@@ -80,6 +80,14 @@ O sistema suporta login federado via Google OAuth 2.0:
 - **Auto-provisionamento B2C:** no primeiro login social, o usuário é criado automaticamente pelo `ExternalLoginCommandHandler` via `User.RegisterFromExternalProvider` (`TenantId = UserId`), disparando e-mail de boas-vindas. Nos logins seguintes, a conta existente é autenticada diretamente.
 - O cookie temporário é encerrado e a sessão principal `PersonaScript.Auth` é emitida com claims completas de tenant.
 
+### Proteção de Rotas e Autorização de Acesso
+
+As páginas restritas da área do usuário (`/anamnese`, `/posicionamento/diagnostico`, `/posicionamento`, `/roteiros`, `/roteiros/{Id:guid}`, `/minha-conta/assinatura`) e da área administrativa (`/admin/*`) são protegidas por autenticação obrigatória:
+- **Atributo `[Authorize]`:** todas as páginas restritas possuem `@attribute [Authorize]` (com ou sem políticas específicas de role, como `RequireBackofficeAccess`).
+- **SSR Inicial (HTTP GET):** o middleware de autorização do ASP.NET Core (`app.UseAuthorization()`) intercepta requisições não autenticadas diretamente nos metadados de endpoint gerados pelo `MapRazorComponents<App>()`, emitindo resposta HTTP 302 Redirect para `/login?ReturnUrl={path}`.
+- **Navegação Interativa Blazor:** o componente [`Routes.razor`](../src/Presentation/PersonaScript.Server/Components/Routes.razor) utiliza `<AuthorizeRouteView>`. Em caso de navegação de usuário não autenticado, aciona o componente [`RedirectToLogin.razor`](../src/Presentation/PersonaScript.Server/Components/Auth/RedirectToLogin.razor), efetuando redirecionamento com `ReturnUrl`. Caso o usuário esteja autenticado porém sem privilégios (ex: assinante comum acessando `/admin`), renderiza a página de [`AcessoNegado.razor`](../src/Presentation/PersonaScript.Server/Components/Pages/AcessoNegado.razor).
+- **Retorno Pós-Login:** os endpoints `/account/login` e `/account/register` capturam o parâmetro `returnUrl` através do método `GetDestinationUrl`, garantindo que o usuário seja devolvido exatamente à tela que tentou acessar após a autenticação bem-sucedida.
+
 ### Fluxo
 
 As páginas auth são **SSR com form HTML** (sem `@rendermode InteractiveServer`). O `SignInAsync` ocorre nos endpoints HTTP **antes** do redirect — evita o erro *Headers are read-only* do circuito Blazor SignalR.

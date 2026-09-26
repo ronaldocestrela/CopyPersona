@@ -1,6 +1,8 @@
 @page "/anamnese"
+@using Microsoft.AspNetCore.Authorization
 @using PersonaScript.Server.Components.Anamnese
 @using PersonaScript.Server.Components.Layout
+@attribute [Authorize]
 @layout MainLayout
 
 <PageTitle>Anamnese do Posicionamento | PersonaScript AI</PageTitle>

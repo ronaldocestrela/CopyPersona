@@ -70,10 +70,7 @@ public sealed class HomePageIntegrationTests : IClassFixture<PersonaScriptWebApp
     [InlineData("/roteiros")]
     public async Task RestrictedPages_ShouldRenderNavigationBar(string url)
     {
-        var client = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
-        {
-            AllowAutoRedirect = false,
-        });
+        var client = await AuthTestHelper.CreateAuthenticatedClientAsync(_factory);
 
         using var response = await client.GetAsync(url);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
